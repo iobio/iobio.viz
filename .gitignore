@@ -1,0 +1,12 @@
+// ignore node modules
+node_modules/
+
+// ignore source map
+iobio.charts.js.map
+
+// ignore coverage
+test/coverage
+
+
+// ignore DS_STORE
+.DS_STORE
