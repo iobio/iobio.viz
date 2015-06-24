@@ -1,0 +1,9 @@
+path.link {
+	fill: none;
+	stroke: #ccc;
+	stroke-width: 1.5px;
+}
+
+.above-variant { stroke: red; fill:none; }
+.below-variant { stroke: blue; fill:none;}
+.reference { fill: gray;}

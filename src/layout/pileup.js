@@ -1,16 +1,17 @@
 
 
 var pileup = function() {
-  var startValue = function(d) { return d.start; },
-      endValue = function(d) { return d.end; },    
+  // Defaults
+  var start = function(d) { return d.start; },
+      end = function(d) { return d.end; },    
       sort = 'default',
       size = 400,
       buffer = 0;
 
-  function pileup(data) {
+  function layout(data) {
 
     // Compute the numeric values for each data element.
-    var values = data.map(function(d, i) { return [+startValue.call(pileup, d, i),+endValue.call(pileup, d, i)]; });
+    var values = data.map(function(d, i) { return [+start.call(layout, d, i),+end.call(layout, d, i)]; });
     var xScale = d3.scale.linear()
             .domain( [values[0][0], values[values.length-1][1]] )
             .range([0, size]);
@@ -46,57 +47,57 @@ var pileup = function() {
     return piles;
   }
 
-  /**
-   * Specifies the value function *x*, which returns a nonnegative numeric value
-   * for each datum. The default value function is `return x`. The value function
+  /*
+   * Specifies the value function *start*, which returns a nonnegative numeric value
+   * for each datum. The default value function is `return start`. The value function
    * is passed two arguments: the current datum and the current index.
    */
-  pileup.startValue = function(_) {
+  layout.start = function(_) {
     if (!arguments.length) return startValue;
     startValue = _;
-    return pileup;
+    return layout;
   };
 
-  /**
-   * Specifies the value function *x*, which returns a nonnegative numeric value
-   * for each datum. The default value function is `return length`. The value function
+  /*
+   * Specifies the value function *end*, which returns a nonnegative numeric value
+   * for each datum. The default value function is `return end`. The value function
    * is passed two arguments: the current datum and the current index.
    */
-  pileup.endValue = function(_) {
+  layout.end = function(_) {
     if (!arguments.length) return endValue;
     endValue = _;
-    return pileup;
+    return layout;
   };
 
-  /**
+  /*
    * Specifies the x scale for the layout. This is necessary to accurately predict
-   * which features will overlap
+   * which features will overlap in pixel space.
    */
-  pileup.size = function(_) {
+  layout.size = function(_) {
     if (!arguments.length) return size;
     size = _;
-    return pileup;
+    return layout;
   };
 
-  /**
+  /*
    * Specifies the buffer needed between features to not be considered an overlap   
    */
-  pileup.buffer = function(_) {
+  layout.buffer = function(_) {
     if (!arguments.length) return buffer;
     buffer = _;
-    return pileup;
+    return layout;
   };
 
-  /**
+  /*
    * Specifies the sort function to be used or null if no sort   
    */
-  pileup.sort = function(_) {
+  layout.sort = function(_) {
     if (!arguments.length) return sort;
     sort = _;
-    return pileup;
+    return layout;
   };
 
-  return pileup;
+  return layout;
 };
 
 module.exports = pileup;

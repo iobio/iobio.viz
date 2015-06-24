@@ -1,0 +1,23 @@
+/* TODO: change this to base.css. Create default css for each alignment file and create gulp task to combine and minify all css files.*/
+
+/* Axes */
+.iobio-axis path, .iobio-axis line {
+	fill: none;
+	stroke: #000;
+	shape-rendering: crispEdges;
+}
+
+/* Tooltip */
+.iobio-tooltip {   
+	position: absolute; 
+	top:0px;            
+	text-align: center;           
+	z-index:20;
+	color:white;
+	padding: 4px 6px 4px 6px;             
+	font: 11px arial;        
+	background: rgb(80,80,80);   
+	border: 0px;      
+	border-radius: 4px;           
+	pointer-events: none;         
+}

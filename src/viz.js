@@ -4,13 +4,17 @@ var iobio = window.iobio || {};
 iobio.viz = {version: "0.1.0"};
 window.iobio = iobio;
 
-// add visualizations
+// Add visualizations
 iobio.viz.twod = require('./viz/twod.js')
 iobio.viz.circle = require('./viz/circle.js')
 iobio.viz.alignment = require('./viz/alignment.js')
+iobio.viz.referenceGraph = require('./viz/referenceGraph.js')
 
-// add layouts
+// Add layouts
 iobio.viz.layout = require('./layout/layout.js')
 
-// add utils
+// Add shapes
+iobio.viz.svg = require('./svg/svg.js')
+
+// Add utils
 iobio.viz.utils = require('./utils.js')

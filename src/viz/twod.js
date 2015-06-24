@@ -1,31 +1,30 @@
 var utils = require('../utils.js');
 
 var twod = function() {
-	// Initialize
+    // Initialize
 
 	// Dimensions
 	var margin = {top: 15, right: 15, bottom: 25, left:30},
 	    width = 800,
-	  	 height = 500;  
+	  	height = 500;  
 	// Scales
 	var x = d3.scale.linear().nice(),
 	    y = d3.scale.linear().nice();
-	// Axis
+	// Axes
 	var xAxis = d3.svg.axis()
-   		.scale(x)
-   		.orient("bottom")         
-   		.tickFormat(utils.format_unit_names)
-         .ticks(5),
-       yAxis = d3.svg.axis()
-         .scale(y)
-         .orient("left")
-         .ticks(5);         
+			.scale(x)
+			.orient("bottom")         
+			.tickFormat(utils.format_unit_names)
+			.ticks(5),
+		yAxis = d3.svg.axis()
+			.scale(y)
+			.orient("left")
+			.ticks(5);			            
 	// Value transformers
 	var xValue = function(d) { return d[0]; },
    	 	yValue = function(d) { return d[1]; },
-       	wValue = function(d) { return d[2] || 1 };
-   
-	// Variables 
+       	wValue = function(d) { return d[2] || 1 },
+       	id = function(d) { return null; };
 	
 	// Default options
 	var defaults = {};
@@ -52,35 +51,37 @@ var twod = function() {
 		y.domain( d3.extent(data, function(d) { return d[1]}) )
    	 	 .range([innerHeight , 0]);
 
-   	// Select the svg element, if it exists.
+   		// Select the svg element, if it exists.
 		var svg = container.selectAll("svg").data([0]);		
 
-   	// Otherwise, create the skeletal chart.      
+   		// Otherwise, create the skeletal chart.      
 		var gEnter = svg.enter().append("svg").append('g').attr('class', 'container');      
-		gEnter.append("g").attr("class", "x axis").attr("transform", "translate(0," + y.range()[0] + ")");
-		gEnter.append("g").attr("class", "y axis");
-   	gEnter.append("g").attr("class", "x brush");
-   	gEnter.append("div").attr('class', 'tooltip').style('opacity', 0);      	
+		gEnter.append("g").attr("class", "iobio-x iobio-axis").attr("transform", "translate(0," + y.range()[0] + ")");
+		gEnter.append("g").attr("class", "iobio-y iobio-axis");
+   		gEnter.append("g").attr("class", "iobio-x brush");
+   		d3.select("body").append("div").attr("class", "iobio-tooltip").style("opacity", 0);
 		var g = svg.select('g');
 
 		// Update the outer dimensions.
-      svg.attr("width", width)
-         .attr("height", height);
+      	svg.attr("width", width)
+        	.attr("height", height);
 
-      // Update the inner dimensions.
-      g.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      	// Update the inner dimensions.
+		g.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-      // Update the x-axis.
-      g.select(".x.axis").transition()
-         .duration(200)
-         .call(xAxis);
-          
-      // Update the y-axis.
-      g.select(".y.axis").transition()
-         .duration(200)
-         .call(yAxis);
-
-      return data;
+		// Update the x-axis.
+		if(xAxis)
+			g.select(".iobio-x.iobio-axis").transition()
+				.duration(200)
+				.call(xAxis);
+		  
+		// Update the y-axis.
+		if(yAxis)	
+			g.select(".iobio-y.iobio-axis").transition()
+				.duration(200)
+				.call(yAxis);			
+		
+		return data;
 	}
 
 	// member functions
@@ -115,22 +116,28 @@ var twod = function() {
 	};
 
 	chart.xValue = function(_) {
-	 if (!arguments.length) return xValue;
-		 xValue = _;
-		 return chart;
+		if (!arguments.length) return xValue;
+		xValue = _;
+		return chart;
 	};
 
 	chart.yValue = function(_) {
-	 if (!arguments.length) return yValue;
-		 yValue = _;
-		 return chart;
+		if (!arguments.length) return yValue;
+		yValue = _;
+		return chart;
 	};
 
-   chart.wValue = function(_) {
-    if (!arguments.length) return wValue;
-       wValue = _;
-       return chart;
-   };   
+	chart.wValue = function(_) {
+		if (!arguments.length) return wValue;
+		wValue = _;
+		return chart;
+	};  
+
+	chart.id = function(_) {
+		if (!arguments.length) return id;
+		id = _;
+		return chart; 
+	}; 
 
 	chart.xAxis = function(_) {
 		if (!arguments.length) return xAxis;
@@ -144,11 +151,11 @@ var twod = function() {
 		return chart; 
 	};
 
-   // utility functions
-   chart.rebind = function(object) {
-      d3.rebind(object, this, 'margin', 'width', 'height', 'x', 'y',
-       'xValue', 'yValue', 'wValue', 'xAxis', 'yAxis');
-   }
+	// utility functions
+	chart.rebind = function(object) {
+		d3.rebind(object, this, 'margin', 'width', 'height', 'x', 'y', 'id',
+			'xValue', 'yValue', 'wValue', 'xAxis', 'yAxis');
+	}
 
 	return chart
 }

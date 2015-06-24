@@ -6,6 +6,8 @@ var browserify = require('browserify'),
 	buffer = require('vinyl-buffer'),
 	uglify = require('gulp-uglify'),
 	sourcemaps = require('gulp-sourcemaps'),
+  minifyCss = require('gulp-minify-css'),
+  concat = require('gulp-concat'),
 	// karma = require('karma').server,
 	path = require('path');
 
@@ -49,6 +51,16 @@ gulp.task('js', function () {
 });
 
 /**
+ * Compile and minify css
+ */
+ gulp.task('css', function() {
+  return gulp.src('src/css/*.css')
+    .pipe(minifyCss())    
+    .pipe(concat('iobio.charts.min.css'))
+    .pipe(gulp.dest('./'))
+});
+
+/**
  * Run test once and exit
  */
 gulp.task('test', function (done) {
@@ -66,7 +78,7 @@ gulp.task('testTravis', function (done) {
   }, done);
 });
 
-gulp.task('build', ['js', 'js-debug'], function() { gulp.start('test') });
+gulp.task('build', ['default'], function() { gulp.start('test') });
  
-gulp.task('default', ['js', 'js-debug']);
+gulp.task('default', ['js', 'js-debug', 'css']);
 

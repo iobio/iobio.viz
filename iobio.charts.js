@@ -5,39 +5,141 @@ var iobio = window.iobio || {};
 iobio.viz = {version: "0.1.0"};
 window.iobio = iobio;
 
-// add visualizations
+// Add visualizations
 iobio.viz.twod = require('./viz/twod.js')
 iobio.viz.circle = require('./viz/circle.js')
 iobio.viz.alignment = require('./viz/alignment.js')
+iobio.viz.referenceGraph = require('./viz/referenceGraph.js')
 
-// add layouts
+// Add layouts
 iobio.viz.layout = require('./layout/layout.js')
 
-// add utils
+// Add shapes
+iobio.viz.svg = require('./svg/svg.js')
+
+// Add utils
 iobio.viz.utils = require('./utils.js')
 
-},{"./layout/layout.js":2,"./utils.js":5,"./viz/alignment.js":6,"./viz/circle.js":7,"./viz/twod.js":8}],2:[function(require,module,exports){
+},{"./layout/layout.js":3,"./svg/svg.js":5,"./utils.js":7,"./viz/alignment.js":8,"./viz/circle.js":9,"./viz/referenceGraph.js":10,"./viz/twod.js":11}],2:[function(require,module,exports){
+var utils = require('../utils.js');
+
+var graph = function() {
+    // Defaults
+    var sources = function(d) { return d.sources },
+        targets = function(d) { return d.targets },
+        position = function(d) { return d.position };
+    
+    function layout(root) {
+    	var nodes = [];
+    	var visited = {};
+    	var uid = utils.getUID();
+    	var stack = [ root ];
+    	while ((node = stack.pop()) != null) {
+    		if (node._visited == uid) continue;
+    		nodes.push(node);
+    		// mark as visited
+    		node._visited = uid;
+    		// see if multiple variants at this position
+    		var v = visited[position(node)] || (visited[position(node)]=[]);
+    		v.push(node);
+    		if (v.length ==1 )
+    			node.y = 0;
+    		else 
+    			for (var i=0; i<v.length; i++) {v[i].y = (i/(v.length-1) || 0) * 2 - 1;}    		
+
+    		// push unvisited neighbors on stack
+    		var neighbors = [].concat(sources(node), targets(node));    		    		
+    		stack = stack.concat( neighbors.filter(function(a) {return a._visited != uid;}) )
+    	}
+    	return nodes;
+    }
+
+    /*
+     * Identifies the links between all nodes
+     */
+    layout.links = function(nodes) {
+    	var links = [];
+    	nodes.forEach(function(node) {
+    		(node.targets || []).map(function(target) {
+	        	links.push( {
+	          		'source': node,
+	          		'target': target
+	        	});
+	        });
+    	})
+	    return links;
+    }
+
+    /*
+     * Specifies the value function *sources*, which returns an array of node objects
+     * for each datum. The default value function is `return sources`. The value function
+     * is passed two arguments: the current datum and the current index.
+     */    
+    layout.sources = function(_) {
+        if (!arguments.length) return sources;
+            sources = _;
+            return chart;
+    }
+
+    /*
+     * Specifies the value function *targets*, which returns an array of node objects
+     * for each datum. The default value function is `return targets`. The value function
+     * is passed two arguments: the current datum and the current index.
+     */
+    layout.targets = function(_) {
+        if (!arguments.length) return targets;
+            targets = _;
+            return chart;
+    }
+
+    /*
+     * Specifies the value function *position*, which returns a nonnegative numeric value
+     * for each datum. The default value function is `return position`. The value function
+     * is passed two arguments: the current datum and the current index.
+     */
+    layout.position = function(_) {
+        if (!arguments.length) return position;
+            position = _;
+            return chart;
+    }
+    // TODO: do these functions still make sense?
+    // layout.size = function(x) {
+    //   if (!arguments.length) return nodeSize ? null : size;
+    //   nodeSize = (size = x) == null ? sizeNode : null;
+    //   return tree;
+    // };
+    // layout.nodeSize = function(x) {
+    //   if (!arguments.length) return nodeSize ? size : null;
+    //   nodeSize = (size = x) == null ? null : sizeNode;
+    //   return tree;
+    // };
+    return layout;
+  };
+ 
+ module.exports = graph;
+},{"../utils.js":7}],3:[function(require,module,exports){
 
 var layout = {};
 // add layouts
 layout.pileup = require('./pileup.js');
-layout.referenceGraph = require('./referenceGraph.js');
+layout.graph = require('./graph.js');
 
 module.exports = layout;
-},{"./pileup.js":3,"./referenceGraph.js":4}],3:[function(require,module,exports){
+},{"./graph.js":2,"./pileup.js":4}],4:[function(require,module,exports){
 
 
 var pileup = function() {
-  var startValue = function(d) { return d.start; },
-      endValue = function(d) { return d.end; },    
+  // Defaults
+  var start = function(d) { return d.start; },
+      end = function(d) { return d.end; },    
       sort = 'default',
       size = 400,
       buffer = 0;
 
-  function pileup(data) {
+  function layout(data) {
 
     // Compute the numeric values for each data element.
-    var values = data.map(function(d, i) { return [+startValue.call(pileup, d, i),+endValue.call(pileup, d, i)]; });
+    var values = data.map(function(d, i) { return [+start.call(layout, d, i),+end.call(layout, d, i)]; });
     var xScale = d3.scale.linear()
             .domain( [values[0][0], values[values.length-1][1]] )
             .range([0, size]);
@@ -73,158 +175,143 @@ var pileup = function() {
     return piles;
   }
 
-  /**
-   * Specifies the value function *x*, which returns a nonnegative numeric value
-   * for each datum. The default value function is `return x`. The value function
+  /*
+   * Specifies the value function *start*, which returns a nonnegative numeric value
+   * for each datum. The default value function is `return start`. The value function
    * is passed two arguments: the current datum and the current index.
    */
-  pileup.startValue = function(_) {
+  layout.start = function(_) {
     if (!arguments.length) return startValue;
     startValue = _;
-    return pileup;
+    return layout;
   };
 
-  /**
-   * Specifies the value function *x*, which returns a nonnegative numeric value
-   * for each datum. The default value function is `return length`. The value function
+  /*
+   * Specifies the value function *end*, which returns a nonnegative numeric value
+   * for each datum. The default value function is `return end`. The value function
    * is passed two arguments: the current datum and the current index.
    */
-  pileup.endValue = function(_) {
+  layout.end = function(_) {
     if (!arguments.length) return endValue;
     endValue = _;
-    return pileup;
+    return layout;
   };
 
-  /**
+  /*
    * Specifies the x scale for the layout. This is necessary to accurately predict
-   * which features will overlap
+   * which features will overlap in pixel space.
    */
-  pileup.size = function(_) {
+  layout.size = function(_) {
     if (!arguments.length) return size;
     size = _;
-    return pileup;
+    return layout;
   };
 
-  /**
+  /*
    * Specifies the buffer needed between features to not be considered an overlap   
    */
-  pileup.buffer = function(_) {
+  layout.buffer = function(_) {
     if (!arguments.length) return buffer;
     buffer = _;
-    return pileup;
+    return layout;
   };
 
-  /**
+  /*
    * Specifies the sort function to be used or null if no sort   
    */
-  pileup.sort = function(_) {
+  layout.sort = function(_) {
     if (!arguments.length) return sort;
     sort = _;
-    return pileup;
+    return layout;
   };
 
-  return pileup;
+  return layout;
 };
 
 module.exports = pileup;
-},{}],4:[function(require,module,exports){
-var referenceGraph = function() {
-    var sources = d3_layout_referenceGraphSources, targets = d3_layout_referenceGraphTargets, position = d3_layout_referenceGraphPosition;
-
-
-    function graph(d, i) {    	
-      var nodes = graphTraverse(d,i);      
-      return nodes;
-    }
-    
-    function graphTraverse(root) {
-    	var nodes = [];
-    	var visited = {};
-    	var uid = getUID();
-    	var stack = [ root ];
-    	while ((node = stack.pop()) != null) {
-    		if (node._visited == uid) continue;
-    		nodes.push(node);
-    		// mark as visited
-    		node._visited = uid;
-    		// see if multiple variants at this position
-    		var v = visited[position(node)] || (visited[position(node)]=[]);
-    		v.push(node);
-    		if (v.length ==1 )
-    			node.y = 0;
-    		else 
-    			for (var i=0; i<v.length; i++) {v[i].y = (i/(v.length-1) || 0) * 2 - 1;}    		
-
-    		// push unvisited neighbors on stack
-    		var neighbors = [].concat(sources(node), targets(node));    		    		
-    		stack = stack.concat( neighbors.filter(function(a) {return a._visited != uid;}) )
-    	}
-    	return nodes;
-    }
-
-    function getUID(separator) {    	
-	    /// <summary>
-	    ///    Creates a unique id for identification purposes.
-	    /// </summary>
-	    /// <param name="separator" type="String" optional="true">
-	    /// The optional separator for grouping the generated segmants: default "-".    
-	    /// </param>
-
-	    var delim = separator || "-";
-
-	    function S4() {
-	        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-	    }
-
-	    return (S4() + S4() + delim + S4() + delim + S4() + delim + S4() + delim + S4() + S4() + S4());	
-    }
-
-    graph.links = function(nodes) {
-    	var links = [];
-    	nodes.forEach(function(node) {
-    		(node.targets || []).map(function(target) {
-	        	links.push( {
-	          		'source': node,
-	          		'target': target
-	        	});
-	        });
-    	})
-	    // var l =  d3.merge(nodes.map(function(node) {
-	    //   var t =  (node.targets || []).map(function(target) {
-	    //     return {
-	    //       'source': node,
-	    //       'target': target
-	    //     };
-	    //   });
-	    //   return t;
-	    // }));
-	    return links;
-    }
-    // graph.size = function(x) {
-    //   if (!arguments.length) return nodeSize ? null : size;
-    //   nodeSize = (size = x) == null ? sizeNode : null;
-    //   return tree;
-    // };
-    // graph.nodeSize = function(x) {
-    //   if (!arguments.length) return nodeSize ? size : null;
-    //   nodeSize = (size = x) == null ? null : sizeNode;
-    //   return tree;
-    // };
-    return graph;
-  };
-
-  function d3_layout_referenceGraphSources(d) {
-    return d.sources;
-  }
-  function d3_layout_referenceGraphTargets(d) {
-    return d.targets;
-  }
-  function d3_layout_referenceGraphPosition(d) {
-    return d.position;
-  }
- 
- module.exports = referenceGraph;
 },{}],5:[function(require,module,exports){
+
+var svg = {};
+// add shapes
+svg.variant = require('./variant.js');
+
+module.exports = svg;
+},{"./variant.js":6}],6:[function(require,module,exports){
+var variant = function() { 
+    
+    // Value transformers
+    var xValue = function(d) { return d.x; },
+        yValue = function(d) { return d.y; },
+        wValue = function(d) { return d.w; },
+        hValue = function(d) { return d.h; };
+
+    var diagonal = d3.svg.diagonal()        
+
+    function shape(d, i) {    
+        diagonal
+            .source(function(d) { return {"x":hValue(d)*d.y, "y":d.x+Math.abs(d.w/2)}; })            
+            .target(function(d) { return {"x":0, "y":d.x+d.w/2+Math.abs(d.w/2)}; })
+            .projection(function(d) { return [d.y, d.x]; });
+        
+        var variantH = hValue(d);
+        var bulbW = Math.abs(variantH * 5/6);
+        // Create control points
+        var c1 = variantH * 1/6+yValue(d),
+            c2 = variantH*2/6+yValue(d),
+            c3 = variantH*0.625+yValue(d),
+            c4 = variantH*1.145+yValue(d);
+
+        if (wValue(d) <= Math.abs(bulbW/2))
+            return "M" +xValue(d)+","+yValue(d)+" C" +xValue(d)+ "," +c1+" "+parseInt(xValue(d)+wValue(d)/2-bulbW/2)+ "," +c2+" "+parseInt(xValue(d)+wValue(d)/2-bulbW/2)+ "," +c3+" C" +parseInt(xValue(d)+wValue(d)/2-bulbW/2)+ "," +c4+" "+parseInt(xValue(d)+wValue(d)/2+bulbW/2)+ "," +c4+" "+parseInt(xValue(d)+wValue(d)/2+bulbW/2)+ "," +c3+" C" +parseInt(xValue(d)+wValue(d)/2+bulbW/2)+ "," +c2+" "+parseInt(xValue(d)+wValue(d))+"," +c1+" "+parseInt(xValue(d)+wValue(d))+","+yValue(d);            
+        else
+            return diagonal(d)+diagonal({x:xValue(d), y:yValue(d), w:-wValue(d)});
+    }
+
+    /*
+     * Specifies the value function *x*, which returns an integer for each datum
+     * The value function is passed two arguments: the current datum and the current index.
+     */  
+    shape.xValue = function(_) {
+        if (!arguments.length) return xValue;
+        xValue = _;
+        return shape;
+    }
+
+    /*
+     * Specifies the value function *y*, which returns an integer for each datum
+     * The value function is passed two arguments: the current datum and the current index.
+     */  
+    shape.yValue = function(_) {
+        if (!arguments.length) return yValue;
+        yValue = _;
+        return shape;
+    };
+
+    /*
+     * Specifies the value function *width*, which returns an integer for each datum
+     * The value function is passed two arguments: the current datum and the current index.
+     */  
+    shape.wValue = function(_) {
+        if (!arguments.length) return wValue;
+        wValue = _;
+        return shape;
+    }; 
+
+    /*
+     * Specifies the value function *height*, which returns an integer for each datum
+     * The value function is passed two arguments: the current datum and the current index.
+     */  
+    shape.hValue = function(_) {
+        if (!arguments.length) return hValue;
+        hValue = _;
+        return shape;
+    }; 
+
+    return shape;
+};
+
+module.exports = variant;
+},{}],7:[function(require,module,exports){
 
 module.exports.format_unit_names = function(d) {
 	if ((d / 1000000) >= 1)
@@ -233,29 +320,53 @@ module.exports.format_unit_names = function(d) {
 		d = d / 1000 + "K";
 	return d;            
 }
-},{}],6:[function(require,module,exports){
+
+module.exports.getUID = function(separator) {    	
+    var delim = separator || "-";
+
+    function S4() {
+        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+    }
+
+    return (S4() + S4() + delim + S4() + delim + S4() + delim + S4() + delim + S4() + S4() + S4());	
+}
+
+module.exports.value_accessor = function(value, d) {
+	return typeof value === 'function' ? value(d) : value;
+}
+},{}],8:[function(require,module,exports){
 var alignment = function() {
 	// Import twod base chart
 	var twod = require('./twod.js')();
+	var utils = require('../utils.js');
 
-	// Initialize
-	var height = 4,
-		idValue = function() { return ''},
-		orientation = 'down';	
+	// Defaults
+	var elemHeight = 4,
+		orientation = 'down',
+		events = [],
+		tooltip;
 
-	function chart(selection, options) {		
+	function chart(selection, options) {
 		// Call base chart
 		twod.call(this, selection, options);
 
 		// Grab twod functions for easy access
 		var x = twod.x(),
 			y = twod.y(),
+			id = twod.id();
 			xValue = twod.xValue(),
 			yValue = twod.yValue(),			
 			wValue = twod.wValue();		
 
-		if (orientation == 'down')
+		// Change orientation of pileup
+		if (orientation == 'down') {
+			// swap y scale min and max
 			y.range([y.range()[1],y.range()[0]]);
+			// update y axis			
+			selection.select(".iobio-y.iobio-axis").transition()
+				.duration(0)
+				.call(twod.yAxis());
+		}
 
 		// Draw
 		var g = selection.select('g.container'); // grab container to draw into (created by base chart)		
@@ -263,41 +374,78 @@ var alignment = function() {
 				.data(selection.datum())
 			.enter().append('rect')
 				.attr('class', 'rect')
-				// .style('stroke', 'red')
-				// .style('stroke-width', '0.5')
-				// .style('fill', 'blue')
 				.attr('x', function(d) { return x(xValue(d)) })
-				.attr('y', function(d) { return y(yValue(d)) - height + 2 })
-				.attr('id', function(d) { return idValue(d)})
+				.attr('y', function(d) { return y(yValue(d)) - elemHeight + 2 })				
+				.attr('id', function(d) { return id(d)})
 				.attr('width', function(d) { 
 					return x(xValue(d)+wValue(d)) - x(xValue(d));
 				})
-				.attr('height', function(d) { return height });
+				.attr('height', function(d) { return elemHeight });
+
+		// Add title on hover	   
+	    if (tooltip) {	 
+	    	var tt = d3.select('.iobio-tooltip')   	
+	    	g.selectAll('.rect')
+		    	.on("mouseover", function(d,i) {    
+		    		var tooltipStr = utils.value_accessor(tooltip, d); // handle both function and constant string       
+					tt.transition()        
+						.duration(200)      
+						.style("opacity", .9);      
+					tt.html(tooltipStr)
+						.style("left", (d3.event.pageX) + "px") 
+						.style("text-align", 'left')
+						.style("top", (d3.event.pageY - 24) + "px");    
+				})
+				.on("mouseout", function(d) {       
+					tt.transition()        
+						.duration(500)      
+						.style("opacity", 0);   
+				})
+	    }
+
+	    // Add events
+		if (events.length > 0) {
+			var rect = g.selectAll('.rect');
+			events.forEach(function(event) {
+				rect.on(event.type, event.action)
+			})
+		}
 	}
 	// Rebind methods in 2d.js to this chart
 	twod.rebind(chart);
 
-	/**
-   	* Specifies the orientation of the alignment. Can be 'up' or 'down'   
-   	*/
+	/*
+   	 * Specifies the orientation of the alignment. Can be 'up' or 'down'   
+   	 */
   	chart.orientation = function(_) {
     	if (!arguments.length) return orientation;
     	orientation = _;
     	return chart;
   	};
 
-	chart.idValue = function(_) {
-		if (!arguments.length) return idValue;
-		idValue = _;
-		return chart; 
-	};
+	/*
+   	 * Set events on rects
+   	 */
+	chart.on = function(type, action) {
+		events.push( {'type':type, 'action':action})
+		return chart;
+	}
+
+	/*
+   	 * Set tooltip that appears when mouseover rects
+   	 */
+	chart.tooltip = function(_) {
+		if (!arguments.length) return tooltip;
+			tooltip = _;
+			return chart; 
+	}
 
 	return chart;
 }
 
 // Export alignment
 module.exports = alignment;
-},{"./twod.js":8}],7:[function(require,module,exports){
+},{"../utils.js":7,"./twod.js":11}],9:[function(require,module,exports){
 var circle = function() {
 	// Import twod base chart
 	var twod = require('./twod.js')();
@@ -337,35 +485,184 @@ var circle = function() {
 
 // Export circle
 module.exports = circle;
-},{"./twod.js":8}],8:[function(require,module,exports){
+},{"./twod.js":11}],10:[function(require,module,exports){
+var referenceGraph = function() {
+	var graph = require('../layout/graph.js')();
+	var diagonal = d3.svg.diagonal()
+    	.projection(function(d) { return [d.y, d.x]; });
+    var utils = require('../utils.js')
+
+	// Import twod base chart
+	var twod = require('./twod.js')();
+
+	// Defaults
+	var elemHeight = 10,
+		orientation = 'down',
+		levelHeight = 50,
+		events = [],
+		tooltip,
+		variant = iobio.viz.svg.variant();
+
+	// Remove y axis
+	twod.yAxis(null);
+
+	function chart(selection, options) {		
+		// Call base chart
+		twod.call(this, selection, options);
+
+		// Grab twod functions for easy access
+		var x = twod.x(),
+			y = twod.y().domain([-1,1]),
+			id = twod.id(),
+			xValue = twod.xValue(),
+			yValue = twod.yValue(),			
+			wValue = twod.wValue();
+
+		// Set variant accessors
+		variant
+			.xValue(function(d) { return x(+xValue(d)); })
+			.wValue(function(d) { return x(xValue(d)+wValue(d)) - x(+xValue(d)); })			
+			.yValue(function(d) { return yValue(d)>0 ? y(0)+elemHeight : y(0); })			
+			.hValue(function(d) { return levelHeight * yValue(d); });
+
+		// Draw nodes
+		var g = selection.select('g.container'); // grab container to draw into (created by base chart)
+		var gEnter = g.selectAll('g.node')
+				.data(selection.datum(), function(d) { return d.id ; })
+			.enter().append('svg:g')
+				.attr('class', 'node')				
+		
+		// Draw line
+		selection.selectAll('g.node')
+			.filter(function(d){ return yValue(d) == 0 })
+			.append("svg:rect")			
+				.attr('id', function(d) { return id(d)})	
+				.attr('x', function(d) { return x(+xValue(d)); })	
+				.attr('y', function(d) { return y(+yValue(d)); })			
+				.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(+xValue(d));})
+				.attr('height', function(d) { return elemHeight })
+				.attr('class', function(d) {
+					var step = +yValue(d);
+					if (step == 0) return 'reference'; 
+					else  if (step > 0) return 'below-variant';
+					else return 'above-variant';
+				});
+
+		// Draw Variants
+		selection.selectAll('g.node')
+			.filter(function(d){ return yValue(d) != 0 })
+			.append("svg:path")			
+				.attr('id', function(d) { return id(d)})
+				.attr('d', variant)
+				.attr('class', function(d) {
+					var step = +yValue(d);
+					if (step == 0) return 'reference'; 
+					else  if (step > 0) return 'below-variant';
+					else return 'above-variant';
+				});
+
+		// Add title on hover
+	    if (tooltip) {	 
+	    	var div = d3.select('.iobio-tooltip')	    	
+	    	g.selectAll('.node')
+		    	.on("mouseover", function(d,i) {
+		    		var tooltipStr = utils.value_accessor(tooltip, d); // handle both function and constant string
+					div.transition()        
+						.duration(200)      
+						.style("opacity", .9);      
+					div.html(tooltipStr)
+						.style("left", (d3.event.pageX) + "px") 
+						.style("text-align", 'left')
+						.style("top", (d3.event.pageY - 24) + "px");    
+				})
+				.on("mouseout", function(d) {       
+					div.transition()        
+						.duration(500)      
+						.style("opacity", 0);   
+				})
+	    }
+
+	    // Add events
+		if (events.length > 0) {
+			var rect = g.selectAll('.node');
+			events.forEach(function(event) {
+				rect.on(event.type, event.action)
+			})
+		}
+	}
+	// Rebind methods in 2d.js to this chart
+	twod.rebind(chart);
+
+	/*
+   	 * Set events on variants
+   	 */
+	chart.on = function(type, action) {
+		events.push( {'type':type, 'action':action})
+		return chart;
+	}
+
+	/*
+   	 * Set height of variant levels
+   	 */
+	chart.levelHeight = function(_) {
+		if (!arguments.length) return levelHeight;
+		levelHeight = _;
+		return chart; 
+	}
+
+	/*
+   	 * Set drawing function for variants. Function must have the following 
+   	 * accessor functions:
+   	 * xValue, yValue, wValue, hValue
+   	 */
+	chart.variant = function(_) {
+		if (!arguments.length) return variant;
+		variant = _;
+		return chart; 
+	}
+
+	/*
+   	 * Set tooltip that appears when mouseover variants
+   	 */
+	chart.tooltip = function(_) {
+		if (!arguments.length) return tooltip;
+			tooltip = _;
+			return chart; 
+	}
+
+	return chart;
+}
+
+// Export referenceGraph
+module.exports = referenceGraph;
+},{"../layout/graph.js":2,"../utils.js":7,"./twod.js":11}],11:[function(require,module,exports){
 var utils = require('../utils.js');
 
 var twod = function() {
-	// Initialize
+    // Initialize
 
 	// Dimensions
 	var margin = {top: 15, right: 15, bottom: 25, left:30},
 	    width = 800,
-	  	 height = 500;  
+	  	height = 500;  
 	// Scales
 	var x = d3.scale.linear().nice(),
 	    y = d3.scale.linear().nice();
-	// Axis
+	// Axes
 	var xAxis = d3.svg.axis()
-   		.scale(x)
-   		.orient("bottom")         
-   		.tickFormat(utils.format_unit_names)
-         .ticks(5),
-       yAxis = d3.svg.axis()
-         .scale(y)
-         .orient("left")
-         .ticks(5);         
+			.scale(x)
+			.orient("bottom")         
+			.tickFormat(utils.format_unit_names)
+			.ticks(5),
+		yAxis = d3.svg.axis()
+			.scale(y)
+			.orient("left")
+			.ticks(5);			            
 	// Value transformers
 	var xValue = function(d) { return d[0]; },
    	 	yValue = function(d) { return d[1]; },
-       	wValue = function(d) { return d[2] || 1 };
-   
-	// Variables 
+       	wValue = function(d) { return d[2] || 1 },
+       	id = function(d) { return null; };
 	
 	// Default options
 	var defaults = {};
@@ -392,35 +689,37 @@ var twod = function() {
 		y.domain( d3.extent(data, function(d) { return d[1]}) )
    	 	 .range([innerHeight , 0]);
 
-   	// Select the svg element, if it exists.
+   		// Select the svg element, if it exists.
 		var svg = container.selectAll("svg").data([0]);		
 
-   	// Otherwise, create the skeletal chart.      
+   		// Otherwise, create the skeletal chart.      
 		var gEnter = svg.enter().append("svg").append('g').attr('class', 'container');      
-		gEnter.append("g").attr("class", "x axis").attr("transform", "translate(0," + y.range()[0] + ")");
-		gEnter.append("g").attr("class", "y axis");
-   	gEnter.append("g").attr("class", "x brush");
-   	gEnter.append("div").attr('class', 'tooltip').style('opacity', 0);      	
+		gEnter.append("g").attr("class", "iobio-x iobio-axis").attr("transform", "translate(0," + y.range()[0] + ")");
+		gEnter.append("g").attr("class", "iobio-y iobio-axis");
+   		gEnter.append("g").attr("class", "iobio-x brush");
+   		d3.select("body").append("div").attr("class", "iobio-tooltip").style("opacity", 0);
 		var g = svg.select('g');
 
 		// Update the outer dimensions.
-      svg.attr("width", width)
-         .attr("height", height);
+      	svg.attr("width", width)
+        	.attr("height", height);
 
-      // Update the inner dimensions.
-      g.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      	// Update the inner dimensions.
+		g.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-      // Update the x-axis.
-      g.select(".x.axis").transition()
-         .duration(200)
-         .call(xAxis);
-          
-      // Update the y-axis.
-      g.select(".y.axis").transition()
-         .duration(200)
-         .call(yAxis);
-
-      return data;
+		// Update the x-axis.
+		if(xAxis)
+			g.select(".iobio-x.iobio-axis").transition()
+				.duration(200)
+				.call(xAxis);
+		  
+		// Update the y-axis.
+		if(yAxis)	
+			g.select(".iobio-y.iobio-axis").transition()
+				.duration(200)
+				.call(yAxis);			
+		
+		return data;
 	}
 
 	// member functions
@@ -455,22 +754,28 @@ var twod = function() {
 	};
 
 	chart.xValue = function(_) {
-	 if (!arguments.length) return xValue;
-		 xValue = _;
-		 return chart;
+		if (!arguments.length) return xValue;
+		xValue = _;
+		return chart;
 	};
 
 	chart.yValue = function(_) {
-	 if (!arguments.length) return yValue;
-		 yValue = _;
-		 return chart;
+		if (!arguments.length) return yValue;
+		yValue = _;
+		return chart;
 	};
 
-   chart.wValue = function(_) {
-    if (!arguments.length) return wValue;
-       wValue = _;
-       return chart;
-   };   
+	chart.wValue = function(_) {
+		if (!arguments.length) return wValue;
+		wValue = _;
+		return chart;
+	};  
+
+	chart.id = function(_) {
+		if (!arguments.length) return id;
+		id = _;
+		return chart; 
+	}; 
 
 	chart.xAxis = function(_) {
 		if (!arguments.length) return xAxis;
@@ -484,18 +789,18 @@ var twod = function() {
 		return chart; 
 	};
 
-   // utility functions
-   chart.rebind = function(object) {
-      d3.rebind(object, this, 'margin', 'width', 'height', 'x', 'y',
-       'xValue', 'yValue', 'wValue', 'xAxis', 'yAxis');
-   }
+	// utility functions
+	chart.rebind = function(object) {
+		d3.rebind(object, this, 'margin', 'width', 'height', 'x', 'y', 'id',
+			'xValue', 'yValue', 'wValue', 'xAxis', 'yAxis');
+	}
 
 	return chart
 }
 
 module.exports = twod;
 
-},{"../utils.js":5}]},{},[1])
+},{"../utils.js":7}]},{},[1])
 
 
 //# sourceMappingURL=iobio.charts.js.map
