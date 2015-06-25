@@ -8,10 +8,10 @@ var browserify = require('browserify'),
 	sourcemaps = require('gulp-sourcemaps'),
   minifyCss = require('gulp-minify-css'),
   concat = require('gulp-concat'),
-	// karma = require('karma').server,
+	karma = require('karma').server,
 	path = require('path');
 
-// var configFile = path.resolve(__dirname, 'test/karma.conf.js');
+var configFile = path.resolve(__dirname, 'test/karma.conf.js');
 
 /**
  * Build JS with souremaps for debugging
@@ -24,7 +24,7 @@ gulp.task('js-debug', function () {
   });
 
   return b.bundle()
-    .pipe(source('iobio.charts.js'))
+    .pipe(source('iobio.viz.js'))
     .pipe(buffer())
     .pipe(sourcemaps.init({loadMaps: true}))        
     .pipe(sourcemaps.write('./'))
@@ -43,7 +43,7 @@ gulp.task('js', function () {
   });
 
   return b.bundle()
-    .pipe(source('iobio.charts.min.js'))
+    .pipe(source('iobio.viz.min.js'))
     .pipe(buffer())    
         // Add transformation tasks to the pipeline here.
         .pipe(uglify())          
@@ -56,7 +56,7 @@ gulp.task('js', function () {
  gulp.task('css', function() {
   return gulp.src('src/css/*.css')
     .pipe(minifyCss())    
-    .pipe(concat('iobio.charts.min.css'))
+    .pipe(concat('iobio.viz.min.css'))
     .pipe(gulp.dest('./'))
 });
 

@@ -803,4 +803,4 @@ module.exports = twod;
 },{"../utils.js":7}]},{},[1])
 
 
-//# sourceMappingURL=iobio.charts.js.map
+//# sourceMappingURL=iobio.viz.js.map

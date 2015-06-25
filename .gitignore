@@ -2,11 +2,10 @@
 node_modules/
 
 // ignore source map
-iobio.charts.js.map
+iobio.viz.js.map
 
 // ignore coverage
 test/coverage
-
 
 // ignore DS_STORE
 .DS_STORE
