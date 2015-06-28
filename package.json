@@ -12,11 +12,15 @@
     "visualization",
     "chart"
   ],
+  "dependencies": {
+    "extend": "^2.0.1"
+  },
   "devDependencies": {
     "brfs": "^1.4.0",
     "browserify": "^10.2.0",
     "browserify-istanbul": "^0.2.1",
     "coveralls": "^2.11.2",
+    "d3": "^3.5.5",
     "gulp": "^3.8.11",
     "gulp-concat": "^2.5.2",
     "gulp-minify-css": "^1.1.6",
@@ -28,9 +32,14 @@
     "karma-coverage": "0.2.6",
     "karma-firefox-launcher": "^0.1.6",
     "karma-jasmine": "^0.3.5",
+    "karma-jasmine-jquery": "^0.1.1",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   },
   "author": "Chase Miller",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iobio/iobio.viz.git"
+  }
 }

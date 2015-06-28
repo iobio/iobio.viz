@@ -1,8 +1,13 @@
 // Grab an existing iobio namespace object, or create a blank object
 // if it doesn't exist
-var iobio = window.iobio || {};
-iobio.viz = {version: "0.1.0"};
-window.iobio = iobio;
+var iobio = global.iobio || {};
+global.iobio = iobio;
+
+// export if being used as a node module - needed for test framework
+if ( typeof module === 'object' ) { module.exports = iobio;}
+
+// Create Base Object
+iobio.viz = {};
 
 // Add visualizations
 iobio.viz.twod = require('./viz/twod.js')

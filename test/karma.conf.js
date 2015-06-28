@@ -13,12 +13,12 @@ module.exports = function(config) {
 
   config.set({
     // testing framework to use (jasmine/mocha/qunit/...)
-    frameworks: ['jasmine', 'browserify'],
+    frameworks: ['jasmine-jquery', 'jasmine', 'browserify'],
 
 
     preprocessors: {
       'test/**/*.js': [ 'browserify' ],
-      'src/**/*.js': [ 'browserify' ]
+      'src/**/*.js': [ 'browserify' ],      
     },
 
     // generate results in lcov format for coveralls
@@ -37,9 +37,9 @@ module.exports = function(config) {
     basePath: '../',
 
     // list of files / patterns to load in the browser
-    files: [
+    files: [      
       'test/**/*.js',
-      'src/**/*.js'
+      'src/**/*.js'     
     ],
 
     // list of files / patterns to exclude

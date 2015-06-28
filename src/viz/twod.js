@@ -1,4 +1,5 @@
-var utils = require('../utils.js');
+var utils = require('../utils.js'),
+	extend = require('extend');
 
 var twod = function() {
     // Initialize
@@ -29,8 +30,9 @@ var twod = function() {
 	// Default options
 	var defaults = {};
 
-	function chart(selection, options) {		
-		var options = $.extend(defaults, options);	
+	function chart(selection, opts) {
+		var options = {};
+		extend(options, defaults, opts);    			
 		var innerHeight = height - margin.top - margin.bottom;
       
       	// Get container

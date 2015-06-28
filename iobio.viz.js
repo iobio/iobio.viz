@@ -1,9 +1,15 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function (global){
 // Grab an existing iobio namespace object, or create a blank object
 // if it doesn't exist
-var iobio = window.iobio || {};
-iobio.viz = {version: "0.1.0"};
-window.iobio = iobio;
+var iobio = global.iobio || {};
+global.iobio = iobio;
+
+// export if being used as a node module - needed for test framework
+if ( typeof module === 'object' ) { module.exports = iobio;}
+
+// Create Base Object
+iobio.viz = {};
 
 // Add visualizations
 iobio.viz.twod = require('./viz/twod.js')
@@ -20,7 +26,100 @@ iobio.viz.svg = require('./svg/svg.js')
 // Add utils
 iobio.viz.utils = require('./utils.js')
 
-},{"./layout/layout.js":3,"./svg/svg.js":5,"./utils.js":7,"./viz/alignment.js":8,"./viz/circle.js":9,"./viz/referenceGraph.js":10,"./viz/twod.js":11}],2:[function(require,module,exports){
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
+},{"./layout/layout.js":4,"./svg/svg.js":6,"./utils.js":8,"./viz/alignment.js":9,"./viz/circle.js":10,"./viz/referenceGraph.js":11,"./viz/twod.js":12}],2:[function(require,module,exports){
+var hasOwn = Object.prototype.hasOwnProperty;
+var toStr = Object.prototype.toString;
+var undefined;
+
+var isArray = function isArray(arr) {
+	if (typeof Array.isArray === 'function') {
+		return Array.isArray(arr);
+	}
+
+	return toStr.call(arr) === '[object Array]';
+};
+
+var isPlainObject = function isPlainObject(obj) {
+	'use strict';
+	if (!obj || toStr.call(obj) !== '[object Object]') {
+		return false;
+	}
+
+	var has_own_constructor = hasOwn.call(obj, 'constructor');
+	var has_is_property_of_method = obj.constructor && obj.constructor.prototype && hasOwn.call(obj.constructor.prototype, 'isPrototypeOf');
+	// Not own constructor property must be Object
+	if (obj.constructor && !has_own_constructor && !has_is_property_of_method) {
+		return false;
+	}
+
+	// Own properties are enumerated firstly, so to speed up,
+	// if last one is own, then all properties are own.
+	var key;
+	for (key in obj) {}
+
+	return key === undefined || hasOwn.call(obj, key);
+};
+
+module.exports = function extend() {
+	'use strict';
+	var options, name, src, copy, copyIsArray, clone,
+		target = arguments[0],
+		i = 1,
+		length = arguments.length,
+		deep = false;
+
+	// Handle a deep copy situation
+	if (typeof target === 'boolean') {
+		deep = target;
+		target = arguments[1] || {};
+		// skip the boolean and the target
+		i = 2;
+	} else if ((typeof target !== 'object' && typeof target !== 'function') || target == null) {
+		target = {};
+	}
+
+	for (; i < length; ++i) {
+		options = arguments[i];
+		// Only deal with non-null/undefined values
+		if (options != null) {
+			// Extend the base object
+			for (name in options) {
+				src = target[name];
+				copy = options[name];
+
+				// Prevent never-ending loop
+				if (target === copy) {
+					continue;
+				}
+
+				// Recurse if we're merging plain objects or arrays
+				if (deep && copy && (isPlainObject(copy) || (copyIsArray = isArray(copy)))) {
+					if (copyIsArray) {
+						copyIsArray = false;
+						clone = src && isArray(src) ? src : [];
+					} else {
+						clone = src && isPlainObject(src) ? src : {};
+					}
+
+					// Never move original objects, clone them
+					target[name] = extend(deep, clone, copy);
+
+				// Don't bring in undefined values
+				} else if (copy !== undefined) {
+					target[name] = copy;
+				}
+			}
+		}
+	}
+
+	// Return the modified object
+	return target;
+};
+
+
+},{}],3:[function(require,module,exports){
 var utils = require('../utils.js');
 
 var graph = function() {
@@ -117,7 +216,7 @@ var graph = function() {
   };
  
  module.exports = graph;
-},{"../utils.js":7}],3:[function(require,module,exports){
+},{"../utils.js":8}],4:[function(require,module,exports){
 
 var layout = {};
 // add layouts
@@ -125,7 +224,7 @@ layout.pileup = require('./pileup.js');
 layout.graph = require('./graph.js');
 
 module.exports = layout;
-},{"./graph.js":2,"./pileup.js":4}],4:[function(require,module,exports){
+},{"./graph.js":3,"./pileup.js":5}],5:[function(require,module,exports){
 
 
 var pileup = function() {
@@ -229,14 +328,14 @@ var pileup = function() {
 };
 
 module.exports = pileup;
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 
 var svg = {};
 // add shapes
 svg.variant = require('./variant.js');
 
 module.exports = svg;
-},{"./variant.js":6}],6:[function(require,module,exports){
+},{"./variant.js":7}],7:[function(require,module,exports){
 var variant = function() { 
     
     // Value transformers
@@ -311,7 +410,7 @@ var variant = function() {
 };
 
 module.exports = variant;
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 
 module.exports.format_unit_names = function(d) {
 	if ((d / 1000000) >= 1)
@@ -334,7 +433,7 @@ module.exports.getUID = function(separator) {
 module.exports.value_accessor = function(value, d) {
 	return typeof value === 'function' ? value(d) : value;
 }
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var alignment = function() {
 	// Import twod base chart
 	var twod = require('./twod.js')();
@@ -445,7 +544,7 @@ var alignment = function() {
 
 // Export alignment
 module.exports = alignment;
-},{"../utils.js":7,"./twod.js":11}],9:[function(require,module,exports){
+},{"../utils.js":8,"./twod.js":12}],10:[function(require,module,exports){
 var circle = function() {
 	// Import twod base chart
 	var twod = require('./twod.js')();
@@ -485,7 +584,7 @@ var circle = function() {
 
 // Export circle
 module.exports = circle;
-},{"./twod.js":11}],10:[function(require,module,exports){
+},{"./twod.js":12}],11:[function(require,module,exports){
 var referenceGraph = function() {
 	var graph = require('../layout/graph.js')();
 	var diagonal = d3.svg.diagonal()
@@ -635,8 +734,9 @@ var referenceGraph = function() {
 
 // Export referenceGraph
 module.exports = referenceGraph;
-},{"../layout/graph.js":2,"../utils.js":7,"./twod.js":11}],11:[function(require,module,exports){
-var utils = require('../utils.js');
+},{"../layout/graph.js":3,"../utils.js":8,"./twod.js":12}],12:[function(require,module,exports){
+var utils = require('../utils.js'),
+	extend = require('extend');
 
 var twod = function() {
     // Initialize
@@ -667,8 +767,9 @@ var twod = function() {
 	// Default options
 	var defaults = {};
 
-	function chart(selection, options) {		
-		var options = $.extend(defaults, options);	
+	function chart(selection, opts) {
+		var options = {};
+		extend(options, defaults, opts);    			
 		var innerHeight = height - margin.top - margin.bottom;
       
       	// Get container
@@ -800,7 +901,7 @@ var twod = function() {
 
 module.exports = twod;
 
-},{"../utils.js":7}]},{},[1])
+},{"../utils.js":8,"extend":2}]},{},[1])
 
 
 //# sourceMappingURL=iobio.viz.js.map
