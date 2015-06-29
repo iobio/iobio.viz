@@ -46,7 +46,9 @@ var graph = iobio.viz.layout.graph();
 	    .yValue(function(d) { return d.y; })
 	    .wValue(function(d) { return d.sequence.length })
 	    .id(function(d) { return 'variant-' + d.id; })
-	    .tooltip(function(d) { return d.position + ':' + d.sequence });
+	    .on('click', function(d) { return 'hi'; })
+	    .tooltip(function(d) { return d.position + ':' + d.sequence })
+	    .levelHeight(20);
   
 	var selection = div.datum( nodes );
 	chart(selection); 
@@ -58,23 +60,27 @@ var graph = iobio.viz.layout.graph();
     it("the tooltip is being set", function() {      
       expect(typeof d3.selectAll('.node').on('mouseover')).toEqual('function');
     });
+
+    it("the event is being set", function() {      
+      expect(typeof d3.selectAll('.node').on('click')).toEqual('function');
+    });
     
 
     describe("variant", function() {
-
+    	var bb = document.getElementById('variant-7').getBBox();
 		it("is being drawn with the right x value", function() {      
-		  var bb = document.getElementById('variant-7').getBBox();
-	      expect(bb.x).toEqual(86);
+	      expect(bb.x).toEqual(98);
 	    });
 
-	    it("is being drawn with the right y value", function() {      
-		  var bb = document.getElementById('variant-7').getBBox();
+	    it("is being drawn with the right y value", function() {      		  
 	      expect(bb.y).toEqual(197.5);
 	    });    
 
-	   	it("is being drawn with the right width", function() {      
-		  var bb = document.getElementById('variant-7').getBBox();
-	      expect(bb.width).toEqual(42);
+	   	it("is being drawn with the right width", function() {      		  
+	      expect(bb.width).toEqual(17);
+	    });    
+	    it("is being drawn with the right width", function() {      		  
+	      expect(Math.round(bb.height)).toEqual(23);
 	    });    
 	})
     
