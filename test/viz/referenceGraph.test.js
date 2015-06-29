@@ -78,10 +78,7 @@ var graph = iobio.viz.layout.graph();
 
 	   	it("is being drawn with the right width", function() {      		  
 	      expect(bb.width).toEqual(17);
-	    });    
-	    it("is being drawn with the right width", function() {      		  
-	      expect(Math.round(bb.height)).toEqual(23);
-	    });    
+	    });
 	})
     
 });
