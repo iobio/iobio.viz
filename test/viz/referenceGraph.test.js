@@ -72,11 +72,6 @@ var graph = iobio.viz.layout.graph();
 	      expect(bb.y).toEqual(197.5);
 	    });    
 
-	    it("is being drawn with the	right height", function() {      
-		  var bb = document.getElementById('variant-7').getBBox();
-	      expect(bb.height).toEqual(57.25);
-	    });
-
 	   	it("is being drawn with the right width", function() {      
 		  var bb = document.getElementById('variant-7').getBBox();
 	      expect(bb.width).toEqual(42);
