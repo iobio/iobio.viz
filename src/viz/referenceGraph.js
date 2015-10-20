@@ -4,8 +4,8 @@ var referenceGraph = function() {
     	.projection(function(d) { return [d.y, d.x]; });
     var utils = require('../utils.js')
 
-	// Import twod base chart
-	var twod = require('./twod.js')();
+	// Import base chart
+	var base = require('./base.js')();
 
 	// Defaults
 	var elemHeight = 10,
@@ -16,19 +16,19 @@ var referenceGraph = function() {
 		variant = iobio.viz.svg.variant();
 
 	// Remove y axis
-	twod.yAxis(null);
+	base.yAxis(null);
 
 	function chart(selection, options) {		
 		// Call base chart
-		twod.call(this, selection, options);
+		base.call(this, selection, options);
 
-		// Grab twod functions for easy access
-		var x = twod.x(),
-			y = twod.y().domain([-1,1]),
-			id = twod.id(),
-			xValue = twod.xValue(),
-			yValue = twod.yValue(),			
-			wValue = twod.wValue();
+		// Grab base functions for easy access
+		var x = base.x(),
+			y = base.y().domain([-1,1]),
+			id = base.id(),
+			xValue = base.xValue(),
+			yValue = base.yValue(),			
+			wValue = base.wValue();
 
 		// Set variant accessors
 		variant
@@ -75,23 +75,8 @@ var referenceGraph = function() {
 
 		// Add title on hover
 	    if (tooltip) {	 
-	    	var div = d3.select('.iobio-tooltip')	    	
-	    	g.selectAll('.node')
-		    	.on("mouseover", function(d,i) {
-		    		var tooltipStr = utils.value_accessor(tooltip, d); // handle both function and constant string
-					div.transition()        
-						.duration(200)      
-						.style("opacity", .9);      
-					div.html(tooltipStr)
-						.style("left", (d3.event.pageX) + "px") 
-						.style("text-align", 'left')
-						.style("top", (d3.event.pageY - 24) + "px");    
-				})
-				.on("mouseout", function(d) {       
-					div.transition()        
-						.duration(500)      
-						.style("opacity", 0);   
-				})
+	    	var tt = d3.select('.iobio-tooltip')   	
+	    	utils.tooltipHelper(g.selectAll('.node'), tt, tooltip);
 	    }
 
 	    // Add events
@@ -103,7 +88,7 @@ var referenceGraph = function() {
 		}
 	}
 	// Rebind methods in 2d.js to this chart
-	twod.rebind(chart);
+	base.rebind(chart);
 
 	/*
    	 * Set events on variants

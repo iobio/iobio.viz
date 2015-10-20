@@ -1,15 +1,22 @@
-var alignment = function() {
+var bar = function() {
 	// Import base chart
-	var base = require('./base.js')();
-	var utils = require('../utils.js');
+	var base = require('./base.js')(),
+		utils = require('../utils.js'),
+		extend = require('extend');
 
 	// Defaults
-	var elemHeight = 4,
-		orientation = 'down',
-		events = [],
-		tooltip;
+	var events = [],
+		tooltip,
+		transitionDuration = 200;
 
-	function chart(selection, options) {
+	// Default Options
+	var defaults = { yMin: 0 };
+
+	function chart(selection, opts) {
+		// Merge defaults and options
+		var options = {};
+		extend(options, defaults, opts);
+
 		// Call base chart
 		base.call(this, selection, options);
 
@@ -19,31 +26,28 @@ var alignment = function() {
 			id = base.id();
 			xValue = base.xValue(),
 			yValue = base.yValue(),			
-			wValue = base.wValue();		
-
-		// Change orientation of pileup
-		if (orientation == 'down') {
-			// swap y scale min and max
-			y.range([y.range()[1],y.range()[0]]);
-			// update y axis			
-			selection.select(".iobio-y.iobio-axis").transition()
-				.duration(0)
-				.call(base.yAxis());
-		}
+			wValue = base.wValue(),
+			innerHeight = base.height() - base.margin().top - base.margin().bottom;		
 
 		// Draw
 		var g = selection.select('g.container'); // grab container to draw into (created by base chart)		
 		g.selectAll('.rect')
-				.data(selection.datum())
+				.data(selection.datum(), function(d) { return d[0]; })
 			.enter().append('rect')
 				.attr('class', 'rect')
 				.attr('x', function(d) { return x(xValue(d)) })
-				.attr('y', function(d) { return y(yValue(d)) - elemHeight + 2 })				
-				.attr('id', function(d) { return id(d)})
-				.attr('width', function(d) { 
-					return x(xValue(d)+wValue(d)) - x(xValue(d));
-				})
-				.attr('height', function(d) { return elemHeight });
+				.attr('y', function(d) { return y(yValue(d)) })				
+				.attr('id', function(d) { return id(d)})				
+				.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})
+				.attr('height', function(d) { return innerHeight - y(yValue(d)); });
+
+		g.selectAll('.rect').transition()
+			.duration( transitionDuration )
+			.attr('x', function(d) { return x(xValue(d)) })
+			.attr('y', function(d) { return y(yValue(d)) })				
+			.attr('id', function(d) { return id(d)})				
+			.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})
+			.attr('height', function(d) { return innerHeight - y(yValue(d)); });
 
 		// Add title on hover	   
 	    if (tooltip) {	 
@@ -58,17 +62,8 @@ var alignment = function() {
 		})	
 
 	}
-	// Rebind methods in 2d.js to this chart
+	// Rebind methods in base.js to this chart
 	base.rebind(chart);
-
-	/*
-   	 * Specifies the orientation of the alignment. Can be 'up' or 'down'   
-   	 */
-  	chart.orientation = function(_) {
-    	if (!arguments.length) return orientation;
-    	orientation = _;
-    	return chart;
-  	};
 
 	/*
    	 * Set events on rects
@@ -92,4 +87,4 @@ var alignment = function() {
 }
 
 // Export alignment
-module.exports = alignment;
+module.exports = bar;

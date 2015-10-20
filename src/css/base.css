@@ -1,4 +1,3 @@
-/* TODO: change this to base.css. Create default css for each alignment file and create gulp task to combine and minify all css files.*/
 
 /* Axes */
 .iobio-axis path, .iobio-axis line {
@@ -20,4 +19,11 @@
 	border: 0px;      
 	border-radius: 4px;           
 	pointer-events: none;         
+}
+
+/* Brush */
+.iobio-brush .extent {
+  stroke: #000;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
 }

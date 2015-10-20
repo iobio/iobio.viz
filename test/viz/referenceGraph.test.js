@@ -4,7 +4,7 @@ var iobio = require('../../src/viz.js'),
 	d3 = require('d3');	
 
 describe("referenceGraph", function() {
-var graph = iobio.viz.layout.graph();
+  var graph = iobio.viz.layout.graph();
 	var dot = "digraph gwiz { \n\
 0 [ label = '4010000 TTTTCTGGTAACACCATGGGTTGGGGAGAGGGAGGG' ]; \n\
 0 -> 1; \n\

@@ -1,2 +1,2 @@
-.iobio-axis line,.iobio-axis path{fill:none;stroke:#000;shape-rendering:crispEdges}.iobio-tooltip{position:absolute;top:0;text-align:center;z-index:20;color:#fff;padding:4px 6px;font:11px arial;background:#505050;border:0;border-radius:4px;pointer-events:none}
+.iobio-axis line,.iobio-axis path{fill:none;stroke:#000;shape-rendering:crispEdges}.iobio-tooltip{position:absolute;top:0;text-align:center;z-index:20;color:#fff;padding:4px 6px;font:11px arial;background:#505050;border:0;border-radius:4px;pointer-events:none}.iobio-brush .extent{stroke:#000;fill-opacity:.125;shape-rendering:crispEdges}
 path.link{fill:none;stroke:#ccc;stroke-width:1.5px}.above-variant{stroke:red;fill:none}.below-variant{stroke:#00f;fill:none}.reference{fill:gray}

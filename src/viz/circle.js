@@ -1,20 +1,20 @@
 var circle = function() {
-	// Import twod base chart
-	var twod = require('./twod.js')();
+	// Import base chart
+	var base = require('./base.js')();
 
 	// Initialize
 	var height = 4;	
 
 	function chart(selection, options) {		
 		// Call base chart
-		twod.call(this, selection, options);
+		base.call(this, selection, options);
 
-		// Grab twod functions for easy access
-		var x = twod.x(),
-			y = twod.y(),
-			xValue = twod.xValue(),
-			yValue = twod.yValue(),
-			wValue = twod.wValue();		
+		// Grab base functions for easy access
+		var x = base.x(),
+			y = base.y(),
+			xValue = base.xValue(),
+			yValue = base.yValue(),
+			wValue = base.wValue();		
 		
 		// Draw
 		var g = selection.select('g.container'); // grab container to draw into (created by base chart)		
@@ -30,7 +30,7 @@ var circle = function() {
 				.attr('height', function(d) { return height });
 	}
 	// Rebind methods in 2d.js to this chart
-	twod.rebind(chart);		
+	base.rebind(chart);		
 
 	return chart;
 }
