@@ -33,8 +33,8 @@ var pointSmooth = function() {
    * is passed two arguments: the current datum and the current index.
    */
   layout.pos = function(_) {
-    if (!arguments.length) return startValue;
-    startValue = _;
+    if (!arguments.length) return pos;
+    pos = _;
     return layout;
   };
 
@@ -44,8 +44,8 @@ var pointSmooth = function() {
    * is passed two arguments: the current datum and the current index.
    */
   layout.depth = function(_) {
-    if (!arguments.length) return endValue;
-    endValue = _;
+    if (!arguments.length) return depth;
+    depth = _;
     return layout;
   };
 

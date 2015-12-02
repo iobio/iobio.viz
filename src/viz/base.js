@@ -29,12 +29,17 @@ var base = function() {
    	 	yValue = function(d) { return d[1]; },
        	wValue = function(d) { return d[2] || 1 },
        	id = function(d) { return null; };
+
+    // Color
+    var colorScale = d3.scale.category10(),
+    	color = function(d,i) { return colorScale(i); };
 	
 	// Defaults
 	var events = [],
 		tooltip,
-		brush = d3.svg.brush(),
-		preserveAspectRatio;
+		brush = d3.svg.brush(),		
+		preserveAspectRatio,
+		transitionDuration = 200;
 
 	// Default options
 	var defaults = {};
@@ -49,7 +54,7 @@ var base = function() {
 
       	// Select the svg element, if it exists.
 		var svg = container.selectAll("svg").data([0]);
-		this.svg = svg;
+		chart.svg = svg;
 
    		// Otherwise, create svg.      
 		var gEnter = svg.enter().append("svg").append('g').attr('class', 'container');      				
@@ -63,8 +68,9 @@ var base = function() {
 		g.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 		// Get width, height in pixels (necessary to allow percentages to work)
-		var widthPx = svg.node().getBoundingClientRect().width;
-		var heightPx = svg.node().getBoundingClientRect().height;
+		var boundingClientRect = svg.node().getBoundingClientRect();
+		var widthPx = boundingClientRect.width;
+		var heightPx = boundingClientRect.height;
 		var innerHeight = heightPx - margin.top - margin.bottom;
 
 		// Make svg resize when window resizes		
@@ -102,13 +108,13 @@ var base = function() {
 		// Update the x-axis.
 		if(xAxis)
 			g.select(".iobio-x.iobio-axis").transition()
-				.duration(200)
+				.duration(transitionDuration)
 				.call(xAxis);
 		  
 		// Update the y-axis.
 		if(yAxis)	
 			g.select(".iobio-y.iobio-axis").transition()
-				.duration(200)
+				.duration(transitionDuration)
 				.call(yAxis);	
 
 		// Add title on hover
@@ -123,7 +129,7 @@ var base = function() {
 			    	}					
 					var opacity = tooltip.call(chart, svg, pos) ? .9 : 0; // don't show if tooltipStr is null
 					tt.transition()        
-						.duration(200)      
+						.duration(transitionDuration)      
 						.style("opacity", opacity);      
 					tt.html(tooltip.call(chart, svg, pos))
 						.style("left", (d3.event.pageX) + "px") 
@@ -240,6 +246,22 @@ var base = function() {
 		return chart; 
 	};
 
+	chart.getBoundingClientRect = function(_) {
+		return this.svg.node().getBoundingClientRect();		
+	};
+
+	chart.transitionDuration = function(_) {
+		if (!arguments.length) return transitionDuration;
+		transitionDuration = _;
+		return chart; 
+	};
+
+	chart.color = function(_) {
+		if (!arguments.length) return color;
+		color = _;
+		return chart; 
+	};
+
 	/*
    	 * Add brush to chart
    	 */	
@@ -268,14 +290,15 @@ var base = function() {
 	}	
 
 	// utility functions
+	
 
 	/*
-   	 * Easy method to rebind base chart functions to the caller chart
+   	 * Easy method to rebind base chart functions to the argument chart
    	 */
 	chart.rebind = function(object) {
-		d3.rebind(object, this, 'margin', 'width', 'height', 'x', 'y', 'id',
+		utils.rebind(object, this, 'rebind', 'margin', 'width', 'height', 'x', 'y', 'id',
 			'xValue', 'yValue', 'wValue', 'xAxis', 'yAxis', 'brush', 'onChart', 
-			'tooltipChart', 'preserveAspectRatio');
+			'tooltipChart', 'preserveAspectRatio', 'getBoundingClientRect', 'transitionDuration', 'color');
 	}
 
 	return chart

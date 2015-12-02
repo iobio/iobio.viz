@@ -7,6 +7,17 @@ module.exports.format_unit_names = function(d) {
 	return d;            
 }
 
+module.exports.format_percent = function(d, precision_places) {
+	var precision_places = precision_places || 1;
+		
+	var corrector = 1;
+	for (var i=0; i < precision_places; i++) { corrector *= 10}
+
+	var percent = parseInt( d * (corrector*100) ) / corrector;
+
+	return percent;            
+}
+
 module.exports.getUID = function(separator) {    	
     var delim = separator || "-";
 
@@ -40,4 +51,21 @@ module.exports.tooltipHelper = function(selection, tooltipElem, titleAccessor) {
 				.duration(500)      
 				.style("opacity", 0);   
 		})
+}
+
+// Copies a variable number of methods from source to target.
+module.exports.rebind = function(target, source) {
+  var i = 1, n = arguments.length, method;
+  while (++i < n) target[method = arguments[i]] = iobio_rebind(target, source, source[method]);
+  return target;
+};
+
+// Method is assumed to be a standard D3 getter-setter:
+// If passed with no arguments, gets the value.
+// If passed with arguments, sets the value and returns the target.
+function iobio_rebind(target, source, method) {
+  return function() {
+    var value = method.apply(source, arguments);
+    return value === source ? target : value;
+  };
 }

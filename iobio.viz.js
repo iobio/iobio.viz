@@ -13,7 +13,7 @@ iobio.viz = {};
 
 // Add visualizations
 iobio.viz.base = require('./viz/base.js')
-iobio.viz.circle = require('./viz/circle.js')
+iobio.viz.pie = require('./viz/pie.js')
 iobio.viz.alignment = require('./viz/alignment.js')
 iobio.viz.referenceGraph = require('./viz/referenceGraph.js')
 iobio.viz.line = require('./viz/line.js')
@@ -31,7 +31,7 @@ iobio.viz.utils = require('./utils.js')
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./layout/layout.js":4,"./svg/svg.js":7,"./utils.js":9,"./viz/alignment.js":10,"./viz/bar.js":11,"./viz/barViewer.js":12,"./viz/base.js":13,"./viz/circle.js":14,"./viz/line.js":15,"./viz/referenceGraph.js":16}],2:[function(require,module,exports){
+},{"./layout/layout.js":4,"./svg/svg.js":8,"./utils.js":10,"./viz/alignment.js":11,"./viz/bar.js":12,"./viz/barViewer.js":13,"./viz/base.js":14,"./viz/line.js":15,"./viz/pie.js":16,"./viz/referenceGraph.js":17}],2:[function(require,module,exports){
 var hasOwn = Object.prototype.hasOwnProperty;
 var toStr = Object.prototype.toString;
 var undefined;
@@ -219,16 +219,84 @@ var graph = function() {
   };
  
  module.exports = graph;
-},{"../utils.js":9}],4:[function(require,module,exports){
+},{"../utils.js":10}],4:[function(require,module,exports){
 
 var layout = {};
 // add layouts
 layout.pileup = require('./pileup.js');
 layout.graph = require('./graph.js');
 layout.pointSmooth = require('./pointSmooth.js');
+layout.outlier = require('./outlier.js');
 
 module.exports = layout;
-},{"./graph.js":3,"./pileup.js":5,"./pointSmooth.js":6}],5:[function(require,module,exports){
+},{"./graph.js":3,"./outlier.js":5,"./pileup.js":6,"./pointSmooth.js":7}],5:[function(require,module,exports){
+
+
+var outlier = function() {
+  // Defaults
+  var value = function(d) { return d[0]; },
+      count = function(d) { return d[1]; };
+
+  function layout(data) {
+    var q1 = quantile(data, 0.25); 
+    var q3 = quantile(data, 0.75);
+    var iqr = (q3-q1) * 1.5; //
+    
+    return data.filter(function(d) { return (value(d)>=(Math.max(q1-iqr,0)) && value(d)<=(q3+iqr)) });
+  }
+
+  /*
+   * Determines quantile of array with given p
+   */
+  function quantile(arr, p) {
+    var length = arr.reduce(function(previousValue, currentValue, index, array){
+       return previousValue + count(currentValue);
+    }, 0) - 1;
+    var H = length * p + 1, 
+    h = Math.floor(H);
+
+    var hValue, hMinus1Value, currValue = 0;
+    for (var i=0; i < arr.length; i++) {
+       currValue += count(arr[i]);
+       if (hMinus1Value == undefined && currValue >= (h-1))
+          hMinus1Value = value(arr[i]);
+       if (hValue == undefined && currValue >= h) {
+          hValue = value(arr[i]);
+          break;
+       }
+    } 
+    var v = +hMinus1Value, e = H - h;
+    return e ? v + e * (hValue - v) : v;
+  } 
+
+  /*
+   * Specifies the value function *value*, which returns a nonnegative numeric value
+   * for each datum. The default value function is `return d[0]`. The value function
+   * is passed two arguments: the current datum and the current index.
+   */
+  layout.value = function(_) {
+    if (!arguments.length) return value;
+    value = _;
+    return layout;
+  };
+
+  /*
+   * Specifies the value function *count*, which returns a nonnegative numeric value
+   * for each datum. The default value function is `return d[1]`. The value function
+   * is passed two arguments: the current datum and the current index.
+   */
+  layout.count = function(_) {
+    if (!arguments.length) return count;
+    count = _;
+    return layout;
+  };  
+
+  return layout;
+};
+
+module.exports = outlier;
+
+},{}],6:[function(require,module,exports){
 
 
 var pileup = function() {
@@ -411,7 +479,7 @@ var pileup = function() {
 };
 
 module.exports = pileup;
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 
 
 var pointSmooth = function() {
@@ -447,8 +515,8 @@ var pointSmooth = function() {
    * is passed two arguments: the current datum and the current index.
    */
   layout.pos = function(_) {
-    if (!arguments.length) return startValue;
-    startValue = _;
+    if (!arguments.length) return pos;
+    pos = _;
     return layout;
   };
 
@@ -458,8 +526,8 @@ var pointSmooth = function() {
    * is passed two arguments: the current datum and the current index.
    */
   layout.depth = function(_) {
-    if (!arguments.length) return endValue;
-    endValue = _;
+    if (!arguments.length) return depth;
+    depth = _;
     return layout;
   };
 
@@ -543,14 +611,14 @@ function findPerpendicularDistance(p, p1,p2) {
    
     return result;
 }
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 
 var svg = {};
 // add shapes
 svg.variant = require('./variant.js');
 
 module.exports = svg;
-},{"./variant.js":8}],8:[function(require,module,exports){
+},{"./variant.js":9}],9:[function(require,module,exports){
 var variant = function() { 
     
     // Value transformers
@@ -625,7 +693,7 @@ var variant = function() {
 };
 
 module.exports = variant;
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 
 module.exports.format_unit_names = function(d) {
 	if ((d / 1000000) >= 1)
@@ -633,6 +701,17 @@ module.exports.format_unit_names = function(d) {
 	else if ((d / 1000) >= 1)
 		d = d / 1000 + "K";
 	return d;            
+}
+
+module.exports.format_percent = function(d, precision_places) {
+	var precision_places = precision_places || 1;
+		
+	var corrector = 1;
+	for (var i=0; i < precision_places; i++) { corrector *= 10}
+
+	var percent = parseInt( d * (corrector*100) ) / corrector;
+
+	return percent;            
 }
 
 module.exports.getUID = function(separator) {    	
@@ -669,7 +748,24 @@ module.exports.tooltipHelper = function(selection, tooltipElem, titleAccessor) {
 				.style("opacity", 0);   
 		})
 }
-},{"./utils.js":9}],10:[function(require,module,exports){
+
+// Copies a variable number of methods from source to target.
+module.exports.rebind = function(target, source) {
+  var i = 1, n = arguments.length, method;
+  while (++i < n) target[method = arguments[i]] = iobio_rebind(target, source, source[method]);
+  return target;
+};
+
+// Method is assumed to be a standard D3 getter-setter:
+// If passed with no arguments, gets the value.
+// If passed with arguments, sets the value and returns the target.
+function iobio_rebind(target, source, method) {
+  return function() {
+    var value = method.apply(source, arguments);
+    return value === source ? target : value;
+  };
+}
+},{"./utils.js":10}],11:[function(require,module,exports){
 var alignment = function() {
 	// Import base chart
 	var base = require('./base.js')();
@@ -765,7 +861,7 @@ var alignment = function() {
 
 // Export alignment
 module.exports = alignment;
-},{"../utils.js":9,"./base.js":13}],11:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":14}],12:[function(require,module,exports){
 var bar = function() {
 	// Import base chart
 	var base = require('./base.js')(),
@@ -774,8 +870,7 @@ var bar = function() {
 
 	// Defaults
 	var events = [],
-		tooltip,
-		transitionDuration = 200;
+		tooltip;
 
 	// Default Options
 	var defaults = { yMin: 0 };
@@ -795,13 +890,19 @@ var bar = function() {
 			xValue = base.xValue(),
 			yValue = base.yValue(),			
 			wValue = base.wValue(),
+			transitionDuration = base.transitionDuration();
 			innerHeight = base.height() - base.margin().top - base.margin().bottom;		
 
 		// Draw
+		// enter
 		var g = selection.select('g.container'); // grab container to draw into (created by base chart)		
-		g.selectAll('.rect')
-				.data(selection.datum(), function(d) { return d[0]; })
-			.enter().append('rect')
+		var gData = g.selectAll('.rect')
+				.data(selection.datum(), function(d) { return xValue(d); })
+		// exit
+	    gData.exit().remove();
+			
+		// enter
+		gData.enter().append('rect')
 				.attr('class', 'rect')
 				.attr('x', function(d) { return x(xValue(d)) })
 				.attr('y', function(d) { return y(yValue(d)) })				
@@ -809,13 +910,15 @@ var bar = function() {
 				.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})
 				.attr('height', function(d) { return innerHeight - y(yValue(d)); });
 
+		// update
 		g.selectAll('.rect').transition()
 			.duration( transitionDuration )
 			.attr('x', function(d) { return x(xValue(d)) })
 			.attr('y', function(d) { return y(yValue(d)) })				
 			.attr('id', function(d) { return id(d)})				
-			.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})
+			.attr('width', function(d) { return Math.max( x(xValue(d)+wValue(d)) - x(xValue(d)), 1 );})
 			.attr('height', function(d) { return innerHeight - y(yValue(d)); });
+	    
 
 		// Add title on hover	   
 	    if (tooltip) {	 
@@ -856,53 +959,82 @@ var bar = function() {
 
 // Export alignment
 module.exports = bar;
-},{"../utils.js":9,"./base.js":13,"extend":2}],12:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":14,"extend":2}],13:[function(require,module,exports){
 var barViewer = function() {
 	// Import base chart
-	var base = require('./base.js')(),
-		bar = require('./bar.js'),
+	var bar = require('./bar.js'),
 		utils = require('../utils.js'),
 		extend = require('extend');
 
 	// Defaults
 	var events = [],
 		tooltip,
-		sizeRatio = 0.8;
+		sizeRatio = 0.8,
+		origHeight;
 
 	// Default Options
 	var defaults = { };
+
+	// Base Chart	
+	var baseBar = bar();
 
 	function chart(selection, opts) {
 		// Merge defaults and options
 		var options = {};
 		extend(options, defaults, opts);
 
-		// // Call base chart		
-		// base.call(this, selection, options);
+		origHeight = chart.height();
 
+		// Setup both chart divs
 		selection.selectAll('div')
 				.data([0,0])
 			.enter().append('div')
-				.attr('id', function(d,i) { return 'iobio-bar-' + i });
+				.attr('class', function(d,i) { return 'iobio-bar-' + i });				
 		
 		// Call big bar chart
-		var focalBar = bar()
-			.height( base.height() * sizeRatio );
-		var focalSelection = d3.select('#iobio-bar-0').datum( selection.datum() )
+		var focalBar = bar()	
+			.height( origHeight * sizeRatio )
+			.xValue( chart.xValue() )
+			.yValue( chart.yValue() )
+			.wValue( chart.wValue() )
+			.xAxis( chart.xAxis() )	
+			.yAxis( chart.yAxis() )			
+			.margin( chart.margin() )
+			.width( chart.width() )	
+			.y( chart.y() )	
+			.x( chart.x() )	
+			.id( chart.id() )					
+		
+		var focalSelection = selection.select('.iobio-bar-0').datum( selection.datum() )
 		focalBar(focalSelection, options);
 
-		// Call little bar chart
+		// Call little bar chart		
 		var globalBar = bar()
-			.height( base.height() * (1-sizeRatio) )
+			.xValue( chart.xValue() )
+			.yValue( chart.yValue() )
+			.wValue( chart.wValue() )
+			.xAxis( chart.xAxis() )			
 			.yAxis( null )
+			.margin( chart.margin() )
+			.width( chart.width() )						
+			.id( chart.id() )
+			.height( origHeight * (1-sizeRatio) )			
 			.brush('brush', function() { 
 				var x2 = globalBar.x(), brush = globalBar.brush();
 	        	var x = brush.empty() ? x2.domain() : brush.extent();
-	        	var datum = globalSelection.datum().filter(function(d) { return (d[0] >= x[0] && d[0] <= x[1]) });
+	        	// x = [10,20];
+	        	console.log('x = ' + x);
+	        	var datum = globalSelection.datum().filter(function(d) { 
+	        		return (globalBar.xValue()(d) >= x[0] && globalBar.xValue()(d) <= x[1]) 
+	        	});
+	        	options.xMin = x[0];
+	        	options.xMax = x[1];
+	        	// focalBar.height( origHeight * sizeRatio )
+	        	options.globalBar = globalBar;	
 	           	focalBar( focalSelection.datum(datum), options );
 			});
-
-		var globalSelection = d3.select('#iobio-bar-1').datum( selection.datum() )
+		
+		var globalSelection = selection.select('.iobio-bar-1').datum( selection.datum() )
 		globalBar(globalSelection, options);
 
 		// // Add title on hover	   
@@ -916,10 +1048,11 @@ var barViewer = function() {
 		// 	var cb = ev.listener ? function() {ev.listener.call(chart, svg)} : null;
 		// 	g.selectAll('.rect').on(ev.event, cb);			
 		// })	
-
+		// focalBar.rebind(this);
 	}
-	// Rebind methods in base.js to this chart
-	base.rebind(chart);
+
+	// Rebind methods in bar chart to this chart	
+	baseBar.rebind(chart);
 
 	/*
    	 * Set events on rects
@@ -953,7 +1086,7 @@ var barViewer = function() {
 
 // Export alignment
 module.exports = barViewer;
-},{"../utils.js":9,"./bar.js":11,"./base.js":13,"extend":2}],13:[function(require,module,exports){
+},{"../utils.js":10,"./bar.js":12,"extend":2}],14:[function(require,module,exports){
 var utils = require('../utils.js'),
 	extend = require('extend');
 
@@ -985,12 +1118,17 @@ var base = function() {
    	 	yValue = function(d) { return d[1]; },
        	wValue = function(d) { return d[2] || 1 },
        	id = function(d) { return null; };
+
+    // Color
+    var colorScale = d3.scale.category10(),
+    	color = function(d,i) { return colorScale(i); };
 	
 	// Defaults
 	var events = [],
 		tooltip,
-		brush = d3.svg.brush(),
-		preserveAspectRatio;
+		brush = d3.svg.brush(),		
+		preserveAspectRatio,
+		transitionDuration = 200;
 
 	// Default options
 	var defaults = {};
@@ -1005,7 +1143,7 @@ var base = function() {
 
       	// Select the svg element, if it exists.
 		var svg = container.selectAll("svg").data([0]);
-		this.svg = svg;
+		chart.svg = svg;
 
    		// Otherwise, create svg.      
 		var gEnter = svg.enter().append("svg").append('g').attr('class', 'container');      				
@@ -1019,8 +1157,9 @@ var base = function() {
 		g.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 		// Get width, height in pixels (necessary to allow percentages to work)
-		var widthPx = svg.node().getBoundingClientRect().width;
-		var heightPx = svg.node().getBoundingClientRect().height;
+		var boundingClientRect = svg.node().getBoundingClientRect();
+		var widthPx = boundingClientRect.width;
+		var heightPx = boundingClientRect.height;
 		var innerHeight = heightPx - margin.top - margin.bottom;
 
 		// Make svg resize when window resizes		
@@ -1058,13 +1197,13 @@ var base = function() {
 		// Update the x-axis.
 		if(xAxis)
 			g.select(".iobio-x.iobio-axis").transition()
-				.duration(200)
+				.duration(transitionDuration)
 				.call(xAxis);
 		  
 		// Update the y-axis.
 		if(yAxis)	
 			g.select(".iobio-y.iobio-axis").transition()
-				.duration(200)
+				.duration(transitionDuration)
 				.call(yAxis);	
 
 		// Add title on hover
@@ -1079,7 +1218,7 @@ var base = function() {
 			    	}					
 					var opacity = tooltip.call(chart, svg, pos) ? .9 : 0; // don't show if tooltipStr is null
 					tt.transition()        
-						.duration(200)      
+						.duration(transitionDuration)      
 						.style("opacity", opacity);      
 					tt.html(tooltip.call(chart, svg, pos))
 						.style("left", (d3.event.pageX) + "px") 
@@ -1196,6 +1335,22 @@ var base = function() {
 		return chart; 
 	};
 
+	chart.getBoundingClientRect = function(_) {
+		return this.svg.node().getBoundingClientRect();		
+	};
+
+	chart.transitionDuration = function(_) {
+		if (!arguments.length) return transitionDuration;
+		transitionDuration = _;
+		return chart; 
+	};
+
+	chart.color = function(_) {
+		if (!arguments.length) return color;
+		color = _;
+		return chart; 
+	};
+
 	/*
    	 * Add brush to chart
    	 */	
@@ -1224,14 +1379,15 @@ var base = function() {
 	}	
 
 	// utility functions
+	
 
 	/*
-   	 * Easy method to rebind base chart functions to the caller chart
+   	 * Easy method to rebind base chart functions to the argument chart
    	 */
 	chart.rebind = function(object) {
-		d3.rebind(object, this, 'margin', 'width', 'height', 'x', 'y', 'id',
+		utils.rebind(object, this, 'rebind', 'margin', 'width', 'height', 'x', 'y', 'id',
 			'xValue', 'yValue', 'wValue', 'xAxis', 'yAxis', 'brush', 'onChart', 
-			'tooltipChart', 'preserveAspectRatio');
+			'tooltipChart', 'preserveAspectRatio', 'getBoundingClientRect', 'transitionDuration', 'color');
 	}
 
 	return chart
@@ -1239,47 +1395,7 @@ var base = function() {
 
 module.exports = base;
 
-},{"../utils.js":9,"extend":2}],14:[function(require,module,exports){
-var circle = function() {
-	// Import base chart
-	var base = require('./base.js')();
-
-	// Initialize
-	var height = 4;	
-
-	function chart(selection, options) {		
-		// Call base chart
-		base.call(this, selection, options);
-
-		// Grab base functions for easy access
-		var x = base.x(),
-			y = base.y(),
-			xValue = base.xValue(),
-			yValue = base.yValue(),
-			wValue = base.wValue();		
-		
-		// Draw
-		var g = selection.select('g.container'); // grab container to draw into (created by base chart)		
-		g.selectAll('.rect')
-				.data(selection.datum())
-			.enter().append('rect')
-				.attr('class', 'rect')
-				.attr('x', function(d) { return x(xValue(d)) })
-				.attr('y', function(d) { return y(yValue(d)) - height })				
-				.attr('width', function(d) { 
-					return x(xValue(d)+wValue(d)) - x(xValue(d));
-				})
-				.attr('height', function(d) { return height });
-	}
-	// Rebind methods in 2d.js to this chart
-	base.rebind(chart);		
-
-	return chart;
-}
-
-// Export circle
-module.exports = circle;
-},{"./base.js":13}],15:[function(require,module,exports){
+},{"../utils.js":10,"extend":2}],15:[function(require,module,exports){
 var line = function(container) {
     // Import base chart
     var base = require('./base.js')();
@@ -1327,9 +1443,12 @@ var line = function(container) {
             .x(function(d,i) { return +x( xValue(d) ); })
             .y(function(d) { return +y( yValue(d) ); })
 
-        var g = selection.select('g.container'); // grab container to draw into (created by base chart)     
-        g.select(".read-depth-path").remove();
-      
+        var g = selection.select('g.container'); // grab container to draw into (created by base chart)             
+
+        // remove previous lines
+        g.select('.line').remove();
+
+        // draw line
         var path = g.append("path")
            .attr('class', "line")
            .attr("d", lineGen(selection.datum()) )
@@ -1372,7 +1491,162 @@ var line = function(container) {
 // Export circle
 module.exports = line;
 
-},{"../utils.js":9,"./base.js":13}],16:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":14}],16:[function(require,module,exports){
+var pie = function() {
+	// Import base chart
+	var base = require('./base.js')(),
+		utils = require('../utils.js'),
+		extend = require('extend');
+
+	// Initialize
+	var total = 0;
+
+	// Defaults
+	var radius = 90,
+		innerRadius = 0,
+		arc,
+		text = function(data, total) { 
+			var count = data[0].data;
+			var percent = utils.format_percent(count/total);			
+			return "<div class='iobio-percent'>" + percent + "%</div><div class='iobio-count'>" + count + "</div>";			
+		};
+
+	// Default Options
+	var defaults = { };
+
+	function chart(selection, opts) {
+		// Merge defaults and options
+		var options = {};
+		extend(options, defaults, opts);
+
+		// update arc
+		arc = d3.svg.arc()
+      		.outerRadius(radius)
+      		.innerRadius(innerRadius);
+
+		// Call base chart
+		base
+			.width(radius*2)
+			.height(radius*2)
+			.xAxis(null)
+			.yAxis(null);	
+		base.call(this, selection, options);			
+
+		// Grab base functions for easy access
+		var color = base.color(),
+			id = base.id(),
+			transitionDuration = base.transitionDuration();
+
+		// Get Total		
+		total = 0;
+		console.log('during selection.datum() = ' + selection.datum()[0].data );
+		selection.datum().forEach(function(d) {
+			total += d.data;
+		})
+
+		// Get bounding dimenions
+		var boundingCR = base.getBoundingClientRect();
+
+		// Draw		
+		var g = selection.select('g.container').attr('transform', 'translate(' +boundingCR.width/2+','+boundingCR.height/2+')'); // grab container to draw into (created by base chart)		
+		var gData = g.selectAll('.iobio-arc')
+				.data(selection.datum())		
+
+		// enter
+		gData.enter().append("path")
+         .attr("d", function(d) { return arc({"data":0,"value":0,"startAngle":0,"endAngle":0}) })
+         .attr('class', 'iobio-arc')
+         .attr('id', id)         
+         .style('fill', color);
+
+        // // Add center text
+        // gData.enter().append("text")
+        //  .attr("dy", "0.3em")
+        //  .style("text-anchor", "middle")
+        //  .attr("class", "iobio-center-text")
+        //  .text(function(d,i) { if(i==0) return text( utils.format_percent(d.data/total) , d.data);});         
+
+       // update
+       g.selectAll('.iobio-arc').transition()
+         .duration( transitionDuration )
+       	 .attr("d", arc)       	 
+
+       // g.selectAll('.iobio-center-text').transition()
+       // 	.text(function(d,i) { 
+       // 		if(i==0) {
+       // 			console.log('d = ' + d.data);
+       // 			console.log('p = ' + text( utils.format_percent(d.data/total), d.data));
+       // 			return text( utils.format_percent(d.data/total), d.data); 
+       // 		}
+
+       // 	});
+
+       	// exit
+		gData.exit().remove();
+
+		// Add Middle text
+		g.selectAll('.iobio-center-text').data([0]).enter().append('foreignObject')	
+			.attr('x', -innerRadius)
+			.attr('y', -13)
+			.attr('width', innerRadius*2)						
+			.attr("class", "iobio-center-text")    			
+			// .append("xhtml:div")
+				
+
+		g.selectAll('.iobio-center-text').html( text(selection.datum(), total) );
+		// g.selectAll('.iobio-center-text').text( text(selection.datum(), total) );
+
+		// Add title on hover	   
+	    // if (tooltip) {	 
+	    // 	var tt = d3.select('.iobio-tooltip')   	
+	    // 	utils.tooltipHelper(g.selectAll('.rect'), tt, tooltip);
+	    // }
+
+	    // Attach events
+		// events.forEach(function(ev) {
+		// 	var cb = ev.listener ? function() {ev.listener.call(chart, svg)} : null;
+		// 	g.selectAll('.rect').on(ev.event, cb);			
+		// })	
+
+	}
+	// Rebind methods in base.js to this chart
+	base.rebind(chart);
+	
+   	
+   	chart.radius = function(_) {
+		if (!arguments.length) return radius;
+		radius = _;
+		return chart; 
+	};
+
+	chart.innerRadius = function(_) {
+		if (!arguments.length) return innerRadius;
+		innerRadius = _;
+		return chart; 
+	}; 
+
+
+	chart.text = function(_) {
+		if (!arguments.length) return text;
+		text = _;
+		return text; 
+	}
+
+	/*
+   	 * Set tooltip that appears when mouseover rects
+   	 */
+	chart.tooltip = function(_) {
+		if (!arguments.length) return tooltip;
+			tooltip = _;
+			return chart; 
+	}
+
+	return chart;
+}
+
+// Export alignment
+module.exports = pie;
+},{"../utils.js":10,"./base.js":14,"extend":2}],17:[function(require,module,exports){
 var referenceGraph = function() {
 	var graph = require('../layout/graph.js')();
 	var diagonal = d3.svg.diagonal()
@@ -1507,7 +1781,7 @@ var referenceGraph = function() {
 
 // Export referenceGraph
 module.exports = referenceGraph;
-},{"../layout/graph.js":3,"../utils.js":9,"./base.js":13}]},{},[1])
+},{"../layout/graph.js":3,"../utils.js":10,"./base.js":14}]},{},[1])
 
 
 //# sourceMappingURL=iobio.viz.js.map

@@ -11,7 +11,7 @@ iobio.viz = {};
 
 // Add visualizations
 iobio.viz.base = require('./viz/base.js')
-iobio.viz.circle = require('./viz/circle.js')
+iobio.viz.pie = require('./viz/pie.js')
 iobio.viz.alignment = require('./viz/alignment.js')
 iobio.viz.referenceGraph = require('./viz/referenceGraph.js')
 iobio.viz.line = require('./viz/line.js')

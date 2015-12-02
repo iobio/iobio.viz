@@ -6,8 +6,7 @@ var bar = function() {
 
 	// Defaults
 	var events = [],
-		tooltip,
-		transitionDuration = 200;
+		tooltip;
 
 	// Default Options
 	var defaults = { yMin: 0 };
@@ -27,13 +26,19 @@ var bar = function() {
 			xValue = base.xValue(),
 			yValue = base.yValue(),			
 			wValue = base.wValue(),
+			transitionDuration = base.transitionDuration();
 			innerHeight = base.height() - base.margin().top - base.margin().bottom;		
 
 		// Draw
+		// enter
 		var g = selection.select('g.container'); // grab container to draw into (created by base chart)		
-		g.selectAll('.rect')
-				.data(selection.datum(), function(d) { return d[0]; })
-			.enter().append('rect')
+		var gData = g.selectAll('.rect')
+				.data(selection.datum(), function(d) { return xValue(d); })
+		// exit
+	    gData.exit().remove();
+			
+		// enter
+		gData.enter().append('rect')
 				.attr('class', 'rect')
 				.attr('x', function(d) { return x(xValue(d)) })
 				.attr('y', function(d) { return y(yValue(d)) })				
@@ -41,13 +46,15 @@ var bar = function() {
 				.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})
 				.attr('height', function(d) { return innerHeight - y(yValue(d)); });
 
+		// update
 		g.selectAll('.rect').transition()
 			.duration( transitionDuration )
 			.attr('x', function(d) { return x(xValue(d)) })
 			.attr('y', function(d) { return y(yValue(d)) })				
 			.attr('id', function(d) { return id(d)})				
-			.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})
+			.attr('width', function(d) { return Math.max( x(xValue(d)+wValue(d)) - x(xValue(d)), 1 );})
 			.attr('height', function(d) { return innerHeight - y(yValue(d)); });
+	    
 
 		// Add title on hover	   
 	    if (tooltip) {	 

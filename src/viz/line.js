@@ -45,9 +45,12 @@ var line = function(container) {
             .x(function(d,i) { return +x( xValue(d) ); })
             .y(function(d) { return +y( yValue(d) ); })
 
-        var g = selection.select('g.container'); // grab container to draw into (created by base chart)     
-        g.select(".read-depth-path").remove();
-      
+        var g = selection.select('g.container'); // grab container to draw into (created by base chart)             
+
+        // remove previous lines
+        g.select('.line').remove();
+
+        // draw line
         var path = g.append("path")
            .attr('class', "line")
            .attr("d", lineGen(selection.datum()) )
