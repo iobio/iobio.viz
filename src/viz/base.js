@@ -39,7 +39,7 @@ var base = function() {
 		tooltip,
 		brush = d3.svg.brush(),		
 		preserveAspectRatio,
-		transitionDuration = 200;
+		transitionDuration = 400;
 
 	// Default options
 	var defaults = {};
@@ -57,7 +57,7 @@ var base = function() {
 		chart.svg = svg;
 
    		// Otherwise, create svg.      
-		var gEnter = svg.enter().append("svg").append('g').attr('class', 'container');      				
+		var gEnter = svg.enter().append("svg").append('g').attr('class', 'iobio-container');      				
 		var g = svg.select('g');
 
 		// Update the outer dimensions.
@@ -267,7 +267,7 @@ var base = function() {
    	 */	
 	chart.brush = function(event, listener) {
 		if (!arguments.length) return brush;
-		brush.on(event, function() {listener.call(chart, svg)} );
+		brush.on(event, function() {listener.call(chart, chart.svg)} );
 		return chart; 
 	}
 

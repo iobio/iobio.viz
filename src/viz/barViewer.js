@@ -27,7 +27,7 @@ var barViewer = function() {
 		selection.selectAll('div')
 				.data([0,0])
 			.enter().append('div')
-				.attr('class', function(d,i) { return 'iobio-bar-' + i });				
+				.attr('class', function(d,i) { return 'iobio-bar-' + i + ' iobio-barViewer' });				
 		
 		// Call big bar chart
 		var focalBar = bar()	

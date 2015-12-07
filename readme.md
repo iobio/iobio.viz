@@ -1,9 +1,9 @@
 # iobio.viz [![Build Status](https://travis-ci.org/iobio/iobio.viz.svg?branch=master)](https://travis-ci.org/iobio/iobio.viz) [![Coverage Status](https://coveralls.io/repos/iobio/iobio.viz/badge.svg?branch=master)](https://coveralls.io/r/iobio/iobio.viz?branch=master)
 Visualization and charting JS library for streaming genomic data
 
-## Use
+## Charts
 
-#### TODO
+[See supported charts](http://iobio.io/developer.html#charts)
 
 ## Developers
 

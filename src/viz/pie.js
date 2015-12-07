@@ -54,43 +54,32 @@ var pie = function() {
 		var boundingCR = base.getBoundingClientRect();
 
 		// Draw		
-		var g = selection.select('g.container').attr('transform', 'translate(' +boundingCR.width/2+','+boundingCR.height/2+')'); // grab container to draw into (created by base chart)		
+		var g = selection.select('g.iobio-container')
+			.classed('iobio-pie', true)
+			.attr('transform', 'translate(' +boundingCR.width/2+','+boundingCR.height/2+')'); // grab container to draw into (created by base chart)		
 		var gData = g.selectAll('.iobio-arc')
 				.data(selection.datum())		
 
 		// enter
-		gData.enter().append("path")
-         .attr("d", function(d) { return arc({"data":0,"value":0,"startAngle":0,"endAngle":0}) })
+		gData.enter().append("path")		 
+         .attr("d", function(d) { 
+         	// return arc(d); 
+         	return arc({"data":0,"value":0,"startAngle":0,"endAngle":0, "padAngle":0}) 
+         })
          .attr('class', 'iobio-arc')
          .attr('id', id)         
-         .style('fill', color);
-
-        // // Add center text
-        // gData.enter().append("text")
-        //  .attr("dy", "0.3em")
-        //  .style("text-anchor", "middle")
-        //  .attr("class", "iobio-center-text")
-        //  .text(function(d,i) { if(i==0) return text( utils.format_percent(d.data/total) , d.data);});         
+         .style('fill', color)
+         .each(function(d) { this._current = {"data":0,"value":0,"startAngle":0,"endAngle":0, "padAngle":0}; }); // store the initial angles       
 
        // update
        g.selectAll('.iobio-arc').transition()
-         .duration( transitionDuration )
-       	 .attr("d", arc)       	 
-
-       // g.selectAll('.iobio-center-text').transition()
-       // 	.text(function(d,i) { 
-       // 		if(i==0) {
-       // 			console.log('d = ' + d.data);
-       // 			console.log('p = ' + text( utils.format_percent(d.data/total), d.data));
-       // 			return text( utils.format_percent(d.data/total), d.data); 
-       // 		}
-
-       // 	});
+         .duration( transitionDuration )         
+         .attrTween("d", arcTween);       	 
 
        	// exit
 		gData.exit().remove();
 
-		// Add Middle text
+		// Add middle text
 		g.selectAll('.iobio-center-text').data([0]).enter().append('foreignObject')	
 			.attr('x', -innerRadius)
 			.attr('y', -13)
@@ -114,9 +103,22 @@ var pie = function() {
 		// 	g.selectAll('.rect').on(ev.event, cb);			
 		// })	
 
+		
+
 	}
 	// Rebind methods in base.js to this chart
 	base.rebind(chart);
+
+	// Store the displayed angles in _current.
+	// Then, interpolate from _current to the new angles.
+	// During the transition, _current is updated in-place by d3.interpolate.
+	function arcTween(a) {
+	  var i = d3.interpolate(this._current, a);
+	  this._current = i(0);
+	  return function(t) {
+	    return arc(i(t));
+	  };
+	}
 	
    	
    	chart.radius = function(_) {

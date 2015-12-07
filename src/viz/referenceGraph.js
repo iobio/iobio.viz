@@ -38,7 +38,7 @@ var referenceGraph = function() {
 			.hValue(function(d) { return levelHeight * yValue(d); });
 
 		// Draw nodes
-		var g = selection.select('g.container'); // grab container to draw into (created by base chart)
+		var g = selection.select('g.iobio-container').classed('iobio-referenceGraph', true);; // grab container to draw into (created by base chart)
 		var gEnter = g.selectAll('g.node')
 				.data(selection.datum(), function(d) { return d.id ; })
 			.enter().append('svg:g')

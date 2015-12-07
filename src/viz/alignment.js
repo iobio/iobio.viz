@@ -32,7 +32,7 @@ var alignment = function() {
 		}
 
 		// Draw
-		var g = selection.select('g.container'); // grab container to draw into (created by base chart)		
+		var g = selection.select('g.iobio-container').classed('iobio-alignment', true);; // grab container to draw into (created by base chart)		
 		g.selectAll('.rect')
 				.data(selection.datum())
 			.enter().append('rect')

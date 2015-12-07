@@ -37,7 +37,9 @@ var line = function(container) {
             id = base.id();
             xValue = base.xValue(),
             yValue = base.yValue(),         
-            wValue = base.wValue();
+            wValue = base.wValue(),
+            transitionDuration = base.transitionDuration()
+            color = base.color();
 
         // Draw
         var lineGen = d3.svg.line()
@@ -45,7 +47,7 @@ var line = function(container) {
             .x(function(d,i) { return +x( xValue(d) ); })
             .y(function(d) { return +y( yValue(d) ); })
 
-        var g = selection.select('g.container'); // grab container to draw into (created by base chart)             
+        var g = selection.select('g.iobio-container'); // grab container to draw into (created by base chart)             
 
         // remove previous lines
         g.select('.line').remove();
@@ -54,7 +56,7 @@ var line = function(container) {
         var path = g.append("path")
            .attr('class', "line")
            .attr("d", lineGen(selection.datum()) )
-           .attr("stroke", "steelblue")
+           .attr("stroke", color)
            .attr("stroke-width", "2")
            .attr("fill", "none");
 
@@ -64,7 +66,7 @@ var line = function(container) {
            .attr("stroke-dasharray", totalLength + " " + totalLength)
            .attr("stroke-dashoffset", totalLength)
            .transition()
-             .duration(2000)
+             .duration( transitionDuration )
              .ease("linear")
              .attr("stroke-dashoffset", 0);
 

@@ -38,13 +38,19 @@ module.exports.tooltipHelper = function(selection, tooltipElem, titleAccessor) {
 		.on("mouseover", function(d,i) {    
 			var tooltipStr = utils.value_accessor(titleAccessor, d); // handle both function and constant string
 			var opacity = tooltipStr ? .9 : 0; // don't show if tooltipStr is null
+			console.log('d3.mouse(this) = ' + d3.mouse(this))
+			console.log('d3.event.pageX = ' + d3.event.pageX)
+			console.log('d3.event.pageY = ' + d3.event.pageY)
 			tooltipElem.transition()        
 				.duration(200)      
-				.style("opacity", opacity);      
+				.style("opacity", opacity);			
 			tooltipElem.html(tooltipStr)
 				.style("left", (d3.event.pageX) + "px") 
 				.style("text-align", 'left')
 				.style("top", (d3.event.pageY - 24) + "px");    
+				// .style("left", (d3.mouse(this)[0]) + "px") 
+				// .style("text-align", 'left')
+				// .style("top", (d3.mouse(this)[1] - 24) + "px");    
 		})
 		.on("mouseout", function(d) {       
 			tooltipElem.transition()        
