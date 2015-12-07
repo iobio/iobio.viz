@@ -8,7 +8,7 @@
 
 /* Tooltip */
 .iobio-tooltip {   
-	position: absolute; 
+	position: fixed; 
 	top:0px;            
 	text-align: center;           
 	z-index:20;
