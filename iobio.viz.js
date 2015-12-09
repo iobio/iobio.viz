@@ -735,10 +735,7 @@ module.exports.tooltipHelper = function(selection, tooltipElem, titleAccessor) {
 			tooltipElem.html(tooltipStr)
 				.style("left", (d3.event.pageX) + "px") 
 				.style("text-align", 'left')
-				.style("top", (d3.event.pageY - 24) + "px");    
-				// .style("left", (d3.mouse(this)[0]) + "px") 
-				// .style("text-align", 'left')
-				// .style("top", (d3.mouse(this)[1] - 24) + "px");    
+				.style("top", (d3.event.pageY - 24) + "px");
 		})
 		.on("mouseout", function(d) {       
 			tooltipElem.transition()        
@@ -1453,9 +1450,15 @@ var gene = function() {
             wValue = base.wValue(),
             transitionDuration = base.transitionDuration();            
 
-        // Draw
-        // enter
+        // Grab Container
         var g = selection.select('g.iobio-container').classed('iobio-gene', true); // grab container to draw into (created by base chart) 
+
+        // Move Axis up
+        g.select('.iobio-axis').attr('transform', 'translate(0,-25)');    
+
+
+        // Draw
+        // enter        
         var transcript = g.selectAll('.transcript')
                 .data(selection.datum())
         // exit

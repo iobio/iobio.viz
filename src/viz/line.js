@@ -47,7 +47,7 @@ var line = function(container) {
             .x(function(d,i) { return +x( xValue(d) ); })
             .y(function(d) { return +y( yValue(d) ); })
 
-        var g = selection.select('g.iobio-container'); // grab container to draw into (created by base chart)             
+        var g = selection.select('g.iobio-container').classed('iobio-line', true);; // grab container to draw into (created by base chart)             
 
         // remove previous lines
         g.select('.line').remove();
