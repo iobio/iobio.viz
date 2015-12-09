@@ -80,17 +80,17 @@ These features are present on every chart
 
 **tooltipChart** - set tooltips on the entire chart
 
-## Alignment Visualization
+## Alignment Chart
 
-## Gene Model Visualization
+## Gene Model Chart
 
-## Bar Visualization
+## Bar Chart
 
-## Bar Viewer Visualization
+## Bar Viewer Chart
 
-## Pie Visualization
+## Pie Chart
 
-## Line Visualization
+## Line Chart
 
 ## Developers
 
