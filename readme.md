@@ -67,8 +67,16 @@ These features are present on every chart
 ```
 	
 **preserveAspectRatio**
+```JavaScript  
+  // Determines how the chart will scale when the browser size
+  // is changed by user
+  chart.preserveAspectRatio('xMinYMin')
+```
 	
 **getBoundingClientRect** - returns bounding client for chart
+```JavaScript  
+  chart.getBoundingClientRect();
+```
 	
 **transitionDuration** - the duration (in milliseconds) of the standard transitions in a chart
 ```JavaScript
@@ -81,7 +89,7 @@ These features are present on every chart
   chart.color();
 ```
 	
-**brush** - 
+**brush** - the brush selector. This is ad3 brush object. See [brush](https://github.com/mbostock/d3/wiki/SVG-Controls#brush) for full options
 ```JavaScript  
   chart.brush('brush', function() { 
       // Get selected x values
