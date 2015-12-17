@@ -82,24 +82,25 @@ These features are present on every chart
 ```
 	
 **brush** - 
-```JavaScript
-  // set color
+```JavaScript  
   chart.brush('brush', function() { 
-      var x2 = globalBar.x(), brush = globalBar.brush();
+      // Get selected x values
+      var x2 = globalBar.x(), brush = globalBar.brush();      
       var x = brush.empty() ? x2.domain() : brush.extent();           
-      var datum = globalSelection.datum().filter(function(d) { 
-        return (globalBar.xValue()(d) >= x[0] && globalBar.xValue()(d) <= x[1]) 
-      });
-      options.xMin = x[0];
-      options.xMax = x[1];            
-      options.globalBar = globalBar;  
-      focalBar( focalSelection.datum(datum), options );
+      // Do something with x
     });
 ```
 	
 **onChart** - set events on the entire chart
+```JavaScript
+  // Same events as d3
+  chart.onChart('mouseover', function() { alert('hi'); });  
+```
 
 **tooltipChart** - set tooltips on the entire chart
+```JavaScript  
+  chart.tooltipChart(function(d) { return 'hi'; });  
+```
 
 ## Alignment Chart
 
