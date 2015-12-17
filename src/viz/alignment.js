@@ -19,7 +19,8 @@ var alignment = function() {
 			id = base.id();
 			xValue = base.xValue(),
 			yValue = base.yValue(),			
-			wValue = base.wValue();		
+			wValue = base.wValue(),
+			color = base.color();		
 
 		// Change orientation of pileup
 		if (orientation == 'down') {
@@ -35,15 +36,17 @@ var alignment = function() {
 		var g = selection.select('g.iobio-container').classed('iobio-alignment', true);; // grab container to draw into (created by base chart)		
 		g.selectAll('.rect')
 				.data(selection.datum())
-			.enter().append('rect')
+			.enter().append('g')
 				.attr('class', 'rect')
-				.attr('x', function(d) { return x(xValue(d)) })
-				.attr('y', function(d) { return y(yValue(d)) - elemHeight + 2 })				
-				.attr('id', function(d) { return id(d)})
-				.attr('width', function(d) { 
-					return x(xValue(d)+wValue(d)) - x(xValue(d));
-				})
-				.attr('height', function(d) { return elemHeight });
+				.style('fill', color)
+				.append('rect')
+					.attr('x', function(d) { return x(xValue(d)) })
+					.attr('y', function(d) { return y(yValue(d)) - elemHeight + 2 })				
+					.attr('id', function(d) { return id(d)})
+					.attr('width', function(d) { 
+						return x(xValue(d)+wValue(d)) - x(xValue(d));
+					})
+					.attr('height', function(d) { return elemHeight });
 
 		// Add title on hover	   
 	    if (tooltip) {	 

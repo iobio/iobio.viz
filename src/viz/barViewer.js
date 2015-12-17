@@ -59,15 +59,12 @@ var barViewer = function() {
 			.height( origHeight * (1-sizeRatio) )			
 			.brush('brush', function() { 
 				var x2 = globalBar.x(), brush = globalBar.brush();
-	        	var x = brush.empty() ? x2.domain() : brush.extent();
-	        	// x = [10,20];
-	        	console.log('x = ' + x);
+	        	var x = brush.empty() ? x2.domain() : brush.extent();	        	
 	        	var datum = globalSelection.datum().filter(function(d) { 
 	        		return (globalBar.xValue()(d) >= x[0] && globalBar.xValue()(d) <= x[1]) 
 	        	});
 	        	options.xMin = x[0];
-	        	options.xMax = x[1];
-	        	// focalBar.height( origHeight * sizeRatio )
+	        	options.xMax = x[1];	        	
 	        	options.globalBar = globalBar;	
 	           	focalBar( focalSelection.datum(datum), options );
 			});

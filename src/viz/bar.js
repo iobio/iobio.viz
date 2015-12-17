@@ -26,31 +26,35 @@ var bar = function() {
 			xValue = base.xValue(),
 			yValue = base.yValue(),			
 			wValue = base.wValue(),
-			transitionDuration = base.transitionDuration();
+			color = base.color(),
+			transitionDuration = base.transitionDuration(),
 			innerHeight = base.height() - base.margin().top - base.margin().bottom;		
 
 		// Draw
 		// enter
-		var g = selection.select('g.iobio-container').classed('iobio-alignment', true);; // grab container to draw into (created by base chart)		
+		var g = selection.select('g.iobio-container').classed('iobio-bar', true);; // grab container to draw into (created by base chart)		
 		var gData = g.selectAll('.rect')
 				.data(selection.datum(), function(d) { return xValue(d); })
 		// exit
 	    gData.exit().remove();
 			
 		// enter
-		gData.enter().append('rect')
-				.attr('class', 'rect')
+		gData.enter().append('g')				
+			.attr('class', 'rect')			
+			.style('fill', color )
+			.append('rect')					
+				.attr('y', function(d) { return innerHeight })
 				.attr('x', function(d) { return x(xValue(d)) })
-				.attr('y', function(d) { return innerHeight })				
 				.attr('id', id )				
-				.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})
+				.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})				
 				.attr('height', function(d) { return 0; });
 
 		// update
-		g.selectAll('.rect').transition()
+		g.selectAll('.rect').select('rect').transition()
 			.duration( transitionDuration )	
 			.attr('x', function(d) { return x(xValue(d)) })		
-			.attr('y', function(d) { return y(yValue(d)) })										
+			.attr('y', function(d) { return y(yValue(d)) })
+			.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})									
 			.attr('height', function(d) { return innerHeight - y(yValue(d)); });
 	    
 

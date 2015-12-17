@@ -57,22 +57,23 @@ var pie = function() {
 		var g = selection.select('g.iobio-container')
 			.classed('iobio-pie', true)
 			.attr('transform', 'translate(' +boundingCR.width/2+','+boundingCR.height/2+')'); // grab container to draw into (created by base chart)		
-		var gData = g.selectAll('.iobio-arc')
+		var gData = g.selectAll('.arc')
 				.data(selection.datum())		
 
 		// enter
-		gData.enter().append("path")		 
-         .attr("d", function(d) { 
-         	// return arc(d); 
-         	return arc({"data":0,"value":0,"startAngle":0,"endAngle":0, "padAngle":0}) 
-         })
-         .attr('class', 'iobio-arc')
-         .attr('id', id)         
-         .style('fill', color)
-         .each(function(d) { this._current = {"data":0,"value":0,"startAngle":0,"endAngle":0, "padAngle":0}; }); // store the initial angles       
+		gData.enter().append("g")		 
+			.attr('class', 'arc')
+			.style('fill', color)
+			.append('path')
+				.attr("d", function(d) { 
+					// return arc(d); 
+					return arc({"data":0,"value":0,"startAngle":0,"endAngle":0, "padAngle":0}) 
+				})         
+				.attr('id', id)         				
+				.each(function(d) { this._current = {"data":0,"value":0,"startAngle":0,"endAngle":0, "padAngle":0}; }); // store the initial angles       
 
        // update
-       g.selectAll('.iobio-arc').transition()
+       g.selectAll('.arc').select('path').transition()
          .duration( transitionDuration )         
          .attrTween("d", arcTween);       	 
 

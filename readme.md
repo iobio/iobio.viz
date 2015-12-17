@@ -70,11 +70,32 @@ These features are present on every chart
 	
 **getBoundingClientRect** - returns bounding client for chart
 	
-**transitionDuration** - the duration of the standard transitions
+**transitionDuration** - the duration (in milliseconds) of the standard transitions in a chart
+```JavaScript
+  chart.transitionDuration(200);
+```
 	
 **color** - the color of the default glyphs
+```JavaScript
+  // set color
+  chart.color();
+```
 	
 **brush** - 
+```JavaScript
+  // set color
+  chart.brush('brush', function() { 
+      var x2 = globalBar.x(), brush = globalBar.brush();
+      var x = brush.empty() ? x2.domain() : brush.extent();           
+      var datum = globalSelection.datum().filter(function(d) { 
+        return (globalBar.xValue()(d) >= x[0] && globalBar.xValue()(d) <= x[1]) 
+      });
+      options.xMin = x[0];
+      options.xMax = x[1];            
+      options.globalBar = globalBar;  
+      focalBar( focalSelection.datum(datum), options );
+    });
+```
 	
 **onChart** - set events on the entire chart
 

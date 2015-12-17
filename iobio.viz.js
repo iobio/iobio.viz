@@ -782,7 +782,8 @@ var alignment = function() {
 			id = base.id();
 			xValue = base.xValue(),
 			yValue = base.yValue(),			
-			wValue = base.wValue();		
+			wValue = base.wValue(),
+			color = base.color();		
 
 		// Change orientation of pileup
 		if (orientation == 'down') {
@@ -798,15 +799,17 @@ var alignment = function() {
 		var g = selection.select('g.iobio-container').classed('iobio-alignment', true);; // grab container to draw into (created by base chart)		
 		g.selectAll('.rect')
 				.data(selection.datum())
-			.enter().append('rect')
+			.enter().append('g')
 				.attr('class', 'rect')
-				.attr('x', function(d) { return x(xValue(d)) })
-				.attr('y', function(d) { return y(yValue(d)) - elemHeight + 2 })				
-				.attr('id', function(d) { return id(d)})
-				.attr('width', function(d) { 
-					return x(xValue(d)+wValue(d)) - x(xValue(d));
-				})
-				.attr('height', function(d) { return elemHeight });
+				.style('fill', color)
+				.append('rect')
+					.attr('x', function(d) { return x(xValue(d)) })
+					.attr('y', function(d) { return y(yValue(d)) - elemHeight + 2 })				
+					.attr('id', function(d) { return id(d)})
+					.attr('width', function(d) { 
+						return x(xValue(d)+wValue(d)) - x(xValue(d));
+					})
+					.attr('height', function(d) { return elemHeight });
 
 		// Add title on hover	   
 	    if (tooltip) {	 
@@ -885,31 +888,35 @@ var bar = function() {
 			xValue = base.xValue(),
 			yValue = base.yValue(),			
 			wValue = base.wValue(),
-			transitionDuration = base.transitionDuration();
+			color = base.color(),
+			transitionDuration = base.transitionDuration(),
 			innerHeight = base.height() - base.margin().top - base.margin().bottom;		
 
 		// Draw
 		// enter
-		var g = selection.select('g.iobio-container').classed('iobio-alignment', true);; // grab container to draw into (created by base chart)		
+		var g = selection.select('g.iobio-container').classed('iobio-bar', true);; // grab container to draw into (created by base chart)		
 		var gData = g.selectAll('.rect')
 				.data(selection.datum(), function(d) { return xValue(d); })
 		// exit
 	    gData.exit().remove();
 			
 		// enter
-		gData.enter().append('rect')
-				.attr('class', 'rect')
+		gData.enter().append('g')				
+			.attr('class', 'rect')			
+			.style('fill', color )
+			.append('rect')					
+				.attr('y', function(d) { return innerHeight })
 				.attr('x', function(d) { return x(xValue(d)) })
-				.attr('y', function(d) { return innerHeight })				
 				.attr('id', id )				
-				.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})
+				.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})				
 				.attr('height', function(d) { return 0; });
 
 		// update
-		g.selectAll('.rect').transition()
+		g.selectAll('.rect').select('rect').transition()
 			.duration( transitionDuration )	
 			.attr('x', function(d) { return x(xValue(d)) })		
-			.attr('y', function(d) { return y(yValue(d)) })										
+			.attr('y', function(d) { return y(yValue(d)) })
+			.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})									
 			.attr('height', function(d) { return innerHeight - y(yValue(d)); });
 	    
 
@@ -1014,15 +1021,12 @@ var barViewer = function() {
 			.height( origHeight * (1-sizeRatio) )			
 			.brush('brush', function() { 
 				var x2 = globalBar.x(), brush = globalBar.brush();
-	        	var x = brush.empty() ? x2.domain() : brush.extent();
-	        	// x = [10,20];
-	        	console.log('x = ' + x);
+	        	var x = brush.empty() ? x2.domain() : brush.extent();	        	
 	        	var datum = globalSelection.datum().filter(function(d) { 
 	        		return (globalBar.xValue()(d) >= x[0] && globalBar.xValue()(d) <= x[1]) 
 	        	});
 	        	options.xMin = x[0];
-	        	options.xMax = x[1];
-	        	// focalBar.height( origHeight * sizeRatio )
+	        	options.xMax = x[1];	        	
 	        	options.globalBar = globalBar;	
 	           	focalBar( focalSelection.datum(datum), options );
 			});
@@ -1448,6 +1452,7 @@ var gene = function() {
             xValue = base.xValue(),
             yValue = base.yValue(),     
             wValue = base.wValue(),
+            color = base.color(),
             transitionDuration = base.transitionDuration();            
 
         // Grab Container
@@ -1493,31 +1498,18 @@ var gene = function() {
                 .attr('class', 'arrow')
                 .attr('d', centerArrow);      
         
-        transcript.selectAll('.utr').data(function(d) { 
+        transcript.selectAll('.feature').data(function(d) { 
             return d['features'].filter( function(d) { var ft = d.feature_type.toLowerCase(); return ft == 'utr' || ft == 'cds';}) 
-        }).enter().append('rect')
-                .attr('class', function(d) { return d.feature_type.toLowerCase();})          
-                .attr('rx', borderRadius)
-                .attr('ry', borderRadius)
-                .attr('x', function(d) { return x(d.start)})
-                .attr('width', function(d) { return x(d.end) - x(d.start)})
-                .attr('y', trackHeight /2)
-                .attr('height', 0)
-                // .on("mouseover", function(d) {  
-                //         var ttDiv = g.select('.iobio-tooltip');
-                //         ttDiv.transition()        
-                //              .duration(200)      
-                //              .style("opacity", .9);      
-                //         ttDiv.html(d.feature_type + ': ' + d.start + ' - ' + d.end)                                 
-                //  .style("left", (d3.event.pageX) + "px") 
-                //  .style("text-align", 'left')    
-                //  .style("top", (d3.event.pageY - 24) + "px");    
-                //  })                  
-                //  .on("mouseout", function(d) {       
-                //         g.select('.iobio-tooltip').transition()        
-                //              .duration(500)      
-                //              .style("opacity", 0);   
-                //  });           
+        }).enter().append('g')
+                .attr('class', function(d) { return d.feature_type.toLowerCase() + ' feature';})
+                .style('fill', color )
+                .append('rect')
+                    .attr('rx', borderRadius)
+                    .attr('ry', borderRadius)
+                    .attr('x', function(d) { return x(d.start)})
+                    .attr('width', function(d) { return x(d.end) - x(d.start)})
+                    .attr('y', trackHeight /2)
+                    .attr('height', 0); 
 
         // update 
         transcript.transition()
@@ -1540,7 +1532,7 @@ var gene = function() {
             .text( function(d) { return d[1]; } )
             .style('fill-opacity', 1);
 
-        transcript.selectAll('.utr,.cds').sort(function(a,b){ return parseInt(a.start) - parseInt(b.start)})
+        transcript.selectAll('.feature').select('rect').sort(function(a,b){ return parseInt(a.start) - parseInt(b.start)})
             .transition()        
                 .duration(700)
                 .attr('x', function(d) { return x(d.start)})
@@ -1665,25 +1657,6 @@ var line = function(container) {
     var numBins = 4,        
         events = [],
         tooltip;
-   // var margin = {top: 0, right: 30, bottom: 30, left: 30},
-   //        width = $(container).width()*0.98 - margin.left - margin.right,
-   //        height = $(container).height()*0.60 - margin.top - margin.bottom;
-
-   // var numBins = 20;
-   
-   // var x = d3.scale.linear()
-   //     .range([0, width]);
-       
-   // var brush = d3.svg.brush()
-   //    .x(x);
-          
-   // var svg = d3.select(container).append("svg")
-   //    .attr("width", '98%')
-   //    .attr("height", '60%')
-   //    .attr('viewBox',"0 0 " + parseInt(width+margin.left+margin.right) + " " + parseInt(height+margin.top+margin.bottom))
-   //    .attr("preserveAspectRatio", "none")
-   //    .append("g")
-   //       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
   
     function chart(selection, options) {
         // Call base chart
@@ -1705,7 +1678,7 @@ var line = function(container) {
             .x(function(d,i) { return +x( xValue(d) ); })
             .y(function(d) { return +y( yValue(d) ); })
 
-        var g = selection.select('g.iobio-container'); // grab container to draw into (created by base chart)             
+        var g = selection.select('g.iobio-container').classed('iobio-line', true);; // grab container to draw into (created by base chart)             
 
         // remove previous lines
         g.select('.line').remove();
@@ -1714,9 +1687,9 @@ var line = function(container) {
         var path = g.append("path")
            .attr('class', "line")
            .attr("d", lineGen(selection.datum()) )
-           .attr("stroke", color)
-           .attr("stroke-width", "2")
-           .attr("fill", "none");
+           .style("stroke", color)
+           .style("stroke-width", "2")
+           .style("fill", "none");
 
          var totalLength = path.node().getTotalLength();
 
@@ -1734,18 +1707,6 @@ var line = function(container) {
 
     // Rebind methods in 2d.js to this chart
     base.rebind(chart);
-   
-   // my.on = function(ev, listener) { 
-   //    if (ev == "brush" || ev == "brushstart" || ev == "brushend")
-   //       brush.on(ev, function() { listener(x,brush); } );
-   //    return my;
-   // }
-   
-   // my.brush = function(value) {
-   //    if (!arguments.length) return brush;
-   //    brush = value;
-   //    return my;
-   // };
    
    return chart;
 }
@@ -1813,22 +1774,23 @@ var pie = function() {
 		var g = selection.select('g.iobio-container')
 			.classed('iobio-pie', true)
 			.attr('transform', 'translate(' +boundingCR.width/2+','+boundingCR.height/2+')'); // grab container to draw into (created by base chart)		
-		var gData = g.selectAll('.iobio-arc')
+		var gData = g.selectAll('.arc')
 				.data(selection.datum())		
 
 		// enter
-		gData.enter().append("path")		 
-         .attr("d", function(d) { 
-         	// return arc(d); 
-         	return arc({"data":0,"value":0,"startAngle":0,"endAngle":0, "padAngle":0}) 
-         })
-         .attr('class', 'iobio-arc')
-         .attr('id', id)         
-         .style('fill', color)
-         .each(function(d) { this._current = {"data":0,"value":0,"startAngle":0,"endAngle":0, "padAngle":0}; }); // store the initial angles       
+		gData.enter().append("g")		 
+			.attr('class', 'arc')
+			.style('fill', color)
+			.append('path')
+				.attr("d", function(d) { 
+					// return arc(d); 
+					return arc({"data":0,"value":0,"startAngle":0,"endAngle":0, "padAngle":0}) 
+				})         
+				.attr('id', id)         				
+				.each(function(d) { this._current = {"data":0,"value":0,"startAngle":0,"endAngle":0, "padAngle":0}; }); // store the initial angles       
 
        // update
-       g.selectAll('.iobio-arc').transition()
+       g.selectAll('.arc').select('path').transition()
          .duration( transitionDuration )         
          .attrTween("d", arcTween);       	 
 
