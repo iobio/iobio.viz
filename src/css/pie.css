@@ -1,0 +1,13 @@
+.iobio-pie .iobio-center-text {text-align: center;}
+.iobio-pie .iobio-center-text .iobio-percent {
+    fill : rgb(100,100,100);
+    color: rgb(100,100,100);    
+    font-size: 23px;
+}
+
+.iobio-pie .iobio-center-text .iobio-count {
+    font-size: 14px;
+    letter-spacing: 3px;
+    font-weight: 400;    
+    color: rgb(150,150,150);
+}

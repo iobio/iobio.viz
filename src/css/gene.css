@@ -1,0 +1,8 @@
+.iobio-gene .utr { fill: #2d8fc1; stroke: #2d8fc1; }
+.iobio-gene .cds { fill: #2d8fc1; stroke: #2d8fc1; }
+.iobio-gene .reference { stroke: rgb(150,150,150); }
+.iobio-gene .name { font-size: 10px; fill: rgb(120,120,120); }
+.iobio-gene .arrow { stroke: rgb(150,150,150); fill: none; }
+.iobio-gene .iobio-axis path, .iobio-gene .iobio-axis line { fill: none; stroke: rgb(210,210,210); stroke-width: 2px; shape-rendering: crispEdges; }
+.iobio-gene .iobio-axis line { stroke-width: 4px;}
+.iobio-gene .iobio-axis text { font-size: 11px; fill: rgb(130,130,130); }
