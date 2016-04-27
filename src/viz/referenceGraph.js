@@ -2,7 +2,8 @@ var referenceGraph = function() {
 	var graph = require('../layout/graph.js')();
 	var diagonal = d3.svg.diagonal()
     	.projection(function(d) { return [d.y, d.x]; });
-    var utils = require('../utils.js')
+    var utils = require('../utils.js'),
+    	extend = require('extend');
 
 	// Import base chart
 	var base = require('./base.js')();
@@ -15,10 +16,17 @@ var referenceGraph = function() {
 		tooltip,
 		variant = iobio.viz.svg.variant();
 
+    // Default Options
+    var defaults = { };
+
 	// Remove y axis
 	base.yAxis(null);
 
-	function chart(selection, options) {		
+	function chart(selection, opts) {
+		// Merge defaults and options
+		var options = {};
+		extend(options, defaults, opts);
+
 		// Call base chart
 		base.call(this, selection, options);
 
@@ -27,14 +35,14 @@ var referenceGraph = function() {
 			y = base.y().domain([-1,1]),
 			id = base.id(),
 			xValue = base.xValue(),
-			yValue = base.yValue(),			
+			yValue = base.yValue(),
 			wValue = base.wValue();
 
 		// Set variant accessors
 		variant
 			.xValue(function(d) { return x(+xValue(d)); })
-			.wValue(function(d) { return x(xValue(d)+wValue(d)) - x(+xValue(d)); })			
-			.yValue(function(d) { return yValue(d)>0 ? y(0)+elemHeight : y(0); })			
+			.wValue(function(d) { return x(xValue(d)+wValue(d)) - x(+xValue(d)); })
+			.yValue(function(d) { return yValue(d)>0 ? y(0)+elemHeight : y(0); })
 			.hValue(function(d) { return levelHeight * yValue(d); });
 
 		// Draw nodes
@@ -42,20 +50,20 @@ var referenceGraph = function() {
 		var gEnter = g.selectAll('g.node')
 				.data(selection.datum(), function(d) { return d.id ; })
 			.enter().append('svg:g')
-				.attr('class', 'node')				
-		
+				.attr('class', 'node')
+
 		// Draw line
 		selection.selectAll('g.node')
 			.filter(function(d){ return yValue(d) == 0 })
-			.append("svg:rect")			
-				.attr('id', function(d) { return id(d)})	
-				.attr('x', function(d) { return x(+xValue(d)); })	
-				.attr('y', function(d) { return y(+yValue(d)); })			
+			.append("svg:rect")
+				.attr('id', function(d) { return id(d)})
+				.attr('x', function(d) { return x(+xValue(d)); })
+				.attr('y', function(d) { return y(+yValue(d)); })
 				.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(+xValue(d));})
 				.attr('height', function(d) { return elemHeight })
 				.attr('class', function(d) {
 					var step = +yValue(d);
-					if (step == 0) return 'reference'; 
+					if (step == 0) return 'reference';
 					else  if (step > 0) return 'below-variant';
 					else return 'above-variant';
 				});
@@ -63,19 +71,19 @@ var referenceGraph = function() {
 		// Draw Variants
 		selection.selectAll('g.node')
 			.filter(function(d){ return yValue(d) != 0 })
-			.append("svg:path")			
+			.append("svg:path")
 				.attr('id', function(d) { return id(d)})
 				.attr('d', variant)
 				.attr('class', function(d) {
 					var step = +yValue(d);
-					if (step == 0) return 'reference'; 
+					if (step == 0) return 'reference';
 					else  if (step > 0) return 'below-variant';
 					else return 'above-variant';
 				});
 
 		// Add title on hover
-	    if (tooltip) {	 
-	    	var tt = d3.select('.iobio-tooltip')   	
+	    if (tooltip) {
+	    	var tt = d3.select('.iobio-tooltip')
 	    	utils.tooltipHelper(g.selectAll('.node'), tt, tooltip);
 	    }
 
@@ -104,18 +112,18 @@ var referenceGraph = function() {
 	chart.levelHeight = function(_) {
 		if (!arguments.length) return levelHeight;
 		levelHeight = _;
-		return chart; 
+		return chart;
 	}
 
 	/*
-   	 * Set drawing function for variants. Function must have the following 
+   	 * Set drawing function for variants. Function must have the following
    	 * accessor functions:
    	 * xValue, yValue, wValue, hValue
    	 */
 	chart.variant = function(_) {
 		if (!arguments.length) return variant;
 		variant = _;
-		return chart; 
+		return chart;
 	}
 
 	/*
@@ -124,7 +132,7 @@ var referenceGraph = function() {
 	chart.tooltip = function(_) {
 		if (!arguments.length) return tooltip;
 			tooltip = _;
-			return chart; 
+			return chart;
 	}
 
 	return chart;

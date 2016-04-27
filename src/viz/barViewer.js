@@ -13,7 +13,7 @@ var barViewer = function() {
 	// Default Options
 	var defaults = { };
 
-	// Base Chart	
+	// Base Chart
 	var baseBar = bar();
 
 	function chart(selection, opts) {
@@ -27,66 +27,66 @@ var barViewer = function() {
 		selection.selectAll('div')
 				.data([0,0])
 			.enter().append('div')
-				.attr('class', function(d,i) { return 'iobio-bar-' + i + ' iobio-barViewer' });				
-		
+				.attr('class', function(d,i) { return 'iobio-bar-' + i + ' iobio-barViewer' });
+
 		// Call big bar chart
-		var focalBar = bar()	
+		var focalBar = bar()
 			.height( origHeight * sizeRatio )
 			.xValue( chart.xValue() )
 			.yValue( chart.yValue() )
 			.wValue( chart.wValue() )
-			.xAxis( chart.xAxis() )	
-			.yAxis( chart.yAxis() )			
+			.xAxis( chart.xAxis() )
+			.yAxis( chart.yAxis() )
 			.margin( chart.margin() )
-			.width( chart.width() )	
-			.y( chart.y() )	
-			.x( chart.x() )	
-			.id( chart.id() )					
-		
+			.width( chart.width() )
+			.y( chart.y() )
+			.x( chart.x() )
+			.id( chart.id() )
+
 		var focalSelection = selection.select('.iobio-bar-0').datum( selection.datum() )
 		focalBar(focalSelection, options);
 
-		// Call little bar chart		
+		// Call little bar chart
 		var globalBar = bar()
 			.xValue( chart.xValue() )
 			.yValue( chart.yValue() )
 			.wValue( chart.wValue() )
-			.xAxis( chart.xAxis() )			
+			.xAxis( chart.xAxis() )
 			.yAxis( null )
 			.margin( chart.margin() )
-			.width( chart.width() )						
+			.width( chart.width() )
 			.id( chart.id() )
-			.height( origHeight * (1-sizeRatio) )			
-			.brush('brush', function() { 
+			.height( origHeight * (1-sizeRatio) )
+			.brush('brush', function() {
 				var x2 = globalBar.x(), brush = globalBar.brush();
-	        	var x = brush.empty() ? x2.domain() : brush.extent();	        	
-	        	var datum = globalSelection.datum().filter(function(d) { 
-	        		return (globalBar.xValue()(d) >= x[0] && globalBar.xValue()(d) <= x[1]) 
+	        	var x = brush.empty() ? x2.domain() : brush.extent();
+	        	var datum = globalSelection.datum().filter(function(d) {
+	        		return (globalBar.xValue()(d) >= x[0] && globalBar.xValue()(d) <= x[1])
 	        	});
 	        	options.xMin = x[0];
-	        	options.xMax = x[1];	        	
-	        	options.globalBar = globalBar;	
+	        	options.xMax = x[1];
+	        	options.globalBar = globalBar;
 	           	focalBar( focalSelection.datum(datum), options );
 			});
-		
+
 		var globalSelection = selection.select('.iobio-bar-1').datum( selection.datum() )
 		globalBar(globalSelection, options);
 
-		// // Add title on hover	   
-	 //    if (tooltip) {	 
-	 //    	var tt = d3.select('.iobio-tooltip')   	
+		// // Add title on hover
+	 //    if (tooltip) {
+	 //    	var tt = d3.select('.iobio-tooltip')
 	 //    	utils.tooltipHelper(g.selectAll('.rect'), tt, tooltip);
 	 //    }
 
 	 //    // Attach events
 		// events.forEach(function(ev) {
 		// 	var cb = ev.listener ? function() {ev.listener.call(chart, svg)} : null;
-		// 	g.selectAll('.rect').on(ev.event, cb);			
-		// })	
+		// 	g.selectAll('.rect').on(ev.event, cb);
+		// })
 		// focalBar.rebind(this);
 	}
 
-	// Rebind methods in bar chart to this chart	
+	// Rebind methods in bar chart to this chart
 	baseBar.rebind(chart);
 
 	/*
@@ -95,7 +95,7 @@ var barViewer = function() {
 	chart.sizeRatio = function(_) {
 		if (!arguments.length) return sizeRatio;
 		sizeRatio = _;
-		return chart; 
+		return chart;
 	};
 
 	/*
@@ -113,7 +113,7 @@ var barViewer = function() {
 	chart.tooltip = function(_) {
 		if (!arguments.length) return tooltip;
 		tooltip = _;
-		return chart; 
+		return chart;
 	}
 
 	return chart;

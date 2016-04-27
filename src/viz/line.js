@@ -1,14 +1,22 @@
 var line = function(container) {
     // Import base chart
-    var base = require('./base.js')();
-    var utils = require('../utils.js');
+    var base = require('./base.js')(),
+        utils = require('../utils.js'),
+        extend = require('extend');
 
     // Defaults
-    var numBins = 4,        
+    var numBins = 4,
         events = [],
         tooltip;
-  
-    function chart(selection, options) {
+
+    // Default Options
+    var defaults = { };
+
+    function chart(selection, opts) {
+        // Merge defaults and options
+        var options = {};
+        extend(options, defaults, opts);
+
         // Call base chart
         base.call(this, selection, options);
 
@@ -17,7 +25,7 @@ var line = function(container) {
             y = base.y(),
             id = base.id();
             xValue = base.xValue(),
-            yValue = base.yValue(),         
+            yValue = base.yValue(),
             wValue = base.wValue(),
             transitionDuration = base.transitionDuration()
             color = base.color();
@@ -28,36 +36,36 @@ var line = function(container) {
             .x(function(d,i) { return +x( xValue(d) ); })
             .y(function(d) { return +y( yValue(d) ); })
 
-        var g = selection.select('g.iobio-container').classed('iobio-line', true);; // grab container to draw into (created by base chart)             
-
-        // remove previous lines
-        g.select('.line').remove();
+        var g = selection.select('g.iobio-container').classed('iobio-line', true); // grab container to draw into (created by base chart)
 
         // draw line
-        var path = g.append("path")
-           .attr('class', "line")
-           .attr("d", lineGen(selection.datum()) )
-           .style("stroke", color)
-           .style("stroke-width", "2")
-           .style("fill", "none");
+        var gEnter = g.selectAll('.line').data([0])
+            .enter().append("path")
+                .attr('class', "line")
+                .attr("d", lineGen(selection.datum()) )
+                .style("stroke", color)
+                .style("stroke-width", "2")
+                .style("fill", "none");
 
-         var totalLength = path.node().getTotalLength();
+        var path = g.select('path.line');
+        var totalLength = path.node().getTotalLength();
 
-         path
-           .attr("stroke-dasharray", totalLength + " " + totalLength)
-           .attr("stroke-dashoffset", totalLength)
+        // draw line from left first time
+        gEnter
+            .attr("stroke-dasharray", totalLength + " " + totalLength)
+            .attr("stroke-dashoffset", totalLength);
+
+        path
            .transition()
              .duration( transitionDuration )
+             .attr('d', lineGen(selection.datum()) )
              .ease("linear")
              .attr("stroke-dashoffset", 0);
-
-
-      
    }
 
-    // Rebind methods in 2d.js to this chart
+    // Rebind methods in base.js to this chart
     base.rebind(chart);
-   
+
    return chart;
 }
 
