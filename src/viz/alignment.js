@@ -67,26 +67,29 @@ var alignment = function() {
 				.attr('id', function(d) { return id(d)})
 				.style('fill', color)
 				.attr('points', function(d) {
-					var rW = x(xValue(d)+wValue(d)) - x(xValue(d));
+
+					// var rW = x(xValue(d)+wValue(d)) - x(xValue(d));
 					var rH = elemHeight;
-					var arrW = Math.min(5, rW);
+					// var arrW = Math.min(5, rW);
 
 					if (directionValue) // draw arrow
-						return ((-rW/2) + ',' + (-rH/2) + ' '
-							  + (rW/2-arrW) + ',' + (-rH/2) + ' '
-							  + (rW/2) + ',0 '
-							  + (rW/2-arrW) + ',' + (rH/2) + ' '
-							  + (-rW/2) + ',' + (rH/2));
+						return ('-0.1,' + (-rH/2) +
+								' 0,' + (-rH/2) +
+								' 0.1,0' +
+								' 0,' + (rH/2) +
+								' -0.1,' + (rH/2));
 					else // draw rectangle
-						return ((-rW/2) + ',' + (-rH/2) + ' '
-							  + (rW/2) + ',' + (-rH/2) + ' '
-							  + (rW/2) + ',' + (rH/2) + ' '
-							  + (-rW/2) + ',' + (rH/2));
+						return ('-0.1,' + (-rH/2) +
+								' 0,' + (-rH/2) +
+								' 0,' + (rH/2) +
+								' -0.1,' + (rH/2));
 				})
 
 		aln.exit()
 
-		aln.attr('transform', function(d) {
+		aln.transition()
+			.duration(transitionDuration)
+			.attr('transform', function(d) {
 				var translate = 'translate('+parseInt(x(xValue(d) + wValue(d)/2))+','+ parseInt(y(yValue(d))-elemHeight/2) + ')'
 				if (directionValue && directionValue(d) == 'reverse')
 					return translate + ' rotate(180)';
