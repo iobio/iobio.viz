@@ -9,6 +9,5 @@ viz.line = require('./line.js')
 viz.bar = require('./bar.js')
 viz.barViewer = require('./barViewer.js')
 viz.gene = require('./gene.js')
-viz.multiLine = require('./multiLine.js')
 
 module.exports = viz;
