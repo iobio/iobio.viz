@@ -753,6 +753,7 @@ var alignment = function() {
 
 		// Enter
 		aln.enter().append('g')
+			.attr('id', function(d) { return id(d)})
 			.attr('class', 'alignment')
 			.attr('transform', function(d) {
 				var translate = 'translate('+parseInt(x(xValue(d) + wValue(d)/2))+','+ parseInt(y(yValue(d))-elemHeight/2) + ')'
@@ -762,7 +763,6 @@ var alignment = function() {
 					return translate;
 			})
 			.append('polygon')
-				.attr('id', function(d) { return id(d)})
 				.style('fill', color)
 				.attr('points', function(d) {
 
