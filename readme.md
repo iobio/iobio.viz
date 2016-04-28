@@ -91,11 +91,10 @@ These features are present on every chart
 	
 **brush** - the brush selector. This is ad3 brush object. See [brush](https://github.com/mbostock/d3/wiki/SVG-Controls#brush) for full options
 ```JavaScript  
-  chart.brush('brush', function() { 
-      // Get selected x values
-      var x2 = globalBar.x(), brush = globalBar.brush();      
-      var x = brush.empty() ? x2.domain() : brush.extent();           
-      // Do something with x
+  chart.brush('brush', function(brush) { 
+      // Get selected values
+      var region = brush.extent();         
+      // Do something with region
     });
 ```
 	
