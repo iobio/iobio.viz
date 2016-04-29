@@ -40,7 +40,6 @@ module.exports = function(config) {
     files: [
       'test/**/*.js',
       'src/**/*.js',
-      'node_modules/d3/d3.min.js'
     ],
 
     // list of files / patterns to exclude
