@@ -2,14 +2,14 @@
 
 
 
-var iobio = require('../src/viz.js'),
-	d3 = require('d3');
+var d3 = require('d3'),
+	iobio = require('../src/viz.js');
 
-describe("Viz", function() {	
+describe("Viz", function() {
 	var w = 50,
 		h = 50;
-	
-	
+
+
     describe("Base setup", function() {
     	// Create chart to test
     	var base = iobio.viz.base()
@@ -23,27 +23,26 @@ describe("Viz", function() {
 		base.call(this, selection, options);
 
 		it("updates the svg dimensions", function() {
-			console.log('svg calling');
 			var width = div.select('svg').attr('width');
-			var height = div.select('svg').attr('height');			
+			var height = div.select('svg').attr('height');
         	expect(width+","+height).toEqual(w+","+h);
         });
 
-		it("creates a chart with the right width", function() {          
+		it("creates a chart with the right width", function() {
         	expect(base.width()).toEqual(w);
         });
 
-        it("creates a chart with the right height", function() {          
+        it("creates a chart with the right height", function() {
         	expect(base.height()).toEqual(h);
         });
 
         it("creates an x scale with the right domain and range", function() {
-			var x = base.x();          
+			var x = base.x();
 			expect(x(5)).toEqual(25);
         });
 
         it("creates a y scale with the right domain and range", function() {
-			var y = base.x();          
+			var y = base.x();
 			expect(y(5)).toEqual(25);
         });
 
@@ -62,18 +61,18 @@ describe("Viz", function() {
 			.yValue(function(d) { return d.y; })
 			.wValue(function(d) { return d.w; })
 			.id(function(d) { return 'id-' + d.x + '-' + d.y });
-		
+
 		var data = [ {x:0, y:0, w:1}, {x:9, y:10, w:1} ];
 		var div = d3.select("body").append("div");
 		var selection = div.datum( data );
 		var options;
 		base.call(this, selection, options);
 
-    	it("converts xValue from user representation to standard representation", function() {    		
+    	it("converts xValue from user representation to standard representation", function() {
 			expect(base.xValue()(data[0])).toEqual(0);
         });
 
-        it("converts yValue from user representation to standard representation", function() {        	
+        it("converts yValue from user representation to standard representation", function() {
 			expect(base.yValue()(data[1])).toEqual(10);
         });
 
@@ -82,7 +81,7 @@ describe("Viz", function() {
         });
 
         it("sets id for each elem", function() {
-        	var id = 'id-9-10';        	
+        	var id = 'id-9-10';
 			expect(base.id()(data[1])).toEqual(id);
         });
 
@@ -100,7 +99,7 @@ describe("Viz", function() {
 			.yValue(function(d) { return d.y; })
 			.wValue(function(d) { return d.w; })
 			.id(function(d) { return 'id-' + d.x + '-' + d.y });
-		
+
 		var data = [ {x:0, y:0, w:1}, {x:9, y:10, w:1} ];
 		var div = d3.select("body").append("div");
 		var selection = div.datum( data );
@@ -118,6 +117,6 @@ describe("Viz", function() {
         // Cleanup chart
         d3.select('div').remove();
 	})
-    
+
 });
 

@@ -1,7 +1,7 @@
 'use strict';
 
-var iobio = require('../../src/viz.js'),
-	d3 = require('d3');	
+var d3 = require('d3'),
+    iobio = require('../../src/viz.js');
 
 describe("referenceGraph", function() {
   var graph = iobio.viz.layout.graph();
@@ -49,38 +49,38 @@ describe("referenceGraph", function() {
 	    .on('click', function(d) { return 'hi'; })
 	    .tooltip(function(d) { return d.position + ':' + d.sequence })
 	    .levelHeight(20);
-  
+
 	var selection = div.datum( nodes );
-	chart(selection); 
-	    
-    it("the id is being set on elems", function() {      
+	chart(selection);
+
+    it("the id is being set on elems", function() {
       expect(document.getElementById('variant-7')).not.toEqual(null);
     });
 
-    it("the tooltip is being set", function() {      
+    it("the tooltip is being set", function() {
       expect(typeof d3.selectAll('.node').on('mouseover')).toEqual('function');
     });
 
-    it("the event is being set", function() {      
+    it("the event is being set", function() {
       expect(typeof d3.selectAll('.node').on('click')).toEqual('function');
     });
-    
+
 
     describe("variant", function() {
     	var bb = document.getElementById('variant-7').getBBox();
-		it("is being drawn with the right x value", function() {      
+		it("is being drawn with the right x value", function() {
 	      expect(bb.x).toEqual(98);
 	    });
 
-	    it("is being drawn with the right y value", function() {      		  
+	    it("is being drawn with the right y value", function() {
 	      expect(bb.y).toEqual(197.5);
-	    });    
+	    });
 
-	   	it("is being drawn with the right width", function() {      		  
+	   	it("is being drawn with the right width", function() {
 	      expect(bb.width).toEqual(17);
 	    });
 	})
-    
+
 });
 
 function parseDot(text) {
@@ -98,8 +98,8 @@ function parseDot(text) {
       var fields = line.split('[');
       var nodeId = parseInt(fields[0]);
       var value = fields[1].split(/"|'/)[1];
-      var pos = parseInt( value.split(' ')[0] );      
-      var seq = value.split(' ')[1];  
+      var pos = parseInt( value.split(' ')[0] );
+      var seq = value.split(' ')[1];
 
       if (nodes[nodeId] == undefined) {
         var node = {id:nodeId, sources:[], targets:[], position:pos, sequence:seq}
@@ -109,7 +109,7 @@ function parseDot(text) {
         nodes[nodeId].position = pos;
       }
     } else { // handle edge
-      var fields = line.split('->');    
+      var fields = line.split('->');
       var sourceId = parseInt(fields[0]);
       var targetId = parseInt(fields[1]);
 
