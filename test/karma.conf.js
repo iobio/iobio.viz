@@ -18,7 +18,7 @@ module.exports = function(config) {
 
     preprocessors: {
       'test/**/*.js': [ 'browserify' ],
-      'src/**/*.js': [ 'browserify' ],      
+      'src/**/*.js': [ 'browserify' ],
     },
 
     // generate results in lcov format for coveralls
@@ -37,9 +37,10 @@ module.exports = function(config) {
     basePath: '../',
 
     // list of files / patterns to load in the browser
-    files: [      
+    files: [
       'test/**/*.js',
-      'src/**/*.js'     
+      'src/**/*.js',
+      'node_modules/d3/d3.min.js'
     ],
 
     // list of files / patterns to exclude
@@ -72,6 +73,6 @@ module.exports = function(config) {
     // level of logging
     // possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
     logLevel: config.LOG_INFO,
-    
+
   });
 };
