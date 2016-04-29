@@ -68,9 +68,9 @@ var base = function() {
 		g.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 		// Get width, height in pixels (necessary to allow percentages to work)
-		var boundingClientRect = svg.node().getBoundingClientRect();
-		var widthPx = boundingClientRect.width;
-		var heightPx = boundingClientRect.height;
+		var bcr = svg.node().getBoundingClientRect();
+		var widthPx = bcr.width != 0 ? bcr.width : width; // in case boundingClient doesn't work just use width
+		var heightPx = bcr.height != 0 ? bcr.height : height;
 		var innerHeight = heightPx - margin.top - margin.bottom;
 
 		// Make svg resize when window resizes
