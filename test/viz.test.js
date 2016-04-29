@@ -40,6 +40,8 @@ describe("Viz", function() {
 
         it("creates an x scale with the right domain and range", function() {
 			var x = base.x();
+			console.log('x.domain = ' + x.domain())
+			console.log('x.range = ' + x.range())
 			expect(x(5)).toEqual(25);
         });
 
