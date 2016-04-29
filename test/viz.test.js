@@ -5,6 +5,8 @@
 var d3 = require('d3'),
 	iobio = require('../src/viz.js');
 
+global.d3 = d3;
+
 describe("Viz", function() {
 	var w = 50,
 		h = 50;

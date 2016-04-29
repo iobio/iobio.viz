@@ -1,8 +1,6 @@
 var utils = require('../utils.js'),
 	extend = require('extend');
 
-if (!d3) d3 = require('d3');
-
 var base = function() {
     // Initialize
 
