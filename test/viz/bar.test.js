@@ -29,7 +29,7 @@ var chart = iobio.viz.bar()
 var selection = div.datum( d );
 chart( selection );
 
-describe("bar", function() {
+describe("bar viz", function() {
 
     // Even transitions with 0 duration take 17ms
     // So delay all tests for 50 ms so transitions can finish
@@ -66,6 +66,7 @@ describe("bar", function() {
 
         it("is being drawn with the right width", function() {
           expect(parseInt(r.getAttribute('width'))).toEqual(14);
+          console.log('bbox.height = ' + r.getBBox().height);
         });
 
         // it("is being drawn with the right height", function() {

@@ -25,7 +25,7 @@ var chart = iobio.viz.gene()
 var selection = div.datum( data );
 chart( selection );
 
-describe("gene", function() {
+describe("gene viz", function() {
 
     // Even transitions with 0 duration take 17ms
     // So delay all tests for 50 ms so transitions can finish

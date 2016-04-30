@@ -33,13 +33,13 @@ var bar = function() {
 		// Draw
 		// enter
 		var g = selection.select('g.iobio-container').classed('iobio-bar', true);; // grab container to draw into (created by base chart)
-		var gData = g.selectAll('.rect')
+		var rect = g.selectAll('.rect')
 				.data(selection.datum(), function(d) { return xValue(d); })
 		// exit
-	    gData.exit().remove();
+	    rect.exit().remove();
 
 		// enter
-		gData.enter().append('g')
+		rect.enter().append('g')
 			.attr('id', id )
 			.attr('class', 'rect')
 			.style('fill', color )
@@ -50,7 +50,7 @@ var bar = function() {
 				.attr('height', function(d) { return 0; });
 
 		// update
-		g.selectAll('.rect').select('rect').transition()
+		rect.select('rect').transition()
 			.duration( transitionDuration )
 			.attr('x', function(d) { return x(xValue(d)) })
 			.attr('y', function(d) { return y(yValue(d)) })
@@ -66,8 +66,7 @@ var bar = function() {
 
 	    // Attach events
 		events.forEach(function(ev) {
-			var cb = ev.listener ? function() {ev.listener.call(chart, svg)} : null;
-			g.selectAll('.rect').on(ev.event, cb);
+			rect.on(ev.event, ev.listener);
 		})
 
 	}

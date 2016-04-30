@@ -126,8 +126,7 @@ var alignment = function() {
 
 	    // Attach events
 		events.forEach(function(ev) {
-			var cb = ev.listener ? function() {ev.listener.call(chart, svg)} : null;
-			g.selectAll('.alignment').on(ev.event, cb);
+			g.selectAll('.alignment').on(ev.event, ev.listener);
 		})
 
 	}

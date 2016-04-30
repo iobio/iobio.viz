@@ -824,8 +824,7 @@ var alignment = function() {
 
 	    // Attach events
 		events.forEach(function(ev) {
-			var cb = ev.listener ? function() {ev.listener.call(chart, svg)} : null;
-			g.selectAll('.alignment').on(ev.event, cb);
+			g.selectAll('.alignment').on(ev.event, ev.listener);
 		})
 
 	}
@@ -909,13 +908,13 @@ var bar = function() {
 		// Draw
 		// enter
 		var g = selection.select('g.iobio-container').classed('iobio-bar', true);; // grab container to draw into (created by base chart)
-		var gData = g.selectAll('.rect')
+		var rect = g.selectAll('.rect')
 				.data(selection.datum(), function(d) { return xValue(d); })
 		// exit
-	    gData.exit().remove();
+	    rect.exit().remove();
 
 		// enter
-		gData.enter().append('g')
+		rect.enter().append('g')
 			.attr('id', id )
 			.attr('class', 'rect')
 			.style('fill', color )
@@ -926,7 +925,7 @@ var bar = function() {
 				.attr('height', function(d) { return 0; });
 
 		// update
-		g.selectAll('.rect').select('rect').transition()
+		rect.select('rect').transition()
 			.duration( transitionDuration )
 			.attr('x', function(d) { return x(xValue(d)) })
 			.attr('y', function(d) { return y(yValue(d)) })
@@ -942,8 +941,7 @@ var bar = function() {
 
 	    // Attach events
 		events.forEach(function(ev) {
-			var cb = ev.listener ? function() {ev.listener.call(chart, svg)} : null;
-			g.selectAll('.rect').on(ev.event, cb);
+			rect.on(ev.event, ev.listener);
 		})
 
 	}
@@ -1568,6 +1566,11 @@ var gene = function() {
             utils.tooltipHelper(transcript.selectAll('.utr,.cds'), tt, tooltip);
         }
 
+        // Attach events
+        events.forEach(function(ev) {
+            g.selectAll('.transcript').on(ev.event, ev.listener);
+        })
+
     }
     // Rebind methods in base.js to this chart
     base.rebind(chart);
@@ -1654,6 +1657,18 @@ var gene = function() {
         return chart;
     };
 
+    /*
+     * Set events on rects
+     */
+    chart.on = function(event, listener) {
+        if (!arguments.length) return events;
+        events.push( {'event':event, 'listener':listener})
+        return chart;
+    }
+
+    /*
+     * Set tooltip that appears when mouseover rects
+     */
     chart.tooltip = function(_) {
         if (!arguments.length) return tooltip;
         tooltip = _;
@@ -1754,6 +1769,8 @@ var pie = function() {
 	var radius = 90,
 		innerRadius = 0,
 		arc,
+		events = [],
+		tooltip,
 		text = function(data, total) {
 			var count = data[0].data;
 			var percent = utils.format_percent(count/total);
@@ -1799,11 +1816,11 @@ var pie = function() {
 		var g = selection.select('g.iobio-container')
 			.classed('iobio-pie', true)
 			.attr('transform', 'translate(' +boundingCR.width/2+','+boundingCR.height/2+')'); // grab container to draw into (created by base chart)
-		var gData = g.selectAll('.arc')
+		var path = g.selectAll('.arc')
 				.data(selection.datum())
 
 		// enter
-		gData.enter().append("g")
+		path.enter().append("g")
 			.attr('id', id)
 			.attr('class', 'arc')
 			.style('fill', color)
@@ -1814,13 +1831,13 @@ var pie = function() {
 				})
 				.each(function(d) { this._current = {"data":0,"value":0,"startAngle":0,"endAngle":0, "padAngle":0}; }); // store the initial angles
 
-       // update
-       g.selectAll('.arc').select('path').transition()
-         .duration( transitionDuration )
-         .attrTween("d", arcTween);
+       	// update
+       	path.select('path').transition()
+         	.duration( transitionDuration )
+         	.attrTween("d", arcTween);
 
        	// exit
-		gData.exit().remove();
+		path.exit().remove();
 
 		// Add middle text
 		g.selectAll('.iobio-center-text').data([0]).enter().append('foreignObject')
@@ -1835,16 +1852,15 @@ var pie = function() {
 		// g.selectAll('.iobio-center-text').text( text(selection.datum(), total) );
 
 		// Add title on hover
-	    // if (tooltip) {
-	    // 	var tt = d3.select('.iobio-tooltip')
-	    // 	utils.tooltipHelper(g.selectAll('.rect'), tt, tooltip);
-	    // }
+	    if (tooltip) {
+	    	var tt = d3.select('.iobio-tooltip')
+	    	utils.tooltipHelper(g.selectAll('.arc'), tt, tooltip);
+	    }
 
 	    // Attach events
-		// events.forEach(function(ev) {
-		// 	var cb = ev.listener ? function() {ev.listener.call(chart, svg)} : null;
-		// 	g.selectAll('.rect').on(ev.event, cb);
-		// })
+		events.forEach(function(ev) {
+			path.on(ev.event, ev.listener);
+		})
 
 
 
@@ -1881,6 +1897,15 @@ var pie = function() {
 		if (!arguments.length) return text;
 		text = _;
 		return text;
+	}
+
+		/*
+   	 * Set events on rects
+   	 */
+	chart.on = function(event, listener) {
+		if (!arguments.length) return events;
+		events.push( {'event':event, 'listener':listener})
+		return chart;
 	}
 
 	/*

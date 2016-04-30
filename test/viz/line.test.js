@@ -3,7 +3,7 @@
 var d3 = require('d3'),
     iobio = require('../../src/viz.js');
 
-describe("line", function() {
+describe("line viz", function() {
     var m = [15, 35, 25, 150],
             w = 800,
             h = 600;

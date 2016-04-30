@@ -155,6 +155,11 @@ var gene = function() {
             utils.tooltipHelper(transcript.selectAll('.utr,.cds'), tt, tooltip);
         }
 
+        // Attach events
+        events.forEach(function(ev) {
+            g.selectAll('.transcript').on(ev.event, ev.listener);
+        })
+
     }
     // Rebind methods in base.js to this chart
     base.rebind(chart);
@@ -241,6 +246,18 @@ var gene = function() {
         return chart;
     };
 
+    /*
+     * Set events on rects
+     */
+    chart.on = function(event, listener) {
+        if (!arguments.length) return events;
+        events.push( {'event':event, 'listener':listener})
+        return chart;
+    }
+
+    /*
+     * Set tooltip that appears when mouseover rects
+     */
     chart.tooltip = function(_) {
         if (!arguments.length) return tooltip;
         tooltip = _;

@@ -25,7 +25,7 @@ var barViewerChart = iobio.viz.barViewer()
 var selection = div.datum( data );
 barViewerChart( selection );
 
-describe("barViewer", function() {
+describe("barViewer viz", function() {
 
     // Even transitions with 0 duration take 17ms
     // So delay all tests for 50 ms so transitions can finish
@@ -45,14 +45,6 @@ describe("barViewer", function() {
     it("the id is being set on globalBarChart elems", function() {
         expect(d3.select('.barViewerchart .iobio-bar-1 #bar-2').node()).not.toEqual(null);
     });
-
-    // it("the tooltip is being set", function() {
-    //     expect(typeof d3.select('.barViewerchart #bar-2').on('mouseover')).toEqual('function');
-    // });
-
-    // it("the event is being set", function() {
-    //     expect(typeof d3.select('.barViewerchart #bar-2').on('click')).toEqual('function');
-    // });
 
     describe("rect", function() {
         var r = d3.select('.barViewerchart #bar-2 rect').node();

@@ -26,7 +26,7 @@ var chart = iobio.viz.alignment()
 var selection = div.datum( pileup(data) );
 chart(selection);
 
-describe("alignment", function() {
+describe("alignment viz", function() {
 
     // Even transitions with 0 duration take 17ms
     // So delay all tests for 50 ms so transitions can finish
