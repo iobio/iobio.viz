@@ -900,51 +900,51 @@ var bar = function() {
 			y = base.y(),
 			id = base.id();
 			xValue = base.xValue(),
-			yValue = base.yValue(),			
+			yValue = base.yValue(),
 			wValue = base.wValue(),
 			color = base.color(),
 			transitionDuration = base.transitionDuration(),
-			innerHeight = base.height() - base.margin().top - base.margin().bottom;		
+			innerHeight = base.height() - base.margin().top - base.margin().bottom;
 
 		// Draw
 		// enter
-		var g = selection.select('g.iobio-container').classed('iobio-bar', true);; // grab container to draw into (created by base chart)		
+		var g = selection.select('g.iobio-container').classed('iobio-bar', true);; // grab container to draw into (created by base chart)
 		var gData = g.selectAll('.rect')
 				.data(selection.datum(), function(d) { return xValue(d); })
 		// exit
 	    gData.exit().remove();
-			
+
 		// enter
-		gData.enter().append('g')				
-			.attr('class', 'rect')			
+		gData.enter().append('g')
+			.attr('id', id )
+			.attr('class', 'rect')
 			.style('fill', color )
-			.append('rect')					
+			.append('rect')
 				.attr('y', function(d) { return innerHeight })
 				.attr('x', function(d) { return x(xValue(d)) })
-				.attr('id', id )				
-				.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})				
+				.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})
 				.attr('height', function(d) { return 0; });
 
 		// update
 		g.selectAll('.rect').select('rect').transition()
-			.duration( transitionDuration )	
-			.attr('x', function(d) { return x(xValue(d)) })		
+			.duration( transitionDuration )
+			.attr('x', function(d) { return x(xValue(d)) })
 			.attr('y', function(d) { return y(yValue(d)) })
-			.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})									
+			.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})
 			.attr('height', function(d) { return innerHeight - y(yValue(d)); });
-	    
 
-		// Add title on hover	   
-	    if (tooltip) {	 
-	    	var tt = d3.select('.iobio-tooltip')   	
+
+		// Add title on hover
+	    if (tooltip) {
+	    	var tt = d3.select('.iobio-tooltip')
 	    	utils.tooltipHelper(g.selectAll('.rect'), tt, tooltip);
 	    }
 
 	    // Attach events
 		events.forEach(function(ev) {
 			var cb = ev.listener ? function() {ev.listener.call(chart, svg)} : null;
-			g.selectAll('.rect').on(ev.event, cb);			
-		})	
+			g.selectAll('.rect').on(ev.event, cb);
+		})
 
 	}
 	// Rebind methods in base.js to this chart
@@ -965,7 +965,7 @@ var bar = function() {
 	chart.tooltip = function(_) {
 		if (!arguments.length) return tooltip;
 			tooltip = _;
-			return chart; 
+			return chart;
 	}
 
 	return chart;
@@ -1018,6 +1018,7 @@ var barViewer = function() {
 			.y( chart.y() )
 			.x( chart.x() )
 			.id( chart.id() )
+			.transitionDuration( chart.transitionDuration() )
 
 		var focalSelection = selection.select('.iobio-bar-0').datum( selection.datum() )
 		focalBar(focalSelection, options);
@@ -1031,6 +1032,7 @@ var barViewer = function() {
 			.yAxis( null )
 			.margin( chart.margin() )
 			.width( chart.width() )
+			.transitionDuration( chart.transitionDuration() )
 			.id( chart.id() )
 			.height( origHeight * (1-sizeRatio) )
 			.brush('brush', function() {
@@ -1802,6 +1804,7 @@ var pie = function() {
 
 		// enter
 		gData.enter().append("g")
+			.attr('id', id)
 			.attr('class', 'arc')
 			.style('fill', color)
 			.append('path')
@@ -1809,7 +1812,6 @@ var pie = function() {
 					// return arc(d);
 					return arc({"data":0,"value":0,"startAngle":0,"endAngle":0, "padAngle":0})
 				})
-				.attr('id', id)
 				.each(function(d) { this._current = {"data":0,"value":0,"startAngle":0,"endAngle":0, "padAngle":0}; }); // store the initial angles
 
        // update

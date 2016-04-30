@@ -61,6 +61,7 @@ var pie = function() {
 
 		// enter
 		gData.enter().append("g")
+			.attr('id', id)
 			.attr('class', 'arc')
 			.style('fill', color)
 			.append('path')
@@ -68,7 +69,6 @@ var pie = function() {
 					// return arc(d);
 					return arc({"data":0,"value":0,"startAngle":0,"endAngle":0, "padAngle":0})
 				})
-				.attr('id', id)
 				.each(function(d) { this._current = {"data":0,"value":0,"startAngle":0,"endAngle":0, "padAngle":0}; }); // store the initial angles
 
        // update

@@ -7,7 +7,7 @@ var m = [15, 35, 20, 150],
         w = 400,
         h = 200;
 
-var data1 = [{start:1, end:3, id:'1'}, {start:2, end:4, id:'2'}, {start:3, end:5, id:'3'},{start:4, end:6, id:'4'}];
+var data = [{start:1, end:3, id:'1'}, {start:2, end:4, id:'2'}, {start:3, end:5, id:'3'},{start:4, end:6, id:'4'}];
 var div = d3.select("body").append("div").attr('class', 'alignmentchart');
 
 var pileup = iobio.viz.layout.pileup().sort(null).size(w + m[1] + m[3]);
@@ -23,8 +23,7 @@ var chart = iobio.viz.alignment()
     .on('click', function(d){})
     .tooltip(function(d){});
 
-var p = pileup(data1);
-var selection = div.datum( p );
+var selection = div.datum( pileup(data) );
 chart(selection);
 
 describe("alignment", function() {
