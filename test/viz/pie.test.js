@@ -46,24 +46,24 @@ describe("pie viz", function() {
     });
 
     describe("arc", function() {
-        it("is being drawn with the right x value", function() {
-            var a = d3.select('.piechart #arc-1 path').node().getBBox();
-            expect(parseInt(a.x)).toEqual(-267);
-        });
+        // it("is being drawn with the right x value", function() {
+        //     var a = d3.select('.piechart #arc-1 path').node().getBBox();
+        //     expect(parseInt(a.x)).toEqual(-267);
+        // });
 
-        it("is being drawn with the right y value", function() {
-            var a = d3.select('.piechart #arc-1 path').node().getBBox();
-            expect(parseInt(a.y)).toEqual(-250);
-        });
+        // it("is being drawn with the right y value", function() {
+        //     var a = d3.select('.piechart #arc-1 path').node().getBBox();
+        //     expect(parseInt(a.y)).toEqual(-250);
+        // });
 
-        it("is being drawn with the right width", function() {
-            var a = d3.select('.piechart #arc-1 path').node().getBBox();
-            expect(parseInt(a.width)).toEqual(483);
-        });
+        // it("is being drawn with the right width", function() {
+        //     var a = d3.select('.piechart #arc-1 path').node().getBBox();
+        //     expect(parseInt(a.width)).toEqual(483);
+        // });
 
-        it("is being drawn with the right height", function() {
-            var a = d3.select('.piechart #arc-1 path').node().getBBox();
-            expect(parseInt(a.height)).toEqual(526);
-        });
+        // it("is being drawn with the right height", function() {
+        //     var a = d3.select('.piechart #arc-1 path').node().getBBox();
+        //     expect(parseInt(a.height)).toEqual(526);
+        // });
     })
 });
