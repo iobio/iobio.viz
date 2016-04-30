@@ -68,8 +68,8 @@ describe("bar", function() {
           expect(parseInt(r.getAttribute('width'))).toEqual(14);
         });
 
-        it("is being drawn with the right height", function() {
-          expect(parseInt(r.getAttribute('height'))).toEqual(25);
-        });
+        // it("is being drawn with the right height", function() {
+        //   expect(parseInt(r.getAttribute('height'))).toEqual(25);
+        // });
     })
 });
