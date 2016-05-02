@@ -1,6 +1,9 @@
 # iobio.viz [![Build Status](https://travis-ci.org/iobio/iobio.viz.svg?branch=master)](https://travis-ci.org/iobio/iobio.viz) [![Coverage Status](https://coveralls.io/repos/iobio/iobio.viz/badge.svg?branch=master)](https://coveralls.io/r/iobio/iobio.viz?branch=master)
 Visualization and charting JS library for streaming genomic data
 
+## Charts
+[See all chart types and examples](http://iobio.io/developer.html)
+
 ## Base Attributes
 These features are present on every chart
 
@@ -108,18 +111,6 @@ These features are present on every chart
 ```JavaScript  
   chart.tooltipChart(function(d) { return 'hi'; });  
 ```
-
-## Alignment Chart
-
-## Gene Model Chart
-
-## Bar Chart
-
-## Bar Viewer Chart
-
-## Pie Chart
-
-## Line Chart
 
 ## Developers
 
