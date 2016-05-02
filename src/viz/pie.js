@@ -74,9 +74,10 @@ var pie = function() {
 				.each(function(d) { this._current = {"data":0,"value":0,"startAngle":0,"endAngle":0, "padAngle":0}; }); // store the initial angles
 
        	// update
-       	path.select('path').transition()
-         	.duration( transitionDuration )
-         	.attrTween("d", arcTween);
+       	path.style('fill', color)
+       		.select('path').transition()
+	         	.duration( transitionDuration )
+	         	.attrTween("d", arcTween);
 
        	// exit
 		path.exit().remove();

@@ -64,8 +64,8 @@ var alignment = function() {
 				else
 					return translate;
 			})
+			.style('fill', color)
 			.append('polygon')
-				.style('fill', color)
 				.attr('points', function(d) {
 
 					// var rW = x(xValue(d)+wValue(d)) - x(xValue(d));
@@ -96,10 +96,10 @@ var alignment = function() {
 				else
 					return translate;
 			})
+			.style('fill', color);
 
 		aln.select('polygon').transition()
 			.duration(transitionDuration)
-			.style('fill', color)
 			.attr('points', function(d) {
 				var rW = x(xValue(d)+wValue(d)) - x(xValue(d));
 				var rH = elemHeight;

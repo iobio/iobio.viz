@@ -762,8 +762,8 @@ var alignment = function() {
 				else
 					return translate;
 			})
+			.style('fill', color)
 			.append('polygon')
-				.style('fill', color)
 				.attr('points', function(d) {
 
 					// var rW = x(xValue(d)+wValue(d)) - x(xValue(d));
@@ -794,10 +794,10 @@ var alignment = function() {
 				else
 					return translate;
 			})
+			.style('fill', color);
 
 		aln.select('polygon').transition()
 			.duration(transitionDuration)
-			.style('fill', color)
 			.attr('points', function(d) {
 				var rW = x(xValue(d)+wValue(d)) - x(xValue(d));
 				var rH = elemHeight;
@@ -925,12 +925,14 @@ var bar = function() {
 				.attr('height', function(d) { return 0; });
 
 		// update
-		rect.select('rect').transition()
-			.duration( transitionDuration )
-			.attr('x', function(d) { return x(xValue(d)) })
-			.attr('y', function(d) { return y(yValue(d)) })
-			.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})
-			.attr('height', function(d) { return innerHeight - y(yValue(d)); });
+		rect
+			.style('fill', color )
+			.select('rect').transition()
+				.duration( transitionDuration )
+				.attr('x', function(d) { return x(xValue(d)) })
+				.attr('y', function(d) { return y(yValue(d)) })
+				.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})
+				.attr('height', function(d) { return innerHeight - y(yValue(d)); });
 
 
 		// Add title on hover
@@ -1548,17 +1550,19 @@ var gene = function() {
             .text( function(d) { return d[1]; } )
             .style('fill-opacity', 1);
 
-        transcript.selectAll('.feature').selectAll('rect').sort(function(a,b){ return parseInt(a.start) - parseInt(b.start)})
-            .transition()
-                .duration(transitionDuration)
-                .attr('x', function(d) { return x(d.start)})
-                .attr('width', function(d) { return x(d.end) - x(d.start)})
-                .attr('y', function(d) {
-                    if(d.feature_type.toLowerCase() =='utr') return (trackHeight - utrHeight)/2;
-                    else return (trackHeight - cdsHeight)/2; })
-                .attr('height', function(d) {
-                    if(d.feature_type.toLowerCase() =='utr') return utrHeight;
-                    else return cdsHeight; });
+        transcript.selectAll('.feature')
+            .style('fill', color )
+            .selectAll('rect').sort(function(a,b){ return parseInt(a.start) - parseInt(b.start)})
+                .transition()
+                    .duration(transitionDuration)
+                    .attr('x', function(d) { return x(d.start)})
+                    .attr('width', function(d) { return x(d.end) - x(d.start)})
+                    .attr('y', function(d) {
+                        if(d.feature_type.toLowerCase() =='utr') return (trackHeight - utrHeight)/2;
+                        else return (trackHeight - cdsHeight)/2; })
+                    .attr('height', function(d) {
+                        if(d.feature_type.toLowerCase() =='utr') return utrHeight;
+                        else return cdsHeight; });
 
         // Add tooltip on hover
         if (tooltip) {
@@ -1832,9 +1836,10 @@ var pie = function() {
 				.each(function(d) { this._current = {"data":0,"value":0,"startAngle":0,"endAngle":0, "padAngle":0}; }); // store the initial angles
 
        	// update
-       	path.select('path').transition()
-         	.duration( transitionDuration )
-         	.attrTween("d", arcTween);
+       	path.style('fill', color)
+       		.select('path').transition()
+	         	.duration( transitionDuration )
+	         	.attrTween("d", arcTween);
 
        	// exit
 		path.exit().remove();

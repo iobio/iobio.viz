@@ -50,12 +50,14 @@ var bar = function() {
 				.attr('height', function(d) { return 0; });
 
 		// update
-		rect.select('rect').transition()
-			.duration( transitionDuration )
-			.attr('x', function(d) { return x(xValue(d)) })
-			.attr('y', function(d) { return y(yValue(d)) })
-			.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})
-			.attr('height', function(d) { return innerHeight - y(yValue(d)); });
+		rect
+			.style('fill', color )
+			.select('rect').transition()
+				.duration( transitionDuration )
+				.attr('x', function(d) { return x(xValue(d)) })
+				.attr('y', function(d) { return y(yValue(d)) })
+				.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})
+				.attr('height', function(d) { return innerHeight - y(yValue(d)); });
 
 
 		// Add title on hover

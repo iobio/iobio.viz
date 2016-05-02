@@ -66,7 +66,6 @@ describe("bar viz", function() {
 
         it("is being drawn with the right width", function() {
           expect(parseInt(r.getAttribute('width'))).toEqual(14);
-          console.log('bbox.height = ' + r.getBBox().height);
         });
 
         // it("is being drawn with the right height", function() {

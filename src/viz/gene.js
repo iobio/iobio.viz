@@ -137,17 +137,19 @@ var gene = function() {
             .text( function(d) { return d[1]; } )
             .style('fill-opacity', 1);
 
-        transcript.selectAll('.feature').selectAll('rect').sort(function(a,b){ return parseInt(a.start) - parseInt(b.start)})
-            .transition()
-                .duration(transitionDuration)
-                .attr('x', function(d) { return x(d.start)})
-                .attr('width', function(d) { return x(d.end) - x(d.start)})
-                .attr('y', function(d) {
-                    if(d.feature_type.toLowerCase() =='utr') return (trackHeight - utrHeight)/2;
-                    else return (trackHeight - cdsHeight)/2; })
-                .attr('height', function(d) {
-                    if(d.feature_type.toLowerCase() =='utr') return utrHeight;
-                    else return cdsHeight; });
+        transcript.selectAll('.feature')
+            .style('fill', color )
+            .selectAll('rect').sort(function(a,b){ return parseInt(a.start) - parseInt(b.start)})
+                .transition()
+                    .duration(transitionDuration)
+                    .attr('x', function(d) { return x(d.start)})
+                    .attr('width', function(d) { return x(d.end) - x(d.start)})
+                    .attr('y', function(d) {
+                        if(d.feature_type.toLowerCase() =='utr') return (trackHeight - utrHeight)/2;
+                        else return (trackHeight - cdsHeight)/2; })
+                    .attr('height', function(d) {
+                        if(d.feature_type.toLowerCase() =='utr') return utrHeight;
+                        else return cdsHeight; });
 
         // Add tooltip on hover
         if (tooltip) {
