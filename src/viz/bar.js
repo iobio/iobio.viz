@@ -30,6 +30,12 @@ var bar = function() {
 			transitionDuration = base.transitionDuration(),
 			innerHeight = base.height() - base.margin().top - base.margin().bottom;
 
+		if (innerHeight < 0) {
+			console.log("Negative inner height " + innerHeight + " calculated for bar chart. Change height or margins.");
+			console.trace();
+			return;
+		}
+
 		// Draw
 		// enter
 		var g = selection.select('g.iobio-container').classed('iobio-bar', true);; // grab container to draw into (created by base chart)
