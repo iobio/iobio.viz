@@ -10,6 +10,7 @@ var pie = function() {
 	// Defaults
 	var radius = 90,
 		innerRadius = 0,
+		padding = 0,
 		arc,
 		events = [],
 		tooltip,
@@ -34,8 +35,8 @@ var pie = function() {
 
 		// Call base chart
 		base
-			.width(radius*2)
-			.height(radius*2)
+			.width(radius*2 + padding)
+			.height(radius*2 + padding)
 			.xAxis(null)
 			.yAxis(null);
 		base.call(this, selection, options);
@@ -69,9 +70,11 @@ var pie = function() {
 			.append('path')
 				.attr("d", function(d) {
 					// return arc(d);
-					return arc({"data":0,"value":0,"startAngle":0,"endAngle":0, "padAngle":0})
+					return arc({"data":d.data,"value":0,"startAngle":0,"endAngle":0, "padAngle":0});
 				})
-				.each(function(d) { this._current = {"data":0,"value":0,"startAngle":0,"endAngle":0, "padAngle":0}; }); // store the initial angles
+				.each(function(d) { 
+					this._current = {"data":d.data,"value":0,"startAngle":0,"endAngle":0, "padAngle":0};  // store the initial angles						
+				});
 
        	// update
        	path.style('fill', color)
@@ -122,6 +125,11 @@ var pie = function() {
 	  };
 	}
 
+	chart.padding = function(_) {
+		if (!arguments.length) return padding;
+		padding = _;
+		return chart;
+	}
 
    	chart.radius = function(_) {
 		if (!arguments.length) return radius;
@@ -142,7 +150,7 @@ var pie = function() {
 		return text;
 	}
 
-		/*
+	/*
    	 * Set events on rects
    	 */
 	chart.on = function(event, listener) {
