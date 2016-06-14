@@ -75,6 +75,7 @@ var pieChooser = function() {
 				    .innerRadius(chart.innerRadius())
 				    .outerRadius(chart.radius());
 
+		// Create a pie chart
 		pie.radius(chart.radius())
 	       .innerRadius(chart.innerRadius())
 	       .padding(chart.padding())
@@ -84,9 +85,9 @@ var pieChooser = function() {
 
 		pie(selection, options);
 
-
 		arcs = selection.selectAll('.arc');
 
+		// Add labels to the arcs
 		arcs.append("text")
 	        .attr("class", "chartlabel")
 	        .attr("dy", ".35em")
@@ -99,25 +100,28 @@ var pieChooser = function() {
 	          return name(d);
 	        });
 
-		// Attach events
+		// Stick events in map for easy lookup
 		events.forEach(function(ev) {
 			eventMap[ev.event] = ev.listener;
 		})
 
-
+		// Handle movements of arcs during mouseover and click
  		arcs.on("mouseover", function(d, i) {
-              d3.select(this).attr("cursor", "pointer");
-              chart._selectSlice.call(this, d, i, null, true);
+                d3.select(this).attr("cursor", "pointer");
+                chart._selectSlice.call(this, d, i, null, true);
 
-              d3.select(this).select("path")
-                .style("stroke", "darkturquoise")
-                .style("stroke-width", "2")
-                .style("opacity", 1);
+				d3.select(this).select("path")
+				               .style("stroke", "darkturquoise")
+				               .style("stroke-width", "2")
+				               .style("opacity", 1);
+				if (tooltip) {
+					utils.showTooltip(d3.select('.iobio-tooltip'), tooltip, d);
+				}
 
-              var listener = eventMap["mouseover"];
-              if (listener) {
-              	listener.call(chart, d, i);
-              }
+				var listener = eventMap["mouseover"];
+				if (listener) {
+					listener.call(chart, d, i);
+				}
               
             }) 
            .on("mouseout", function(d) {
@@ -131,6 +135,10 @@ var pieChooser = function() {
                   
               	d3.select(this).select("path")
                                .style("stroke-width", "0");
+
+				if (tooltip) {
+					utils.hideTooltip(d3.select('.iobio-tooltip'))
+				}
 
                 var listener = eventMap["mouseout"];
               	if (listener) {
@@ -148,7 +156,7 @@ var pieChooser = function() {
             });
 
 
-	    // ALL link inside of donut chart for selecting all pieces
+	    // ALL circle inside of donut chart for selecting all pieces
 	    var g = selection.select('.iobio-pie');
 	    g.append("circle")
 	      .attr("id", "all-circle")
@@ -157,16 +165,10 @@ var pieChooser = function() {
 	      .attr("r", 25)
 	      .attr("stroke", 'lightgrey')
 	      .attr("fill", 'transparent')
-	      .on("mouseover", function(d) {
-	        if (clickedSlices.length == 0) {
-	          chart._selectAllCircle(true);               
-	        }
+	      .on("mouseover", function(d) {	        
 	        d3.select(this).attr("cursor", "pointer");
 	      })
 	      .on("mouseout", function(d) {
-	        if (clickedSlices.length == 0) {
-	          chart._selectAllCircle(false);
-	        }
 	        d3.select(this).attr("cursor", "default");
 	      })
 		  .on("click", function(d) { 
@@ -245,7 +247,7 @@ var pieChooser = function() {
 
   	chart._clickSlice = function(theSlice, d, i, singleSelection) {
 	    if (singleSelection) {
-	      chart._selectAllCircle(false);
+	      selection.select("circle#all-circle.selected").classed("selected", false);
 	    }
 
 
@@ -383,9 +385,7 @@ var pieChooser = function() {
 		return [ Math.cos(a) * r, Math.sin(a) * r ];    
 	};
 
-	chart._clickAllSlices = function(data)  {
-		chart._selectAllCircle(true);
-		chart._clickAllCircle();
+	chart._clickAllSlices = function(data)  {		
 		clickedSlices.length = 0;
 		for (var i = 0; i < data.length; i++) {
 		    var theSlice = arcs.selectAll("d.arc")[i].parentNode;
@@ -406,40 +406,8 @@ var pieChooser = function() {
 
 	chart.clickAllSlices = function(data) {
 		chart._clickAllSlices(data);
-		//dispatch.clickall();    
 		return chart;
 	}
-
-	chart._selectAllCircle = function(select) {
-
-/*
-	    if (select) {
-	      d3.select("circle#all-circle").attr("fill", "#F7F3BA");
-	      d3.select("circle#all-circle").style("stroke", "lightgrey");
-	      d3.select("text#all-text").style("font-weight", "normal");
-	      d3.select("text#all-text").style("fill", "black");
-	      d3.select("text#all-text").style("opacity", ".5");
-	    } else {
-	       d3.select("circle#all-circle").attr("fill", "none");
-	       d3.select("circle#all-circle").style("stroke", "lightgrey");
-	       d3.select("text#all-text").style("fill", "grey");
-	       d3.select("text#all-text").style("font-weight", "normal");
-	       d3.select("text#all-text").style("opacity", "1");
-	    }
-*/
-	    return chart;
-  	}
-
-  	chart._clickAllCircle = function() {
- /*
-      d3.select("circle#all-circle").attr("fill", "#F7F3BA");
-      d3.select("circle#all-circle").style("stroke", "grey");
-      d3.select("text#all-text").style("font-weight", "bold");
-      d3.select("text#all-text").style("fill", "grey");
-      d3.select("text#all-text").style("opacity", "1");    
- */
-      return chart;
-    }  
 
 
 

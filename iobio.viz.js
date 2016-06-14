@@ -655,22 +655,31 @@ module.exports.tooltipHelper = function(selection, tooltipElem, titleAccessor) {
 	var utils = require('./utils.js')
 	selection
 		.on("mouseover", function(d,i) {
-			var tooltipStr = utils.value_accessor(titleAccessor, d); // handle both function and constant string
-			var opacity = tooltipStr ? .9 : 0; // don't show if tooltipStr is null
-			var elemHeight = tooltipElem.node().getBoundingClientRect().height
-			tooltipElem.transition()
-				.duration(200)
-				.style("opacity", opacity);
-			tooltipElem.html(tooltipStr)
-				.style("left", (d3.event.clientX + 8) + "px")
-				.style("text-align", 'left')
-				.style("top", (d3.event.clientY - elemHeight - 8) + "px");
+			utils.showTooltip(tooltipElem, titleAccessor, d);
 		})
 		.on("mouseout", function(d) {
-			tooltipElem.transition()
-				.duration(500)
-				.style("opacity", 0);
+			utils.hideTooltip(tooltipElem);
 		})
+}
+
+module.exports.showTooltip = function(tooltipElem, titleAccessor, d) {
+	var utils = require('./utils.js')
+	var tooltipStr = utils.value_accessor(titleAccessor, d); // handle both function and constant string
+	var opacity = tooltipStr ? .9 : 0; // don't show if tooltipStr is null
+	var elemHeight = tooltipElem.node().getBoundingClientRect().height
+	tooltipElem.transition()
+		.duration(200)
+		.style("opacity", opacity);
+	tooltipElem.html(tooltipStr)
+		.style("left", (d3.event.clientX + 8) + "px")
+		.style("text-align", 'left')
+		.style("top", (d3.event.clientY - elemHeight - 8) + "px");
+}
+
+module.exports.hideTooltip = function(tooltipElem) {
+	tooltipElem.transition()
+			   .duration(500)
+			   .style("opacity", 0);	
 }
 
 // Copies a variable number of methods from source to target.
@@ -1966,6 +1975,46 @@ var pie = function() {
 // Export alignment
 module.exports = pie;
 },{"../utils.js":9,"./base.js":14,"extend":1}],18:[function(require,module,exports){
+/*
+
+Usage:
+
+ 	var m = [15, 35, 25, 15],
+        w = 230,
+        h = 230,
+        r = Math.min(w, h) / 2;
+
+    var color = d3.scale.category20b();
+
+    var pie = d3.layout.pie()
+                       .sort(null)
+                       .value(function(d,i) {return d.value});
+    var references = [
+      {name: 'chr1', value: +20},
+      {name: 'chr2', value: +14},
+      {name: 'chr3', value: +15},
+      {name: 'chr4', value: +17},
+      {name: 'chr5', value: +23},
+      {name: 'chr6', value: +24},
+      {name: 'chr7', value: +30}
+    ];
+
+    var selection = d3.select("#pie-viz").datum( pie(references) );
+    var chart = iobio.viz.pieChooser()
+        .radius(r)
+        .innerRadius(r*.5)
+        .padding(30)        
+        .color( function(d,i) { 
+          return color(i); 
+        })
+        .on("click", function(d,i) {
+          console.log("chr clicked " + d );
+        })
+        .on("clickall", function(d,i) {
+          console.log("click all " + d);
+        })
+    chart( selection );
+*/
 var pieChooser = function() {
 	// Import base chart
 	var base = require("./base.js")(),
@@ -2003,6 +2052,7 @@ var pieChooser = function() {
 				    .innerRadius(chart.innerRadius())
 				    .outerRadius(chart.radius());
 
+		// Create a pie chart
 		pie.radius(chart.radius())
 	       .innerRadius(chart.innerRadius())
 	       .padding(chart.padding())
@@ -2012,9 +2062,9 @@ var pieChooser = function() {
 
 		pie(selection, options);
 
-
 		arcs = selection.selectAll('.arc');
 
+		// Add labels to the arcs
 		arcs.append("text")
 	        .attr("class", "chartlabel")
 	        .attr("dy", ".35em")
@@ -2027,25 +2077,28 @@ var pieChooser = function() {
 	          return name(d);
 	        });
 
-		// Attach events
+		// Stick events in map for easy lookup
 		events.forEach(function(ev) {
 			eventMap[ev.event] = ev.listener;
 		})
 
-
+		// Handle movements of arcs during mouseover and click
  		arcs.on("mouseover", function(d, i) {
-              d3.select(this).attr("cursor", "pointer");
-              chart._selectSlice.call(this, d, i, null, true);
+                d3.select(this).attr("cursor", "pointer");
+                chart._selectSlice.call(this, d, i, null, true);
 
-              d3.select(this).select("path")
-                .style("stroke", "darkturquoise")
-                .style("stroke-width", "2")
-                .style("opacity", 1);
+				d3.select(this).select("path")
+				               .style("stroke", "darkturquoise")
+				               .style("stroke-width", "2")
+				               .style("opacity", 1);
+				if (tooltip) {
+					utils.showTooltip(d3.select('.iobio-tooltip'), tooltip, d);
+				}
 
-              var listener = eventMap["mouseover"];
-              if (listener) {
-              	listener.call(chart, d, i);
-              }
+				var listener = eventMap["mouseover"];
+				if (listener) {
+					listener.call(chart, d, i);
+				}
               
             }) 
            .on("mouseout", function(d) {
@@ -2059,6 +2112,10 @@ var pieChooser = function() {
                   
               	d3.select(this).select("path")
                                .style("stroke-width", "0");
+
+				if (tooltip) {
+					utils.hideTooltip(d3.select('.iobio-tooltip'))
+				}
 
                 var listener = eventMap["mouseout"];
               	if (listener) {
@@ -2076,7 +2133,7 @@ var pieChooser = function() {
             });
 
 
-	    // ALL link inside of donut chart for selecting all pieces
+	    // ALL circle inside of donut chart for selecting all pieces
 	    var g = selection.select('.iobio-pie');
 	    g.append("circle")
 	      .attr("id", "all-circle")
@@ -2085,16 +2142,10 @@ var pieChooser = function() {
 	      .attr("r", 25)
 	      .attr("stroke", 'lightgrey')
 	      .attr("fill", 'transparent')
-	      .on("mouseover", function(d) {
-	        if (clickedSlices.length == 0) {
-	          chart._selectAllCircle(true);               
-	        }
+	      .on("mouseover", function(d) {	        
 	        d3.select(this).attr("cursor", "pointer");
 	      })
 	      .on("mouseout", function(d) {
-	        if (clickedSlices.length == 0) {
-	          chart._selectAllCircle(false);
-	        }
 	        d3.select(this).attr("cursor", "default");
 	      })
 		  .on("click", function(d) { 
@@ -2173,7 +2224,7 @@ var pieChooser = function() {
 
   	chart._clickSlice = function(theSlice, d, i, singleSelection) {
 	    if (singleSelection) {
-	      chart._selectAllCircle(false);
+	      selection.select("circle#all-circle.selected").classed("selected", false);
 	    }
 
 
@@ -2311,9 +2362,7 @@ var pieChooser = function() {
 		return [ Math.cos(a) * r, Math.sin(a) * r ];    
 	};
 
-	chart._clickAllSlices = function(data)  {
-		chart._selectAllCircle(true);
-		chart._clickAllCircle();
+	chart._clickAllSlices = function(data)  {		
 		clickedSlices.length = 0;
 		for (var i = 0; i < data.length; i++) {
 		    var theSlice = arcs.selectAll("d.arc")[i].parentNode;
@@ -2334,40 +2383,8 @@ var pieChooser = function() {
 
 	chart.clickAllSlices = function(data) {
 		chart._clickAllSlices(data);
-		//dispatch.clickall();    
 		return chart;
 	}
-
-	chart._selectAllCircle = function(select) {
-
-/*
-	    if (select) {
-	      d3.select("circle#all-circle").attr("fill", "#F7F3BA");
-	      d3.select("circle#all-circle").style("stroke", "lightgrey");
-	      d3.select("text#all-text").style("font-weight", "normal");
-	      d3.select("text#all-text").style("fill", "black");
-	      d3.select("text#all-text").style("opacity", ".5");
-	    } else {
-	       d3.select("circle#all-circle").attr("fill", "none");
-	       d3.select("circle#all-circle").style("stroke", "lightgrey");
-	       d3.select("text#all-text").style("fill", "grey");
-	       d3.select("text#all-text").style("font-weight", "normal");
-	       d3.select("text#all-text").style("opacity", "1");
-	    }
-*/
-	    return chart;
-  	}
-
-  	chart._clickAllCircle = function() {
- /*
-      d3.select("circle#all-circle").attr("fill", "#F7F3BA");
-      d3.select("circle#all-circle").style("stroke", "grey");
-      d3.select("text#all-text").style("font-weight", "bold");
-      d3.select("text#all-text").style("fill", "grey");
-      d3.select("text#all-text").style("opacity", "1");    
- */
-      return chart;
-    }  
 
 
 
