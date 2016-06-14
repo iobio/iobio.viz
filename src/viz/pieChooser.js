@@ -286,7 +286,6 @@ var pieChooser = function() {
 
 	    if (singleSelection) {
 	      clickedSlice = theSlice;
-	      //dispatch.clickslice(d.data, i);    
 	    }
 	    else {
 	      clickedSlices.push(theSlice);

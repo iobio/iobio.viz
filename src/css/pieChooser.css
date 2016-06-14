@@ -1,0 +1,17 @@
+.iobio-pie text#all-text
+{ 
+	fill: black;
+	font-size: 11px;
+}
+.iobio-pie circle#all-circle:hover 
+{ 
+	fill: #F7F3BA;
+}
+.iobio-pie circle#all-circle.selected { 
+	fill: #F7F3BA; stroke-width: 1.5px;
+}
+
+.iobio-pie .arc text {
+	font-size: 9px;
+	fill: white;
+}
