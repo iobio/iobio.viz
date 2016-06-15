@@ -68,19 +68,26 @@ var pie = function() {
 			.attr('class', 'arc')
 			.style('fill', color)
 			.append('path')
-				.attr("d", function(d) {
-					// return arc(d);
-					return arc({"data":d.data,"value":0,"startAngle":0,"endAngle":0, "padAngle":0});
+				.attr("d", function(d,i) {
+					if (transitionDuration && transitionDuration > 0) {
+						return arc({"data":d.data,"value":0,"startAngle":0,"endAngle":0, "padAngle":0});						
+					} else {
+						return arc(d);
+					}
+				
 				})
 				.each(function(d) { 
 					this._current = {"data":d.data,"value":0,"startAngle":0,"endAngle":0, "padAngle":0};  // store the initial angles						
 				});
 
        	// update
-       	path.style('fill', color)
-       		.select('path').transition()
-	         	.duration( transitionDuration )
-	         	.attrTween("d", arcTween);
+       	if (transitionDuration && transitionDuration > 0) {
+	       	path.style('fill', color)
+	       		.select('path').transition()
+		         	.duration( transitionDuration )
+		         	.attrTween("d", arcTween);
+		}
+	     
 
        	// exit
 		path.exit().remove();

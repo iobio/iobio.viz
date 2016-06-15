@@ -1869,19 +1869,26 @@ var pie = function() {
 			.attr('class', 'arc')
 			.style('fill', color)
 			.append('path')
-				.attr("d", function(d) {
-					// return arc(d);
-					return arc({"data":d.data,"value":0,"startAngle":0,"endAngle":0, "padAngle":0});
+				.attr("d", function(d,i) {
+					if (transitionDuration && transitionDuration > 0) {
+						return arc({"data":d.data,"value":0,"startAngle":0,"endAngle":0, "padAngle":0});						
+					} else {
+						return arc(d);
+					}
+				
 				})
 				.each(function(d) { 
 					this._current = {"data":d.data,"value":0,"startAngle":0,"endAngle":0, "padAngle":0};  // store the initial angles						
 				});
 
        	// update
-       	path.style('fill', color)
-       		.select('path').transition()
-	         	.duration( transitionDuration )
-	         	.attrTween("d", arcTween);
+       	if (transitionDuration && transitionDuration > 0) {
+	       	path.style('fill', color)
+	       		.select('path').transition()
+		         	.duration( transitionDuration )
+		         	.attrTween("d", arcTween);
+		}
+	     
 
        	// exit
 		path.exit().remove();
@@ -1976,44 +1983,8 @@ var pie = function() {
 module.exports = pie;
 },{"../utils.js":9,"./base.js":14,"extend":1}],18:[function(require,module,exports){
 /*
-
-Usage:
-
- 	var m = [15, 35, 25, 15],
-        w = 230,
-        h = 230,
-        r = Math.min(w, h) / 2;
-
-    var color = d3.scale.category20b();
-
-    var pie = d3.layout.pie()
-                       .sort(null)
-                       .value(function(d,i) {return d.value});
-    var references = [
-      {name: 'chr1', value: +20},
-      {name: 'chr2', value: +14},
-      {name: 'chr3', value: +15},
-      {name: 'chr4', value: +17},
-      {name: 'chr5', value: +23},
-      {name: 'chr6', value: +24},
-      {name: 'chr7', value: +30}
-    ];
-
-    var selection = d3.select("#pie-viz").datum( pie(references) );
-    var chart = iobio.viz.pieChooser()
-        .radius(r)
-        .innerRadius(r*.5)
-        .padding(30)        
-        .color( function(d,i) { 
-          return color(i); 
-        })
-        .on("click", function(d,i) {
-          console.log("chr clicked " + d );
-        })
-        .on("clickall", function(d,i) {
-          console.log("click all " + d);
-        })
-    chart( selection );
+  pieChooser - a iobio viz component that is a pie chart with clickable slices.  All slices
+               can be selected by clicking the 'All' circle in the middle of the pie chart.
 */
 var pieChooser = function() {
 	// Import base chart
@@ -2032,6 +2003,8 @@ var pieChooser = function() {
 
 	var name = function(d) { return  d.data.name};
 
+	var chartContainer = null;
+
 	var clickedSlice = null;
 	var clickedSlices = [];
 
@@ -2047,6 +2020,7 @@ var pieChooser = function() {
 		// Merge defaults and options
 		options = {};
 		extend(options, defaults, opts);
+		chartContainer = selection;
 
 		arc = d3.svg.arc()
 				    .innerRadius(chart.innerRadius())
@@ -2056,7 +2030,7 @@ var pieChooser = function() {
 		pie.radius(chart.radius())
 	       .innerRadius(chart.innerRadius())
 	       .padding(chart.padding())
-	       .transitionDuration(chart.transitionDuration())
+	       .transitionDuration(0)
 	       .color(chart.color())
 	       .text( function(d,i) {return ""});
 
@@ -2149,7 +2123,6 @@ var pieChooser = function() {
 	        d3.select(this).attr("cursor", "default");
 	      })
 		  .on("click", function(d) { 
-		  		selection.select("circle#all-circle.selected").classed("selected", false);
 		  		d3.select(this).classed("selected", true);
 	          	chart._clickAllSlices(d);
 	          	var listener = eventMap["clickall"];
@@ -2224,7 +2197,7 @@ var pieChooser = function() {
 
   	chart._clickSlice = function(theSlice, d, i, singleSelection) {
 	    if (singleSelection) {
-	      selection.select("circle#all-circle.selected").classed("selected", false);
+	      chartContainer.select("circle#all-circle.selected").classed("selected", false);
 	    }
 
 
@@ -2361,7 +2334,9 @@ var pieChooser = function() {
 		return [ Math.cos(a) * r, Math.sin(a) * r ];    
 	};
 
-	chart._clickAllSlices = function(data)  {		
+	chart._clickAllSlices = function(data)  {	
+		chartContainer.select("circle#all-circle").classed("selected", true);
+	
 		clickedSlices.length = 0;
 		for (var i = 0; i < data.length; i++) {
 		    var theSlice = arcs.selectAll("d.arc")[i].parentNode;
