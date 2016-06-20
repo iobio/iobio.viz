@@ -42,6 +42,8 @@ var barViewer = function() {
 			.y( chart.y() )
 			.x( chart.x() )
 			.id( chart.id() )
+			.color( chart.color() )
+			.tooltip( chart.tooltip() )
 			.transitionDuration( chart.transitionDuration() )
 
 		var focalSelection = selection.select('.iobio-bar-0').datum( selection.datum() )
@@ -58,6 +60,8 @@ var barViewer = function() {
 			.width( chart.width() )
 			.transitionDuration( chart.transitionDuration() )
 			.id( chart.id() )
+			.color( chart.color() )
+			.tooltip( chart.tooltip() )
 			.height( origHeight * (1-sizeRatio) )
 			.brush('brush', function() {
 				var x2 = globalBar.x(), brush = globalBar.brush();

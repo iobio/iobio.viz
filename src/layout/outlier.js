@@ -6,17 +6,37 @@ var outlier = function() {
       count = function(d) { return d[1]; };
 
   function layout(data) {
-    var q1 = quantile(data, 0.25); 
-    var q3 = quantile(data, 0.75);
+    var realMin = d3.min(data, function(d,i) {
+      return value(d);
+    });
+    var realMax = d3.max(data, function(d,i) {
+      return value(d);
+    });
+    var max = Math.abs(realMin) + Math.abs(realMax);
+
+    var scale  = d3.scale.linear().domain([realMin,realMax]).range([0,max]);
+
+    data = data.sort(function(aItem,bItem) {
+      var a = value(aItem);
+      var b = value(bItem);
+      return a > b ? 1 : (a < b ? -1 : 0);
+    })
+
+    var q1 = quantile(data, scale, 0.25); 
+    var q3 = quantile(data, scale, 0.75);
     var iqr = (q3-q1) * 1.5; //
     
-    return data.filter(function(d) { return (value(d)>=(Math.max(q1-iqr,0)) && value(d)<=(q3+iqr)) });
+    var filteredData = data.filter(function(d) { 
+      return (scale(value(d)) >= (Math.max(q1-iqr,0)) && scale(value(d)) <= (q3+iqr)); 
+    });
+
+    return filteredData;  
   }
 
   /*
    * Determines quantile of array with given p
    */
-  function quantile(arr, p) {
+  function quantile(arr, scale, p) {
     var length = arr.reduce(function(previousValue, currentValue, index, array){
        return previousValue + count(currentValue);
     }, 0) - 1;
@@ -27,9 +47,9 @@ var outlier = function() {
     for (var i=0; i < arr.length; i++) {
        currValue += count(arr[i]);
        if (hMinus1Value == undefined && currValue >= (h-1))
-          hMinus1Value = value(arr[i]);
+          hMinus1Value = scale(value(arr[i]));
        if (hValue == undefined && currValue >= h) {
-          hValue = value(arr[i]);
+          hValue = scale(value(arr[i]));
           break;
        }
     } 
