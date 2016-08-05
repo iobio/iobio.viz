@@ -1,0 +1,7 @@
+
+.iobio-multi-line .tick text { font-size: 10px; }
+.iobio-multi-line .button rect { height: 20px; }
+.iobio-multi-line .button rect:hover { cursor: pointer; }
+.iobio-multi-line .button text { font-size: 10px; pointer-events: none; }
+.iobio-multi-line #back-ctrl { font-size: 15px; fill: #1E7DB3;}
+.iobio-multi-line #back-ctrl:hover { cursor: pointer; }

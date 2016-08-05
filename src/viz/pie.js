@@ -14,6 +14,7 @@ var pie = function() {
 		arc,
 		events = [],
 		tooltip,
+		nameValue = '',
 		text = function(data, total) {
 			var count = data[0].data;
 			var percent = utils.format_percent(count/total);
@@ -63,31 +64,44 @@ var pie = function() {
 				.data(selection.datum())
 
 		// enter
-		path.enter().append("g")
+		var pathEnter = path.enter().append("g")
 			.attr('id', id)
 			.attr('class', 'arc')
 			.style('fill', color)
-			.append('path')
-				.attr("d", function(d,i) {
-					if (transitionDuration && transitionDuration > 0) {
-						return arc({"data":d.data,"value":0,"startAngle":0,"endAngle":0, "padAngle":0});						
-					} else {
-						return arc(d);
-					}
-				
-				})
-				.each(function(d) { 
-					this._current = {"data":d.data,"value":0,"startAngle":0,"endAngle":0, "padAngle":0};  // store the initial angles						
-				});
+
+		pathEnter.append('path')
+			.attr("d", function(d,i) {
+				if (transitionDuration && transitionDuration > 0) {
+					return arc({"data":d.data,"value":0,"startAngle":0,"endAngle":0, "padAngle":0});
+				} else {
+					return arc(d);
+				}
+
+			})
+			.each(function(d) {
+				this._current = {"data":d.data,"value":0,"startAngle":0,"endAngle":0, "padAngle":0};  // store the initial angles
+			});
+
+		pathEnter.append('text')
+			.attr("transform", function(d) {
+	          return "translate(" + arcLabelPosition(d, .55) + ")";
+	        })
+			.text(nameValue)
 
        	// update
-       	if (transitionDuration && transitionDuration > 0) {
+       	if (transitionDuration != undefined && transitionDuration >= 0) {
 	       	path.style('fill', color)
 	       		.select('path').transition()
 		         	.duration( transitionDuration )
 		         	.attrTween("d", arcTween);
+
+		    path.select('text').transition()
+		    	.duration(transitionDuration)
+		    	.attr("transform", function(d) {
+		          return "translate(" + arcLabelPosition(d, .55) + ")";
+		        })
 		}
-	     
+
 
        	// exit
 		path.exit().remove();
@@ -132,6 +146,14 @@ var pie = function() {
 	  };
 	}
 
+	function arcLabelPosition(d, ratio) {
+		var r = ( chart.innerRadius() + chart.radius() ) * ratio;
+		var oa = arc.startAngle.call(d);
+		var ia = arc.endAngle.call(d);
+		a = ( oa(d) + ia(d) ) / 2 - (Math.PI/ 2);
+		return [ Math.cos(a) * r, Math.sin(a) * r ];
+	}
+
 	chart.padding = function(_) {
 		if (!arguments.length) return padding;
 		padding = _;
@@ -149,6 +171,12 @@ var pie = function() {
 		innerRadius = _;
 		return chart;
 	};
+
+	chart.nameValue = function(_) {
+		if (!arguments.length) return nameValue;
+		nameValue = _;
+		return chart;
+	}
 
 
 	chart.text = function(_) {

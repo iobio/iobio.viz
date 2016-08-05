@@ -1,4 +1,30 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function (global){
+/*  Chase Miller (2015-2016) */
+
+// Grab an existing iobio namespace object, or create a blank object
+// if it doesn't exist
+var iobio = global.iobio || {};
+global.iobio = iobio;
+
+// export if being used as a node module - needed for test framework
+if ( typeof module === 'object' ) { module.exports = iobio;}
+
+// Add visualizations
+iobio.viz = require('./viz/viz.js')
+
+// Add layouts
+iobio.viz.layout = require('./layout/layout.js')
+
+// Add shapes
+iobio.viz.svg = require('./svg/svg.js')
+
+// Add utils
+iobio.viz.utils = require('./utils.js')
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
+},{"./layout/layout.js":4,"./svg/svg.js":8,"./utils.js":10,"./viz/viz.js":20}],2:[function(require,module,exports){
 var hasOwn = Object.prototype.hasOwnProperty;
 var toStr = Object.prototype.toString;
 var undefined;
@@ -89,7 +115,7 @@ module.exports = function extend() {
 };
 
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 var utils = require('../utils.js');
 
 var graph = function() {
@@ -186,7 +212,7 @@ var graph = function() {
   };
  
  module.exports = graph;
-},{"../utils.js":9}],3:[function(require,module,exports){
+},{"../utils.js":10}],4:[function(require,module,exports){
 
 var layout = {};
 // add layouts
@@ -196,7 +222,7 @@ layout.pointSmooth = require('./pointSmooth.js');
 layout.outlier = require('./outlier.js');
 
 module.exports = layout;
-},{"./graph.js":2,"./outlier.js":4,"./pileup.js":5,"./pointSmooth.js":6}],4:[function(require,module,exports){
+},{"./graph.js":3,"./outlier.js":5,"./pileup.js":6,"./pointSmooth.js":7}],5:[function(require,module,exports){
 
 
 var outlier = function() {
@@ -283,7 +309,7 @@ var outlier = function() {
 
 module.exports = outlier;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 
 
 var pileup = function() {
@@ -402,7 +428,7 @@ var pileup = function() {
 };
 
 module.exports = pileup;
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 
 
 var pointSmooth = function() {
@@ -414,21 +440,21 @@ var pointSmooth = function() {
 
   function layout(data) {
 
-    // Compute the numeric values for each data element and keep original data.    
-    var points = data.map(function(d, i) { 
+    // Compute the numeric values for each data element and keep original data.
+    var points = data.map(function(d, i) {
       return {
         data: d,
         pos: +pos.call(layout, d, i),
         depth: +depth.call(layout, d, i)
       };
     });
-    
+
     var epislon = parseInt( epsilonRate * (points[points.length-1].pos - points[0].pos) / size );
 
     // Compute the points!
     // They are stored in the original data's order.
-    points = properRDP(points, epislon);    
-    
+    points = properRDP(points, epislon);
+
     return points;
   }
 
@@ -456,7 +482,7 @@ var pointSmooth = function() {
 
   /*
    * Specifies the x scale for the layout. This is necessary to accurately predict
-   * how smoothing will be necessary i.e. smaller size has less resolution and will 
+   * how smoothing will be necessary i.e. smaller size has less resolution and will
    * require more smoothing.
    */
   layout.size = function(_) {
@@ -466,7 +492,7 @@ var pointSmooth = function() {
   };
 
   /*
-   * Specifies the epislon rate to determine the aggressiveness of the smoothing   
+   * Specifies the epislon rate to determine the aggressiveness of the smoothing
    */
   layout.epsilonRate = function(_) {
     if (!arguments.length) return epsilonRate;
@@ -482,13 +508,13 @@ module.exports = pointSmooth;
 
 /*
  * properRDP
- * 
+ *
  * @licence Feel free to use it as you please, a mention of my name is always nice.
- * 
+ *
  * Marius Karthaus
  * http://www.LowVoice.nl
- * 
- */ 
+ *
+ */
 
 function properRDP(points,epsilon){
     var firstPoint=points[0];
@@ -531,17 +557,17 @@ function findPerpendicularDistance(p, p1,p2) {
         intercept = p1.depth - (slope * p1.pos);
         result = Math.abs(slope * p.pos - p.depth + intercept) / Math.sqrt(Math.pow(slope, 2) + 1);
     }
-   
+
     return result;
 }
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 
 var svg = {};
 // add shapes
 svg.variant = require('./variant.js');
 
 module.exports = svg;
-},{"./variant.js":8}],8:[function(require,module,exports){
+},{"./variant.js":9}],9:[function(require,module,exports){
 var variant = function() { 
     
     // Value transformers
@@ -616,7 +642,7 @@ var variant = function() {
 };
 
 module.exports = variant;
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 
 module.exports.format_unit_names = function(d) {
 	if ((d / 1000000) >= 1)
@@ -698,33 +724,7 @@ function iobio_rebind(target, source, method) {
     return value === source ? target : value;
   };
 }
-},{"./utils.js":9}],10:[function(require,module,exports){
-(function (global){
-/*  Chase Miller (2015-2016) */
-
-// Grab an existing iobio namespace object, or create a blank object
-// if it doesn't exist
-var iobio = global.iobio || {};
-global.iobio = iobio;
-
-// export if being used as a node module - needed for test framework
-if ( typeof module === 'object' ) { module.exports = iobio;}
-
-// Add visualizations
-iobio.viz = require('./viz/viz.js')
-
-// Add layouts
-iobio.viz.layout = require('./layout/layout.js')
-
-// Add shapes
-iobio.viz.svg = require('./svg/svg.js')
-
-// Add utils
-iobio.viz.utils = require('./utils.js')
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-
-},{"./layout/layout.js":3,"./svg/svg.js":7,"./utils.js":9,"./viz/viz.js":19}],11:[function(require,module,exports){
+},{"./utils.js":10}],11:[function(require,module,exports){
 var alignment = function() {
 	// Import base chart
 	var base = require('./base.js')(),
@@ -784,9 +784,9 @@ var alignment = function() {
 		aln.enter().append('g')
 			.attr('id', function(d) { return id(d)})
 			.attr('class', 'alignment')
-			.attr('transform', function(d) {
-				var translate = 'translate('+parseInt(x(xValue(d) + wValue(d)/2))+','+ parseInt(y(yValue(d))-elemHeight/2) + ')'
-				if (directionValue && directionValue(d) == 'reverse')
+			.attr('transform', function(d,i) {
+				var translate = 'translate('+parseInt(x(xValue(d,i) + wValue(d,i)/2))+','+ parseInt(y(yValue(d,i))-elemHeight/2) + ')'
+				if (directionValue && directionValue(d,i) == 'reverse')
 					return translate + ' rotate(180)';
 				else
 					return translate;
@@ -816,9 +816,9 @@ var alignment = function() {
 
 		aln.transition()
 			.duration(transitionDuration)
-			.attr('transform', function(d) {
-				var translate = 'translate('+parseInt(x(xValue(d) + wValue(d)/2))+','+ parseInt(y(yValue(d))-elemHeight/2) + ')'
-				if (directionValue && directionValue(d) == 'reverse')
+			.attr('transform', function(d,i) {
+				var translate = 'translate('+parseInt(x(xValue(d,i) + wValue(d,i)/2))+','+ parseInt(y(yValue(d,i))-elemHeight/2) + ')'
+				if (directionValue && directionValue(d,i) == 'reverse')
 					return translate + ' rotate(180)';
 				else
 					return translate;
@@ -827,8 +827,8 @@ var alignment = function() {
 
 		aln.select('polygon').transition()
 			.duration(transitionDuration)
-			.attr('points', function(d) {
-				var rW = x(xValue(d)+wValue(d)) - x(xValue(d));
+			.attr('points', function(d,i) {
+				var rW = x(xValue(d,i)+wValue(d,i)) - x(xValue(d,i));
 				var rH = elemHeight;
 				var arrW = Math.min(5, rW);
 
@@ -901,7 +901,7 @@ var alignment = function() {
 
 // Export alignment
 module.exports = alignment;
-},{"../utils.js":9,"./base.js":14,"extend":1}],12:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":14,"extend":2}],12:[function(require,module,exports){
 var bar = function() {
 	// Import base chart
 	var base = require('./base.js')(),
@@ -944,7 +944,7 @@ var bar = function() {
 		// enter
 		var g = selection.select('g.iobio-container').classed('iobio-bar', true);; // grab container to draw into (created by base chart)
 		var rect = g.selectAll('.rect')
-				.data(selection.datum(), function(d) { return xValue(d); })
+				.data(selection.datum(), function(d,i) { return xValue(d,i); })
 		// exit
 	    rect.exit().remove();
 
@@ -955,8 +955,8 @@ var bar = function() {
 			.style('fill', color )
 			.append('rect')
 				.attr('y', function(d) { return innerHeight })
-				.attr('x', function(d) { return x(xValue(d)) })
-				.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})
+				.attr('x', function(d,i) { return x(xValue(d,i)) })
+				.attr('width', function(d,i) { return x(xValue(d,i)+wValue(d,i)) - x(xValue(d,i));})
 				.attr('height', function(d) { return 0; });
 
 		// update
@@ -964,10 +964,10 @@ var bar = function() {
 			.style('fill', color )
 			.select('rect').transition()
 				.duration( transitionDuration )
-				.attr('x', function(d) { return x(xValue(d)) })
-				.attr('y', function(d) { return y(yValue(d)) })
-				.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})
-				.attr('height', function(d) { return innerHeight - y(yValue(d)); });
+				.attr('x', function(d,i) { return x(xValue(d,i)) })
+				.attr('y', function(d,i) { return y(yValue(d,i)) })
+				.attr('width', function(d,i) { return x(xValue(d,i)+wValue(d,i)) - x(xValue(d,i));})
+				.attr('height', function(d,i) { return innerHeight - y(yValue(d,i)); });
 
 
 		// Add title on hover
@@ -1008,7 +1008,7 @@ var bar = function() {
 
 // Export alignment
 module.exports = bar;
-},{"../utils.js":9,"./base.js":14,"extend":1}],13:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":14,"extend":2}],13:[function(require,module,exports){
 var barViewer = function() {
 	// Import base chart
 	var bar = require('./bar.js'),
@@ -1077,8 +1077,8 @@ var barViewer = function() {
 			.brush('brush', function() {
 				var x2 = globalBar.x(), brush = globalBar.brush();
 	        	var x = brush.empty() ? x2.domain() : brush.extent();
-	        	var datum = globalSelection.datum().filter(function(d) {
-	        		return (globalBar.xValue()(d) >= x[0] && globalBar.xValue()(d) <= x[1])
+	        	var datum = globalSelection.datum().filter(function(d,i) {
+	        		return (globalBar.xValue()(d,i) >= x[0] && globalBar.xValue()(d,i) <= x[1])
 	        	});
 	        	options.xMin = x[0];
 	        	options.xMax = x[1];
@@ -1138,7 +1138,7 @@ var barViewer = function() {
 
 // Export alignment
 module.exports = barViewer;
-},{"../utils.js":9,"./bar.js":12,"extend":1}],14:[function(require,module,exports){
+},{"../utils.js":10,"./bar.js":12,"extend":2}],14:[function(require,module,exports){
 var utils = require('../utils.js'),
 	extend = require('extend');
 
@@ -1449,7 +1449,7 @@ var base = function() {
 
 module.exports = base;
 
-},{"../utils.js":9,"extend":1}],15:[function(require,module,exports){
+},{"../utils.js":10,"extend":2}],15:[function(require,module,exports){
 //
 // consumes data in following format
 // var data = [ {name: 'somename',
@@ -1723,7 +1723,7 @@ var gene = function() {
 
 // Export alignment
 module.exports = gene;
-},{"../utils.js":9,"./base.js":14,"extend":1}],16:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":14,"extend":2}],16:[function(require,module,exports){
 var line = function(container) {
     // Import base chart
     var base = require('./base.js')(),
@@ -1739,54 +1739,70 @@ var line = function(container) {
     var defaults = { };
 
     function chart(selection, opts) {
-        // Merge defaults and options
-        var options = {};
-        extend(options, defaults, opts);
 
-        // Call base chart
-        base.call(this, selection, options);
+        selection.each(function() {
+            var selection = d3.select(this);
 
-        // Grab base functions for easy access
-        var x = base.x(),
-            y = base.y(),
-            id = base.id();
-            xValue = base.xValue(),
-            yValue = base.yValue(),
-            wValue = base.wValue(),
-            transitionDuration = base.transitionDuration()
-            color = base.color();
 
-        // Draw
-        var lineGen = d3.svg.line()
-            .interpolate("linear")
-            .x(function(d,i) { return +x( xValue(d) ); })
-            .y(function(d) { return +y( yValue(d) ); })
+            // Merge defaults and options
+            var options = {};
+            extend(options, defaults, opts);
 
-        var g = selection.select('g.iobio-container').classed('iobio-line', true); // grab container to draw into (created by base chart)
+            if (options.datumTransform) {
+                selection.datum( options.datumTransform(selection.datum()) );
+            }
 
-        // draw line
-        var gEnter = g.selectAll('.line').data([0])
-            .enter().append("path")
-                .attr('class', "line")
-                .attr("d", lineGen(selection.datum()) )
-                .style("stroke", color)
-                .style("stroke-width", "2")
-                .style("fill", "none");
+            // Call base chart
+            base.call(this, selection, options);
 
-        var path = g.select('path.line');
-        var totalLength = path.node().getTotalLength();
+            // Grab base functions for easy access
+            var x = base.x(),
+                y = base.y(),
+                id = base.id();
+                xValue = base.xValue(),
+                yValue = base.yValue(),
+                wValue = base.wValue(),
+                transitionDuration = base.transitionDuration()
+                color = base.color();
 
-        // draw line from left first time
-        gEnter
-            .attr("stroke-dasharray", totalLength + " " + totalLength)
-            .attr("stroke-dashoffset", totalLength);
+            // Draw
+            var lineGen = d3.svg.line()
+                .interpolate("linear")
+                .x(function(d,i) { return +x( xValue(d,i) ); })
+                .y(function(d,i) { return +y( yValue(d,i) ); })
 
-        path
-           .transition()
-             .duration( transitionDuration )
-             .attr('d', lineGen(selection.datum()) )
-             .ease("linear")
-             .attr("stroke-dashoffset", 0);
+            var g = selection.select('g.iobio-container').classed('iobio-line', true); // grab container to draw into (created by base chart)
+
+            // draw line
+            var gEnter = g.selectAll('.line').data([0])
+                .enter().append("path")
+                    .attr('class', "line")
+                    .attr("d", lineGen(selection.datum()) )
+                    .style("stroke", color)
+                    .style("stroke-width", "2")
+                    .style("fill", "none");
+
+            var path = g.select('path.line');
+            var totalLength = path.node().getTotalLength();
+
+            // draw line from left first time
+            gEnter
+                .attr("stroke-dasharray", totalLength + " " + totalLength)
+                .attr("stroke-dashoffset", totalLength);
+
+            path
+               .transition()
+                 .duration( transitionDuration )
+                 .attr('d', lineGen(selection.datum()) )
+                 .ease("linear")
+                 .attr("stroke-dashoffset", 0)
+
+            // Remove stroke-dasharray after done with transition
+            // precaution for if path is manipulated elsewhere
+            setTimeout(function(){
+                path.attr("stroke-dasharray", null)
+            }, transitionDuration);
+        })
    }
 
     // Rebind methods in base.js to this chart
@@ -1798,7 +1814,275 @@ var line = function(container) {
 // Export circle
 module.exports = line;
 
-},{"../utils.js":9,"./base.js":14,"extend":1}],17:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":14,"extend":2}],17:[function(require,module,exports){
+var multiLine = function() {
+	// Import base chart
+	var lineBase = require('./line.js')(),
+		utils = require('../utils.js'),
+		extend = require('extend');
+
+
+	// Value transformers
+	var nameValue = function(d) { return d[0]; },
+   	 	dataValue = function(d) { return d[1]; };
+
+   	// Axes
+	var xAxis = d3.svg.axis()
+			.orient("bottom")
+			.tickFormat(utils.format_unit_names)
+			.ticks(5);
+
+	// Defaults
+	var events = [],
+		selected = 'all',
+		color = d3.scale.category20();
+
+	// Default Options
+	var defaults = { };
+
+	function chart(selection, opts) {
+		chart.selection = selection;
+
+		// Merge defaults and options
+		var options = {};
+		extend(options, defaults, opts);
+
+		var data;
+		// Get selected button if one
+		selected = options.selected || 'all';
+
+		// Grab base line functions for easy access
+        var xValue = chart.xValue(),
+        	m = chart.margin(),
+        	w = chart.width(),
+        	h = chart.height(),
+        	x = chart.x(),
+        	transitionDuration = chart.transitionDuration();
+
+		// Smoothing function
+		var smooth = iobio.viz.layout.pointSmooth()
+	    	.size(w)
+	    	.pos(function(d,i) { return (d.globalPos || 0) + xValue(d,i)})
+	    	.epsilonRate(0.1);
+
+	    // Add global positions to data
+	    var curr = 0,
+	    	points = [],
+	    	selectedGlobalpos;
+
+
+	    selection.datum().forEach(function(d,i) {
+
+			if (selected == 'all') {
+				d.globalPos = curr;
+				var pointData = dataValue(d,i);
+				curr += chart.xValue()(pointData[pointData.length-1],i);
+				pointData.forEach(function(p) {
+					p.globalPos = d.globalPos;
+				})
+				points = points.concat(pointData);
+		    } else {
+		    	d.globalPos = 0;
+	    		if(selected == nameValue(d,i)) {
+		      		points = dataValue(d,i);
+	      		}
+	      }
+	    })
+
+	    if (!selection.select('.iobio-multi-line.line-panel').node())
+				selection.append('div').attr('class', 'iobio-multi-line line-panel').style('height', parseInt(h) + 'px')
+	    if (!options.noLine || selected != 'all') {
+			// Create line div to place the line chart in
+			// Call base line chart
+			if (selected == 'all') { // for all
+		        lineBase
+		        	.yAxis(null)
+		        	.xAxis(null)
+		        	.call(this, selection.select('.line-panel').datum(smooth(points)), options);
+		        // Remove brush for all
+		        selection.select('.iobio-brush').selectAll("*").remove();
+		        selection.select('.iobio-axis.iobio-x').selectAll("*").remove();
+		    } else {
+		    	chart.selectedGlobalpos = selectedGlobalpos
+		    	points.forEach(function(d) { d.globalPos = 0; });
+		    	if(points.length > 0) {
+			    	x.domain([points[0].pos, points.slice(-1)[0].pos ]);
+			    	lineBase
+			        	.yAxis(null)
+			        	.xAxis( xAxis.scale(x) )
+			        	.call(this, selection.select('.line-panel').datum(smooth(points)), options);
+			    }
+		    }
+		} else {
+			var maxX = points[points.length-1].globalPos + xValue(points[points.length-1]);
+			x.range([0,w - m.left - m.right]).domain([0,  maxX]);
+		}
+
+		// Create buttons
+		selection.selectAll('.iobio-multi-line.button-panel').data([0])
+			.enter().append('div')
+				.attr('class', 'iobio-multi-line button-panel')
+				.style('width', w - m.left - m.right)
+				.append('svg')
+					.style('width', '100%');
+
+	   	var button = selection.select('.button-panel svg').selectAll('.button')
+	    			 	.data( selection.datum(), function(d,i) { return nameValue(d,i); });
+
+	    // Exit
+	    button.exit().style('display', 'none');
+
+	   	// Enter
+	    var buttonEnter = button.enter().append('g')
+	    	.attr('class', 'button')
+	    	.attr('transform', function(d) {return 'translate(' + x(d.globalPos) + ')';})
+	    	.attr('id', function(d,i) { return 'iobio-button-' + nameValue(d,i) })
+
+		buttonEnter.append('rect')
+			.attr('width', function(d,i) {
+					var data = dataValue(d,i);
+		    		var last = parseInt(xValue(data[data.length-1],i))+parseInt(d.globalPos)
+		    		var xpos = x( last ) - x(parseInt(d.globalPos));
+		    		return  xpos + 'px'
+		    })
+		    .style('fill', color )
+		    .style('height', '20px');
+
+	    buttonEnter.append('text')
+	    	.attr('y', 10)
+    		.attr('x', function(d,i) {
+    			var data = dataValue(d,i);
+	    		var last = parseInt(xValue(data[data.length-1],i))+parseInt(d.globalPos)
+	    		var xpos = (x( last ) - x(parseInt(d.globalPos)))/2;
+	    		return  xpos + 'px'
+	    	})
+	    	.attr('alignment-baseline', 'middle')
+	    	.attr('text-anchor', 'middle')
+	    	.text(function(d,i) { return nameValue(d,i); });
+
+	    // Update
+	    button.transition()
+	    	.duration(transitionDuration)
+	    	.style('display', function(d,i) {
+	    		if (selected == 'all' || selected == nameValue(d,i) )
+	    			return 'block';
+	    		else
+	    			return 'none';
+	    	})
+	    	.attr('transform', function(d,i) {return 'translate(' + x(d.globalPos) + ')'; });
+
+
+	    button.select('rect').transition()
+	    	.duration(transitionDuration)
+	    	.attr('width', function(d,i) {
+	    		var data = dataValue(d,i);
+	    		var last = parseInt(xValue(data[data.length-1],i))+parseInt(d.globalPos)
+	    		var xpos = x( last ) - x(parseInt(d.globalPos));
+	    		return  xpos + 'px'
+	    	});
+
+	   	button.select('text').transition()
+	   		.duration(transitionDuration)
+	   		.attr('x', function(d,i) {
+	   			var data = dataValue(d,i);
+	    		var last = parseInt(xValue(data[data.length-1],i))+parseInt(d.globalPos)
+	    		var xpos = (x( last ) - x(parseInt(d.globalPos)))/2;
+	    		return  xpos + 'px'
+	    	});
+
+
+	    // Attach events
+	    var userClickCB;
+		events.forEach(function(ev) {
+			if(ev.event == 'click')
+				userClickCB = ev.listener;
+			else
+				button.on(ev.event, ev.listener);
+		})
+
+		// // Add control click event to all buttons
+	    button
+			.on('click', function(d,i) {
+	    		var xMin = d.globalPos;
+	    		var xMax = d.globalPos + xValue(d.data[d.data.length-1],i) ;
+	    		chart(selection, {'selected':nameValue(d,i) });
+	    		// chart(selection, {'xMin': xMin, 'xMax': xMax, 'selected':nameValue(d) });
+
+	    		// Handle user event
+	    		if (userClickCB) userClickCB.call(this,d);
+	    	})
+	    if (selected != 'all') {
+	    	selection.select('.line-panel .iobio-container').append('text')
+	    			.attr('id', 'iobio-button-all')
+	    			.attr('x', m.left + 5)
+	    			.attr('y', 0)
+	    			.text('< All')
+	    			.on('click', function() {
+	    				this.remove();
+						chart(selection);
+						if (userClickCB) userClickCB.call(this);
+	    			})
+	    }
+
+	}
+
+	// Rebind methods in line chart to this chart
+	lineBase.rebind(chart);
+
+
+	// Member functions
+	chart.dataValue = function(_) {
+		if (!arguments.length) return dataValue;
+		dataValue = _;
+		return chart;
+	};
+
+	chart.color = function(_) {
+		if (!arguments.length) return color;
+		color = _;
+		return chart;
+	};
+
+	chart.nameValue = function(_) {
+		if (!arguments.length) return nameValue;
+		nameValue = _;
+		return chart;
+	};
+
+	chart.getSelected = function(_) {
+		return selected;
+	};
+
+	chart.setSelected = function(_) {
+		chart(this.selection, {'selected' : _});
+		return chart;
+	};
+
+	chart.trigger = function(event, buttonName) {
+		this.selection.select('#iobio-button-' + buttonName).each(function(d, i) {
+			var data = d.find(function(d) { return nameValue(d) == buttonName })
+		    var onEventFunc = d3.select(this).on(event);
+			if(onEventFunc) onEventFunc.apply(this, [data, i]);
+		});
+	};
+
+
+	/*
+   	 * Set events on buttons
+   	 */
+	chart.on = function(event, listener) {
+		if (!arguments.length) return events;
+		events.push( {'event':event, 'listener':listener})
+		return chart;
+	}
+
+
+	return chart;
+}
+
+// Export alignment
+module.exports = multiLine;
+},{"../utils.js":10,"./line.js":16,"extend":2}],18:[function(require,module,exports){
 var pie = function() {
 	// Import base chart
 	var base = require('./base.js')(),
@@ -1815,6 +2099,7 @@ var pie = function() {
 		arc,
 		events = [],
 		tooltip,
+		nameValue = '',
 		text = function(data, total) {
 			var count = data[0].data;
 			var percent = utils.format_percent(count/total);
@@ -1864,31 +2149,44 @@ var pie = function() {
 				.data(selection.datum())
 
 		// enter
-		path.enter().append("g")
+		var pathEnter = path.enter().append("g")
 			.attr('id', id)
 			.attr('class', 'arc')
 			.style('fill', color)
-			.append('path')
-				.attr("d", function(d,i) {
-					if (transitionDuration && transitionDuration > 0) {
-						return arc({"data":d.data,"value":0,"startAngle":0,"endAngle":0, "padAngle":0});						
-					} else {
-						return arc(d);
-					}
-				
-				})
-				.each(function(d) { 
-					this._current = {"data":d.data,"value":0,"startAngle":0,"endAngle":0, "padAngle":0};  // store the initial angles						
-				});
+
+		pathEnter.append('path')
+			.attr("d", function(d,i) {
+				if (transitionDuration && transitionDuration > 0) {
+					return arc({"data":d.data,"value":0,"startAngle":0,"endAngle":0, "padAngle":0});
+				} else {
+					return arc(d);
+				}
+
+			})
+			.each(function(d) {
+				this._current = {"data":d.data,"value":0,"startAngle":0,"endAngle":0, "padAngle":0};  // store the initial angles
+			});
+
+		pathEnter.append('text')
+			.attr("transform", function(d) {
+	          return "translate(" + arcLabelPosition(d, .55) + ")";
+	        })
+			.text(nameValue)
 
        	// update
-       	if (transitionDuration && transitionDuration > 0) {
+       	if (transitionDuration != undefined && transitionDuration >= 0) {
 	       	path.style('fill', color)
 	       		.select('path').transition()
 		         	.duration( transitionDuration )
 		         	.attrTween("d", arcTween);
+
+		    path.select('text').transition()
+		    	.duration(transitionDuration)
+		    	.attr("transform", function(d) {
+		          return "translate(" + arcLabelPosition(d, .55) + ")";
+		        })
 		}
-	     
+
 
        	// exit
 		path.exit().remove();
@@ -1933,6 +2231,14 @@ var pie = function() {
 	  };
 	}
 
+	function arcLabelPosition(d, ratio) {
+		var r = ( chart.innerRadius() + chart.radius() ) * ratio;
+		var oa = arc.startAngle.call(d);
+		var ia = arc.endAngle.call(d);
+		a = ( oa(d) + ia(d) ) / 2 - (Math.PI/ 2);
+		return [ Math.cos(a) * r, Math.sin(a) * r ];
+	}
+
 	chart.padding = function(_) {
 		if (!arguments.length) return padding;
 		padding = _;
@@ -1950,6 +2256,12 @@ var pie = function() {
 		innerRadius = _;
 		return chart;
 	};
+
+	chart.nameValue = function(_) {
+		if (!arguments.length) return nameValue;
+		nameValue = _;
+		return chart;
+	}
 
 
 	chart.text = function(_) {
@@ -1981,7 +2293,7 @@ var pie = function() {
 
 // Export alignment
 module.exports = pie;
-},{"../utils.js":9,"./base.js":14,"extend":1}],18:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":14,"extend":2}],19:[function(require,module,exports){
 /*
   pieChooser - a iobio viz component that is a pie chart with clickable slices.  All slices
                can be selected by clicking the 'All' circle in the middle of the pie chart.
@@ -2011,7 +2323,7 @@ var pieChooser = function() {
 	var sliceApiSelected = null;
   	var arcs = null;
  	var radiusOffset;
-  	var arc;	
+  	var arc;
   	var options;
   	var labels;
   	var text;
@@ -2027,29 +2339,37 @@ var pieChooser = function() {
 				    .outerRadius(chart.radius());
 
 		// Create a pie chart
-		pie.radius(chart.radius())
+		pie.nameValue(name)
+		   .radius(chart.radius())
 	       .innerRadius(chart.innerRadius())
 	       .padding(chart.padding())
-	       .transitionDuration(0)
+	       .transitionDuration(200)
 	       .color(chart.color())
 	       .text( function(d,i) {return ""});
 
 		pie(selection, options);
 
-		arcs = selection.selectAll('.arc');
+		arcs = selection.selectAll('.arc')
 
-		// Add labels to the arcs
-		arcs.append("text")
-	        .attr("class", "chartlabel")
-	        .attr("dy", ".35em")
-	        .attr("transform", function(d) {
-	          return "translate(" + chart._arcLabelPosition(d, .55) + ")";
-	        })
-	        .attr("text-anchor", "middle")
-	        .style("pointer-events", "none")
-	        .text(function(d,i) {
-	          return name(d);
-	        });
+		// var label = selection.selectAll('.arc').selectAll('.chartlabel').data(selection.datum());
+
+		// // Add labels to the arcs
+		// label.enter().append("text")
+	 //        .attr("class", "chartlabel")
+	 //        .attr("dy", ".35em")
+	 //        .attr("text-anchor", "middle")
+	 //        .style("pointer-events", "none")
+
+	 //    label.transition()
+	 //    	.duration( chart.transitionDuration() )
+	 //    	.attr("transform", function(d) {
+	 //          return "translate(" + chart._arcLabelPosition(d, .55) + ")";
+	 //        })
+		//     .text(function(d,i) {
+	 //          return name(d);
+	 //        });
+
+	 //    label.exit().remove();
 
 		// Stick events in map for easy lookup
 		events.forEach(function(ev) {
@@ -2073,17 +2393,17 @@ var pieChooser = function() {
 				if (listener) {
 					listener.call(chart, d, i);
 				}
-              
-            }) 
+
+            })
            .on("mouseout", function(d) {
 				d3.select(this).attr("cursor", "default");
 				if (clickedSlices.length == 0 && this != clickedSlice) {
 				d3.select(this)
 				  .select("path")
 				  .transition()
-				  .duration(150).attr("transform", "translate(0,0)"); 
+				  .duration(150).attr("transform", "translate(0,0)");
 				}
-                  
+
               	d3.select(this).select("path")
                                .style("stroke-width", "0");
 
@@ -2094,7 +2414,7 @@ var pieChooser = function() {
                 var listener = eventMap["mouseout"];
               	if (listener) {
               		listener.call(chart, d, i);
-              	}             
+              	}
 
             })
            .on("click", function(d, i) {
@@ -2103,7 +2423,7 @@ var pieChooser = function() {
               	var listener = eventMap["click"];
               	if (listener) {
               		listener.call(chart, d, i);
-              	}   
+              	}
             });
 
 
@@ -2116,20 +2436,20 @@ var pieChooser = function() {
 	      .attr("r", 25)
 	      .attr("stroke", 'lightgrey')
 	      .attr("fill", 'transparent')
-	      .on("mouseover", function(d) {	        
+	      .on("mouseover", function(d) {
 	        d3.select(this).attr("cursor", "pointer");
 	      })
 	      .on("mouseout", function(d) {
 	        d3.select(this).attr("cursor", "default");
 	      })
-		  .on("click", function(d) { 
+		  .on("click", function(d) {
 		  		d3.select(this).classed("selected", true);
 	          	chart._clickAllSlices(d);
 	          	var listener = eventMap["clickall"];
 	          	if (listener) {
 	          		listener.call(chart, d);
-	          	}   
-	       })	     
+	          	}
+	       })
 	     g.append("text")
 	        .attr("id", "all-text")
 	        .attr("dy", ".35em")
@@ -2137,8 +2457,21 @@ var pieChooser = function() {
 	        .style("pointer-events", "none")
 	        .attr("class", "inside")
 	        .text(function(d) { return 'All'; });
-	        
-	        
+
+
+
+	    // if ( options.selected != undefined ) {
+	    // 	var selectedName = options.selected;
+	    // 	var a = arcs;
+	    // 	arcs.each(function(d,i) {
+	    // 		if ( name(d) ==  selectedName) {
+	    // 			chart._selectSlice(d, i, a[0][i], true);
+	    // 		}
+
+
+	    // 	})
+
+	    // }
 
 
 	}
@@ -2151,7 +2484,7 @@ var pieChooser = function() {
 	chart.on = function(event, listener) {
 		if (!arguments.length) {
 			return events;
-		} 
+		}
 		events.push( {'event':event, 'listener':listener})
 		return chart;
 	}
@@ -2212,14 +2545,14 @@ var pieChooser = function() {
 	        chart._unclickSlice(clickedSlice);
 	      }
 
-	    } 
+	    }
 
 	    // Bold the label of the clicked slice
 	    d3.select(theSlice).selectAll("text").attr("class", "chartlabelSelected");
 
 	    // Offset the arc even more than mouseover offset
 	    // Calculate angle bisector
-	    var ang = d.startAngle + (d.endAngle - d.startAngle)/2; 
+	    var ang = d.startAngle + (d.endAngle - d.startAngle)/2;
 	    // Transformate to SVG space
 	    ang = (ang - (Math.PI / 2) ) * -1;
 
@@ -2232,7 +2565,7 @@ var pieChooser = function() {
 	      .attr("transform", "rotate(0)")
 	      .transition()
 	      .duration(200)
-	      .attr("transform", "translate("+x+","+y+")"); 
+	      .attr("transform", "translate("+x+","+y+")");
 
 	    if (singleSelection) {
 	      clickedSlice = theSlice;
@@ -2241,14 +2574,14 @@ var pieChooser = function() {
 	      clickedSlices.push(theSlice);
 	    }
 
-	}	
+	}
 
     chart._unclickSlice = function(clickedSlice) {
 	    // change the previous clicked slice back to no offset
 	    d3.select(clickedSlice)
 	      .select("path")
 	      .transition()
-	      .duration(150).attr("transform", "translate(0,0)"); 
+	      .duration(150).attr("transform", "translate(0,0)");
 
 	    // change the previous clicked slice label back to normal font
 	    d3.select(clickedSlice).selectAll("text").attr("class", "chartlabel");
@@ -2259,7 +2592,7 @@ var pieChooser = function() {
   	}
 
   	chart._selectSlice = function(d, i, gNode, deselectPrevSlice) {
-		var theSlice = this; 
+		var theSlice = this;
 
 		// We have a gNode when this function is
 		// invoked during initialization to selected
@@ -2267,7 +2600,7 @@ var pieChooser = function() {
 		if (gNode) {
 		  theSlice = gNode;
 		  sliceApiSelected = gNode;
-		  
+
 		} else {
 		  // We have to get rid of previous selection
 		  // when we mouseenter after first chromsome
@@ -2279,7 +2612,7 @@ var pieChooser = function() {
 		      d3.select(sliceApiSelected).select("path")
 		          .transition()
 		          .duration(150)
-		          .attr("transform", "translate(0,0)"); 
+		          .attr("transform", "translate(0,0)");
 		        sliceApiSelected = null;
 		    }
 		  }
@@ -2307,7 +2640,7 @@ var pieChooser = function() {
 
 		if (theSlice != clickedSlice) {
 		  // Calculate angle bisector
-		  var ang = d.startAngle + (d.endAngle - d.startAngle)/2; 
+		  var ang = d.startAngle + (d.endAngle - d.startAngle)/2;
 		  // Transformate to SVG space
 		  ang = (ang - (Math.PI / 2) ) * -1;
 
@@ -2319,7 +2652,7 @@ var pieChooser = function() {
 		    .attr("transform", "rotate(0)")
 		    .transition()
 		    .duration(200)
-		    .attr("transform", "translate("+x+","+y+")"); 
+		    .attr("transform", "translate("+x+","+y+")");
 
 		}
     	return chart;
@@ -2330,24 +2663,24 @@ var pieChooser = function() {
 		var r = ( chart.innerRadius() + chart.radius() ) * ratio;
 		var oa = arc.startAngle.call(d);
 		var ia = arc.endAngle.call(d);
-		a = ( oa(d) + ia(d) ) / 2 - (Math.PI/ 2);      
-		return [ Math.cos(a) * r, Math.sin(a) * r ];    
+		a = ( oa(d) + ia(d) ) / 2 - (Math.PI/ 2);
+		return [ Math.cos(a) * r, Math.sin(a) * r ];
 	};
 
-	chart._clickAllSlices = function(data)  {	
+	chart._clickAllSlices = function(data)  {
 		chartContainer.select("circle#all-circle").classed("selected", true);
-	
+
 		clickedSlices.length = 0;
 		for (var i = 0; i < data.length; i++) {
 		    var theSlice = arcs.selectAll("d.arc")[i].parentNode;
 		    chart._clickSlice(theSlice, theSlice.__data__,  i, false);
-		} 
-		return chart;   
+		}
+		return chart;
 	}
 
 
 
-	chart.clickSlice = function(i) {   
+	chart.clickSlice = function(i) {
 		var theSlice = arcs.selectAll("d.arc")[i].parentNode;
 		chart._clickSlice(theSlice, theSlice.__data__, i, true);
 		chart._selectSlice(theSlice.__data__,  i, theSlice);
@@ -2367,7 +2700,7 @@ var pieChooser = function() {
 
 // Export alignment
 module.exports = pieChooser;
-},{"../utils.js":9,"./base.js":14,"./pie.js":17,"extend":1}],19:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":14,"./pie.js":18,"extend":2}],20:[function(require,module,exports){
 
 var viz = {};
 // add visualizations
@@ -2379,9 +2712,10 @@ viz.line = require('./line.js')
 viz.bar = require('./bar.js')
 viz.barViewer = require('./barViewer.js')
 viz.gene = require('./gene.js')
+viz.multiLine = require('./multiLine.js')
 
 module.exports = viz;
-},{"./alignment.js":11,"./bar.js":12,"./barViewer.js":13,"./base.js":14,"./gene.js":15,"./line.js":16,"./pie.js":17,"./pieChooser.js":18}]},{},[10])
+},{"./alignment.js":11,"./bar.js":12,"./barViewer.js":13,"./base.js":14,"./gene.js":15,"./line.js":16,"./multiLine.js":17,"./pie.js":18,"./pieChooser.js":19}]},{},[1])
 
 
 //# sourceMappingURL=iobio.viz.js.map

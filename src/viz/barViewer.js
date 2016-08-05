@@ -66,8 +66,8 @@ var barViewer = function() {
 			.brush('brush', function() {
 				var x2 = globalBar.x(), brush = globalBar.brush();
 	        	var x = brush.empty() ? x2.domain() : brush.extent();
-	        	var datum = globalSelection.datum().filter(function(d) {
-	        		return (globalBar.xValue()(d) >= x[0] && globalBar.xValue()(d) <= x[1])
+	        	var datum = globalSelection.datum().filter(function(d,i) {
+	        		return (globalBar.xValue()(d,i) >= x[0] && globalBar.xValue()(d,i) <= x[1])
 	        	});
 	        	options.xMin = x[0];
 	        	options.xMax = x[1];

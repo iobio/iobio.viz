@@ -27,7 +27,7 @@ var pieChooser = function() {
 	var sliceApiSelected = null;
   	var arcs = null;
  	var radiusOffset;
-  	var arc;	
+  	var arc;
   	var options;
   	var labels;
   	var text;
@@ -43,29 +43,37 @@ var pieChooser = function() {
 				    .outerRadius(chart.radius());
 
 		// Create a pie chart
-		pie.radius(chart.radius())
+		pie.nameValue(name)
+		   .radius(chart.radius())
 	       .innerRadius(chart.innerRadius())
 	       .padding(chart.padding())
-	       .transitionDuration(0)
+	       .transitionDuration(200)
 	       .color(chart.color())
 	       .text( function(d,i) {return ""});
 
 		pie(selection, options);
 
-		arcs = selection.selectAll('.arc');
+		arcs = selection.selectAll('.arc')
 
-		// Add labels to the arcs
-		arcs.append("text")
-	        .attr("class", "chartlabel")
-	        .attr("dy", ".35em")
-	        .attr("transform", function(d) {
-	          return "translate(" + chart._arcLabelPosition(d, .55) + ")";
-	        })
-	        .attr("text-anchor", "middle")
-	        .style("pointer-events", "none")
-	        .text(function(d,i) {
-	          return name(d);
-	        });
+		// var label = selection.selectAll('.arc').selectAll('.chartlabel').data(selection.datum());
+
+		// // Add labels to the arcs
+		// label.enter().append("text")
+	 //        .attr("class", "chartlabel")
+	 //        .attr("dy", ".35em")
+	 //        .attr("text-anchor", "middle")
+	 //        .style("pointer-events", "none")
+
+	 //    label.transition()
+	 //    	.duration( chart.transitionDuration() )
+	 //    	.attr("transform", function(d) {
+	 //          return "translate(" + chart._arcLabelPosition(d, .55) + ")";
+	 //        })
+		//     .text(function(d,i) {
+	 //          return name(d);
+	 //        });
+
+	 //    label.exit().remove();
 
 		// Stick events in map for easy lookup
 		events.forEach(function(ev) {
@@ -89,17 +97,17 @@ var pieChooser = function() {
 				if (listener) {
 					listener.call(chart, d, i);
 				}
-              
-            }) 
+
+            })
            .on("mouseout", function(d) {
 				d3.select(this).attr("cursor", "default");
 				if (clickedSlices.length == 0 && this != clickedSlice) {
 				d3.select(this)
 				  .select("path")
 				  .transition()
-				  .duration(150).attr("transform", "translate(0,0)"); 
+				  .duration(150).attr("transform", "translate(0,0)");
 				}
-                  
+
               	d3.select(this).select("path")
                                .style("stroke-width", "0");
 
@@ -110,7 +118,7 @@ var pieChooser = function() {
                 var listener = eventMap["mouseout"];
               	if (listener) {
               		listener.call(chart, d, i);
-              	}             
+              	}
 
             })
            .on("click", function(d, i) {
@@ -119,7 +127,7 @@ var pieChooser = function() {
               	var listener = eventMap["click"];
               	if (listener) {
               		listener.call(chart, d, i);
-              	}   
+              	}
             });
 
 
@@ -132,20 +140,20 @@ var pieChooser = function() {
 	      .attr("r", 25)
 	      .attr("stroke", 'lightgrey')
 	      .attr("fill", 'transparent')
-	      .on("mouseover", function(d) {	        
+	      .on("mouseover", function(d) {
 	        d3.select(this).attr("cursor", "pointer");
 	      })
 	      .on("mouseout", function(d) {
 	        d3.select(this).attr("cursor", "default");
 	      })
-		  .on("click", function(d) { 
+		  .on("click", function(d) {
 		  		d3.select(this).classed("selected", true);
 	          	chart._clickAllSlices(d);
 	          	var listener = eventMap["clickall"];
 	          	if (listener) {
 	          		listener.call(chart, d);
-	          	}   
-	       })	     
+	          	}
+	       })
 	     g.append("text")
 	        .attr("id", "all-text")
 	        .attr("dy", ".35em")
@@ -153,8 +161,21 @@ var pieChooser = function() {
 	        .style("pointer-events", "none")
 	        .attr("class", "inside")
 	        .text(function(d) { return 'All'; });
-	        
-	        
+
+
+
+	    // if ( options.selected != undefined ) {
+	    // 	var selectedName = options.selected;
+	    // 	var a = arcs;
+	    // 	arcs.each(function(d,i) {
+	    // 		if ( name(d) ==  selectedName) {
+	    // 			chart._selectSlice(d, i, a[0][i], true);
+	    // 		}
+
+
+	    // 	})
+
+	    // }
 
 
 	}
@@ -167,7 +188,7 @@ var pieChooser = function() {
 	chart.on = function(event, listener) {
 		if (!arguments.length) {
 			return events;
-		} 
+		}
 		events.push( {'event':event, 'listener':listener})
 		return chart;
 	}
@@ -228,14 +249,14 @@ var pieChooser = function() {
 	        chart._unclickSlice(clickedSlice);
 	      }
 
-	    } 
+	    }
 
 	    // Bold the label of the clicked slice
 	    d3.select(theSlice).selectAll("text").attr("class", "chartlabelSelected");
 
 	    // Offset the arc even more than mouseover offset
 	    // Calculate angle bisector
-	    var ang = d.startAngle + (d.endAngle - d.startAngle)/2; 
+	    var ang = d.startAngle + (d.endAngle - d.startAngle)/2;
 	    // Transformate to SVG space
 	    ang = (ang - (Math.PI / 2) ) * -1;
 
@@ -248,7 +269,7 @@ var pieChooser = function() {
 	      .attr("transform", "rotate(0)")
 	      .transition()
 	      .duration(200)
-	      .attr("transform", "translate("+x+","+y+")"); 
+	      .attr("transform", "translate("+x+","+y+")");
 
 	    if (singleSelection) {
 	      clickedSlice = theSlice;
@@ -257,14 +278,14 @@ var pieChooser = function() {
 	      clickedSlices.push(theSlice);
 	    }
 
-	}	
+	}
 
     chart._unclickSlice = function(clickedSlice) {
 	    // change the previous clicked slice back to no offset
 	    d3.select(clickedSlice)
 	      .select("path")
 	      .transition()
-	      .duration(150).attr("transform", "translate(0,0)"); 
+	      .duration(150).attr("transform", "translate(0,0)");
 
 	    // change the previous clicked slice label back to normal font
 	    d3.select(clickedSlice).selectAll("text").attr("class", "chartlabel");
@@ -275,7 +296,7 @@ var pieChooser = function() {
   	}
 
   	chart._selectSlice = function(d, i, gNode, deselectPrevSlice) {
-		var theSlice = this; 
+		var theSlice = this;
 
 		// We have a gNode when this function is
 		// invoked during initialization to selected
@@ -283,7 +304,7 @@ var pieChooser = function() {
 		if (gNode) {
 		  theSlice = gNode;
 		  sliceApiSelected = gNode;
-		  
+
 		} else {
 		  // We have to get rid of previous selection
 		  // when we mouseenter after first chromsome
@@ -295,7 +316,7 @@ var pieChooser = function() {
 		      d3.select(sliceApiSelected).select("path")
 		          .transition()
 		          .duration(150)
-		          .attr("transform", "translate(0,0)"); 
+		          .attr("transform", "translate(0,0)");
 		        sliceApiSelected = null;
 		    }
 		  }
@@ -323,7 +344,7 @@ var pieChooser = function() {
 
 		if (theSlice != clickedSlice) {
 		  // Calculate angle bisector
-		  var ang = d.startAngle + (d.endAngle - d.startAngle)/2; 
+		  var ang = d.startAngle + (d.endAngle - d.startAngle)/2;
 		  // Transformate to SVG space
 		  ang = (ang - (Math.PI / 2) ) * -1;
 
@@ -335,7 +356,7 @@ var pieChooser = function() {
 		    .attr("transform", "rotate(0)")
 		    .transition()
 		    .duration(200)
-		    .attr("transform", "translate("+x+","+y+")"); 
+		    .attr("transform", "translate("+x+","+y+")");
 
 		}
     	return chart;
@@ -346,24 +367,24 @@ var pieChooser = function() {
 		var r = ( chart.innerRadius() + chart.radius() ) * ratio;
 		var oa = arc.startAngle.call(d);
 		var ia = arc.endAngle.call(d);
-		a = ( oa(d) + ia(d) ) / 2 - (Math.PI/ 2);      
-		return [ Math.cos(a) * r, Math.sin(a) * r ];    
+		a = ( oa(d) + ia(d) ) / 2 - (Math.PI/ 2);
+		return [ Math.cos(a) * r, Math.sin(a) * r ];
 	};
 
-	chart._clickAllSlices = function(data)  {	
+	chart._clickAllSlices = function(data)  {
 		chartContainer.select("circle#all-circle").classed("selected", true);
-	
+
 		clickedSlices.length = 0;
 		for (var i = 0; i < data.length; i++) {
 		    var theSlice = arcs.selectAll("d.arc")[i].parentNode;
 		    chart._clickSlice(theSlice, theSlice.__data__,  i, false);
-		} 
-		return chart;   
+		}
+		return chart;
 	}
 
 
 
-	chart.clickSlice = function(i) {   
+	chart.clickSlice = function(i) {
 		var theSlice = arcs.selectAll("d.arc")[i].parentNode;
 		chart._clickSlice(theSlice, theSlice.__data__, i, true);
 		chart._selectSlice(theSlice.__data__,  i, theSlice);

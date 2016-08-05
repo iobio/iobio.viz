@@ -9,21 +9,21 @@ var pointSmooth = function() {
 
   function layout(data) {
 
-    // Compute the numeric values for each data element and keep original data.    
-    var points = data.map(function(d, i) { 
+    // Compute the numeric values for each data element and keep original data.
+    var points = data.map(function(d, i) {
       return {
         data: d,
         pos: +pos.call(layout, d, i),
         depth: +depth.call(layout, d, i)
       };
     });
-    
+
     var epislon = parseInt( epsilonRate * (points[points.length-1].pos - points[0].pos) / size );
 
     // Compute the points!
     // They are stored in the original data's order.
-    points = properRDP(points, epislon);    
-    
+    points = properRDP(points, epislon);
+
     return points;
   }
 
@@ -51,7 +51,7 @@ var pointSmooth = function() {
 
   /*
    * Specifies the x scale for the layout. This is necessary to accurately predict
-   * how smoothing will be necessary i.e. smaller size has less resolution and will 
+   * how smoothing will be necessary i.e. smaller size has less resolution and will
    * require more smoothing.
    */
   layout.size = function(_) {
@@ -61,7 +61,7 @@ var pointSmooth = function() {
   };
 
   /*
-   * Specifies the epislon rate to determine the aggressiveness of the smoothing   
+   * Specifies the epislon rate to determine the aggressiveness of the smoothing
    */
   layout.epsilonRate = function(_) {
     if (!arguments.length) return epsilonRate;
@@ -77,13 +77,13 @@ module.exports = pointSmooth;
 
 /*
  * properRDP
- * 
+ *
  * @licence Feel free to use it as you please, a mention of my name is always nice.
- * 
+ *
  * Marius Karthaus
  * http://www.LowVoice.nl
- * 
- */ 
+ *
+ */
 
 function properRDP(points,epsilon){
     var firstPoint=points[0];
@@ -126,6 +126,6 @@ function findPerpendicularDistance(p, p1,p2) {
         intercept = p1.depth - (slope * p1.pos);
         result = Math.abs(slope * p.pos - p.depth + intercept) / Math.sqrt(Math.pow(slope, 2) + 1);
     }
-   
+
     return result;
 }

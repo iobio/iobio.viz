@@ -40,7 +40,7 @@ var bar = function() {
 		// enter
 		var g = selection.select('g.iobio-container').classed('iobio-bar', true);; // grab container to draw into (created by base chart)
 		var rect = g.selectAll('.rect')
-				.data(selection.datum(), function(d) { return xValue(d); })
+				.data(selection.datum(), function(d,i) { return xValue(d,i); })
 		// exit
 	    rect.exit().remove();
 
@@ -51,8 +51,8 @@ var bar = function() {
 			.style('fill', color )
 			.append('rect')
 				.attr('y', function(d) { return innerHeight })
-				.attr('x', function(d) { return x(xValue(d)) })
-				.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})
+				.attr('x', function(d,i) { return x(xValue(d,i)) })
+				.attr('width', function(d,i) { return x(xValue(d,i)+wValue(d,i)) - x(xValue(d,i));})
 				.attr('height', function(d) { return 0; });
 
 		// update
@@ -60,10 +60,10 @@ var bar = function() {
 			.style('fill', color )
 			.select('rect').transition()
 				.duration( transitionDuration )
-				.attr('x', function(d) { return x(xValue(d)) })
-				.attr('y', function(d) { return y(yValue(d)) })
-				.attr('width', function(d) { return x(xValue(d)+wValue(d)) - x(xValue(d));})
-				.attr('height', function(d) { return innerHeight - y(yValue(d)); });
+				.attr('x', function(d,i) { return x(xValue(d,i)) })
+				.attr('y', function(d,i) { return y(yValue(d,i)) })
+				.attr('width', function(d,i) { return x(xValue(d,i)+wValue(d,i)) - x(xValue(d,i));})
+				.attr('height', function(d,i) { return innerHeight - y(yValue(d,i)); });
 
 
 		// Add title on hover

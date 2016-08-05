@@ -57,9 +57,9 @@ var alignment = function() {
 		aln.enter().append('g')
 			.attr('id', function(d) { return id(d)})
 			.attr('class', 'alignment')
-			.attr('transform', function(d) {
-				var translate = 'translate('+parseInt(x(xValue(d) + wValue(d)/2))+','+ parseInt(y(yValue(d))-elemHeight/2) + ')'
-				if (directionValue && directionValue(d) == 'reverse')
+			.attr('transform', function(d,i) {
+				var translate = 'translate('+parseInt(x(xValue(d,i) + wValue(d,i)/2))+','+ parseInt(y(yValue(d,i))-elemHeight/2) + ')'
+				if (directionValue && directionValue(d,i) == 'reverse')
 					return translate + ' rotate(180)';
 				else
 					return translate;
@@ -89,9 +89,9 @@ var alignment = function() {
 
 		aln.transition()
 			.duration(transitionDuration)
-			.attr('transform', function(d) {
-				var translate = 'translate('+parseInt(x(xValue(d) + wValue(d)/2))+','+ parseInt(y(yValue(d))-elemHeight/2) + ')'
-				if (directionValue && directionValue(d) == 'reverse')
+			.attr('transform', function(d,i) {
+				var translate = 'translate('+parseInt(x(xValue(d,i) + wValue(d,i)/2))+','+ parseInt(y(yValue(d,i))-elemHeight/2) + ')'
+				if (directionValue && directionValue(d,i) == 'reverse')
 					return translate + ' rotate(180)';
 				else
 					return translate;
@@ -100,8 +100,8 @@ var alignment = function() {
 
 		aln.select('polygon').transition()
 			.duration(transitionDuration)
-			.attr('points', function(d) {
-				var rW = x(xValue(d)+wValue(d)) - x(xValue(d));
+			.attr('points', function(d,i) {
+				var rW = x(xValue(d,i)+wValue(d,i)) - x(xValue(d,i));
 				var rH = elemHeight;
 				var arrW = Math.min(5, rW);
 
