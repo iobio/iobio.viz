@@ -55,26 +55,6 @@ var pieChooser = function() {
 
 		arcs = selection.selectAll('.arc')
 
-		// var label = selection.selectAll('.arc').selectAll('.chartlabel').data(selection.datum());
-
-		// // Add labels to the arcs
-		// label.enter().append("text")
-	 //        .attr("class", "chartlabel")
-	 //        .attr("dy", ".35em")
-	 //        .attr("text-anchor", "middle")
-	 //        .style("pointer-events", "none")
-
-	 //    label.transition()
-	 //    	.duration( chart.transitionDuration() )
-	 //    	.attr("transform", function(d) {
-	 //          return "translate(" + chart._arcLabelPosition(d, .55) + ")";
-	 //        })
-		//     .text(function(d,i) {
-	 //          return name(d);
-	 //        });
-
-	 //    label.exit().remove();
-
 		// Stick events in map for easy lookup
 		events.forEach(function(ev) {
 			eventMap[ev.event] = ev.listener;
@@ -161,22 +141,6 @@ var pieChooser = function() {
 	        .style("pointer-events", "none")
 	        .attr("class", "inside")
 	        .text(function(d) { return 'All'; });
-
-
-
-	    // if ( options.selected != undefined ) {
-	    // 	var selectedName = options.selected;
-	    // 	var a = arcs;
-	    // 	arcs.each(function(d,i) {
-	    // 		if ( name(d) ==  selectedName) {
-	    // 			chart._selectSlice(d, i, a[0][i], true);
-	    // 		}
-
-
-	    // 	})
-
-	    // }
-
 
 	}
 	// Rebind methods in pie.js to this chart

@@ -6,7 +6,8 @@ var bar = function() {
 
 	// Defaults
 	var events = [],
-		tooltip;
+		tooltip,
+		keyValue;
 
 	// Default Options
 	var defaults = { yMin: 0 };
@@ -22,10 +23,11 @@ var bar = function() {
 		// Grab base functions for easy access
 		var x = base.x(),
 			y = base.y(),
-			id = base.id();
+			id = base.id(),
 			xValue = base.xValue(),
 			yValue = base.yValue(),
 			wValue = base.wValue(),
+			keyValue = base.keyValue(),
 			color = base.color(),
 			transitionDuration = base.transitionDuration(),
 			innerHeight = base.height() - base.margin().top - base.margin().bottom;
@@ -40,7 +42,7 @@ var bar = function() {
 		// enter
 		var g = selection.select('g.iobio-container').classed('iobio-bar', true);; // grab container to draw into (created by base chart)
 		var rect = g.selectAll('.rect')
-				.data(selection.datum(), function(d,i) { return xValue(d,i); })
+				.data(selection.datum(), keyValue )
 		// exit
 	    rect.exit().remove();
 
@@ -97,6 +99,14 @@ var bar = function() {
 		if (!arguments.length) return tooltip;
 			tooltip = _;
 			return chart;
+	}
+
+	/*
+   	 * Easy method to rebind bar chart functions to the argument chart
+   	 */
+	chart.rebind = function(object) {
+		base.rebind(object);
+		utils.rebind(object, this, 'rebind');
 	}
 
 	return chart;

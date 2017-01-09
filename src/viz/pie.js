@@ -84,9 +84,10 @@ var pie = function() {
 
 		pathEnter.append('text')
 			.attr("transform", function(d) {
-	          return "translate(" + arcLabelPosition(d, .55) + ")";
+	          return "translate(" + arcLabelPosition(d, .5) + ")";
 	        })
-			.text(nameValue)
+	        .attr('text-anchor', "middle")
+	        .attr('alignment-baseline', "middle")
 
        	// update
        	if (transitionDuration != undefined && transitionDuration >= 0) {
@@ -98,7 +99,18 @@ var pie = function() {
 		    path.select('text').transition()
 		    	.duration(transitionDuration)
 		    	.attr("transform", function(d) {
-		          return "translate(" + arcLabelPosition(d, .55) + ")";
+		    	  var angle = arcLabelAngle(d, 0.55) * (180/Math.PI) - 180;
+		          return "translate(" + arcLabelPosition(d, .55) + ") rotate(" + angle + ")";
+		        }).text(function(d,i) {
+		        	if (!nameValue) return;
+		        	var h = ( chart.innerRadius() + chart.radius() ) * 0.55;
+					var oa = arc.startAngle.call(d)(d);
+					var ia = arc.endAngle.call(d)(d);
+		        	var a = (ia - oa);
+		        	var width = (Math.sin(a/2)*h) * 2;
+		        	var fontSize = parseInt(d3.select(this).style('font-size'));
+		        	if (fontSize <= width)
+		        		return nameValue(d,i);
 		        })
 		}
 
@@ -146,11 +158,17 @@ var pie = function() {
 	  };
 	}
 
-	function arcLabelPosition(d, ratio) {
+	function arcLabelAngle(d, ratio) {
 		var r = ( chart.innerRadius() + chart.radius() ) * ratio;
 		var oa = arc.startAngle.call(d);
 		var ia = arc.endAngle.call(d);
 		a = ( oa(d) + ia(d) ) / 2 - (Math.PI/ 2);
+		return a;
+	}
+
+	function arcLabelPosition(d, ratio) {
+		var r = ( chart.innerRadius() + chart.radius() ) * ratio;
+		var a = arcLabelAngle(d, ratio);
 		return [ Math.cos(a) * r, Math.sin(a) * r ];
 	}
 

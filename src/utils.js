@@ -28,8 +28,8 @@ module.exports.getUID = function(separator) {
     return (S4() + S4() + delim + S4() + delim + S4() + delim + S4() + delim + S4() + S4() + S4());
 }
 
-module.exports.value_accessor = function(value, d) {
-	return typeof value === 'function' ? value(d) : value;
+module.exports.value_accessor = function(value, d,i) {
+	return typeof value === 'function' ? value(d,i) : value;
 }
 
 module.exports.tooltipHelper = function(selection, tooltipElem, titleAccessor) {
@@ -60,7 +60,7 @@ module.exports.showTooltip = function(tooltipElem, titleAccessor, d) {
 module.exports.hideTooltip = function(tooltipElem) {
 	tooltipElem.transition()
 			   .duration(500)
-			   .style("opacity", 0);	
+			   .style("opacity", 0);
 }
 
 // Copies a variable number of methods from source to target.

@@ -32,7 +32,7 @@ var line = function(container) {
             // Grab base functions for easy access
             var x = base.x(),
                 y = base.y(),
-                id = base.id();
+                id = base.id(),
                 xValue = base.xValue(),
                 yValue = base.yValue(),
                 wValue = base.wValue(),

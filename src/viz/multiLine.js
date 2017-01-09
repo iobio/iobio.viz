@@ -18,7 +18,8 @@ var multiLine = function() {
 	// Defaults
 	var events = [],
 		selected = 'all',
-		color = d3.scale.category20();
+		color = d3.scale.category20(),
+		epsilonRate = 0.1;
 
 	// Default Options
 	var defaults = { };
@@ -46,7 +47,7 @@ var multiLine = function() {
 		var smooth = iobio.viz.layout.pointSmooth()
 	    	.size(w)
 	    	.pos(function(d,i) { return (d.globalPos || 0) + xValue(d,i)})
-	    	.epsilonRate(0.1);
+	    	.epsilonRate(epsilonRate);
 
 	    // Add global positions to data
 	    var curr = 0,
@@ -129,7 +130,9 @@ var multiLine = function() {
 		    		return  xpos + 'px'
 		    })
 		    .style('fill', color )
-		    .style('height', '20px');
+		    .style('height', '20px')
+		    .append('title')
+		    	.text(nameValue);
 
 	    buttonEnter.append('text')
 	    	.attr('y', 10)
@@ -140,8 +143,7 @@ var multiLine = function() {
 	    		return  xpos + 'px'
 	    	})
 	    	.attr('alignment-baseline', 'middle')
-	    	.attr('text-anchor', 'middle')
-	    	.text(function(d,i) { return nameValue(d,i); });
+	    	.attr('text-anchor', 'middle');
 
 	    // Update
 	    button.transition()
@@ -171,7 +173,21 @@ var multiLine = function() {
 	    		var last = parseInt(xValue(data[data.length-1],i))+parseInt(d.globalPos)
 	    		var xpos = (x( last ) - x(parseInt(d.globalPos)))/2;
 	    		return  xpos + 'px'
-	    	});
+	    	})
+	    	.text(function(d,i) {
+	    		// get rect width
+	    		var data = dataValue(d,i);
+	    		var last = parseInt(xValue(data[data.length-1],i))+parseInt(d.globalPos)
+	    		var rectWidth = x( last ) - x(parseInt(d.globalPos));
+
+	    		// get text width
+	    		var name = nameValue(d,i)
+	    		this.textContent = name;
+	    		var textWidth = this.getComputedTextLength();
+
+	    		if ( textWidth <= rectWidth)
+	    			return name;
+	    	});;
 
 
 	    // Attach events
@@ -226,6 +242,12 @@ var multiLine = function() {
 		return chart;
 	};
 
+	chart.epsilonRate = function(_) {
+		if (!arguments.length) return epsilonRate;
+		epsilonRate = _;
+		return chart;
+	};
+
 	chart.nameValue = function(_) {
 		if (!arguments.length) return nameValue;
 		nameValue = _;
@@ -240,6 +262,12 @@ var multiLine = function() {
 		chart(this.selection, {'selected' : _});
 		return chart;
 	};
+
+	chart.lineChart = function(_) {
+		if (!arguments.length) return lineBase;
+		lineBase = _;
+		return chart;
+	}
 
 	chart.trigger = function(event, buttonName) {
 		this.selection.select('#iobio-button-' + buttonName).each(function(d, i) {

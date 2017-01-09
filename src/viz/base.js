@@ -28,7 +28,8 @@ var base = function() {
 	var xValue = function(d) { return d[0]; },
    	 	yValue = function(d) { return d[1]; },
        	wValue = function(d) { return d[2] || 1 },
-       	id = function(d) { return null; };
+       	id = function(d) { return null; },
+       	keyValue;
 
     // Color
     var colorScale = d3.scale.category10(),
@@ -92,8 +93,22 @@ var base = function() {
 		x.domain([xMin, xMax]);
 		x.range([0, widthPx - margin.left - margin.right]);
 
-		var yMin = (options.yMin === undefined || options.yMin === null) ? d3.min(data, function(d) { return d[1]}) : options.yMin;
-		var yMax = (options.yMax === undefined || options.yMax === null) ? d3.max(data, function(d) { return d[1]}) : options.yMax;
+		var yMin = (options.yMin === undefined || options.yMin === null)
+			? d3.min(data, function(d) {
+				if (d[1] && d[1].constructor === Array)
+					return d3.min(d[1]);
+				else
+					return d[1];
+			})
+			: options.yMin;
+		var yMax = (options.yMax === undefined || options.yMax === null)
+			? d3.max(data, function(d) {
+				if (d[1] && d[1].constructor === Array)
+					return d3.max(d[1]);
+				else
+					return d[1];
+			})
+			: options.yMax;
 
 		// Update y scale
 		y.domain( [yMin, yMax] )
@@ -222,6 +237,12 @@ var base = function() {
 		return chart;
 	};
 
+	chart.keyValue = function(_) {
+		if (!arguments.length) return keyValue;
+		keyValue = _;
+		return chart;
+	};
+
 	chart.id = function(_) {
 		if (!arguments.length) return id;
 		id = _;
@@ -299,7 +320,7 @@ var base = function() {
    	 */
 	chart.rebind = function(object) {
 		utils.rebind(object, this, 'rebind', 'margin', 'width', 'height', 'x', 'y', 'id',
-			'xValue', 'yValue', 'wValue', 'xAxis', 'yAxis', 'brush', 'onChart',
+			'xValue', 'yValue', 'wValue', 'keyValue', 'xAxis', 'yAxis', 'brush', 'onChart',
 			'tooltipChart', 'preserveAspectRatio', 'getBoundingClientRect', 'transitionDuration', 'color');
 	}
 
