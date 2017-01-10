@@ -97,7 +97,10 @@ var boxViewer = function() {
 	        	options.xMax = x[1];
 	        	options.globalbox = globalbox;
 	           	focalbox( focalSelection.datum(datum), options );
-			});
+			})
+      .brush('brush.customCallback', function() {
+        options.onBrush(focalbox.y().domain());
+      });
 
 		var globalSelection = selection.select('.iobio-box-1').datum( selection.datum() )
 		globalbox(globalSelection, options);
