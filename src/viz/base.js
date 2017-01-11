@@ -110,6 +110,10 @@ var base = function() {
 			})
 			: options.yMax;
 
+	    // This ensures number values for y when the data is an empty array
+	    yMin = yMin || 0;
+	    yMax = yMax || 0;
+
 		// Update y scale
 		y.domain( [yMin, yMax] )
    	 	 .range([innerHeight , 0]);
