@@ -1893,6 +1893,7 @@ var boxViewer = function() {
 
 	// Base Chart
 	var basebox = box();
+	var focalbox, globalbox;
 
 	function chart(selection, opts) {
 		// Merge defaults and options
@@ -1909,7 +1910,7 @@ var boxViewer = function() {
 				.attr('class', function(d,i) { return 'iobio-box-' + i + ' iobio-boxViewer' });
 
 		// Call big box chart
-		var focalbox = box()
+		focalbox = box()
 			.height( origHeight * sizeRatio )
 			.xValue( chart.xValue() )
 			.yValue( chart.yValue() )
@@ -1936,7 +1937,7 @@ var boxViewer = function() {
 		focalbox(focalSelection, options);
 
 		// Call little box chart
-		var globalbox = box()
+		globalbox = box()
 			.xValue( chart.xValue() )
 			.yValue( chart.yValue() )
 			.wValue( chart.wValue() )
@@ -1974,10 +1975,7 @@ var boxViewer = function() {
 	        	options.xMax = x[1];
 	        	options.globalbox = globalbox;
 	           	focalbox( focalSelection.datum(datum), options );
-			})
-      .brush('brush.customCallback', function() {
-        options.onBrush(focalbox.y().domain());
-      });
+			});
 
 		var globalSelection = selection.select('.iobio-box-1').datum( selection.datum() )
 		globalbox(globalSelection, options);
@@ -2023,6 +2021,18 @@ var boxViewer = function() {
 	chart.tooltip = function(_) {
 		if (!arguments.length) return tooltip;
 		tooltip = _;
+		return chart;
+	}
+
+	chart.focalbox = function(_) {
+		if (!arguments.length) return focalbox;
+		focalbox = _;
+		return chart;
+	}
+
+	chart.globalbox = function(_) {
+		if (!arguments.length) return globalbox;
+		globalbox = _;
 		return chart;
 	}
 
