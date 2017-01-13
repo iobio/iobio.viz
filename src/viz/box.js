@@ -33,7 +33,8 @@ var box = function() {
 		// 	var min =
 
 		// Call base chart
-		base.call(this, selection, options);
+		base.wValue(function() { return 1; })
+			.call(this, selection, options);
 
 		// Grab base functions for easy access
 		var y = base.y(),
