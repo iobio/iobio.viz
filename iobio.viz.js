@@ -1,30 +1,4 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-(function (global){
-/*  Chase Miller (2015-2016) */
-
-// Grab an existing iobio namespace object, or create a blank object
-// if it doesn't exist
-var iobio = global.iobio || {};
-global.iobio = iobio;
-
-// export if being used as a node module - needed for test framework
-if ( typeof module === 'object' ) { module.exports = iobio;}
-
-// Add visualizations
-iobio.viz = require('./viz/viz.js')
-
-// Add layouts
-iobio.viz.layout = require('./layout/layout.js')
-
-// Add shapes
-iobio.viz.svg = require('./svg/svg.js')
-
-// Add utils
-iobio.viz.utils = require('./utils.js')
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-
-},{"./layout/layout.js":5,"./svg/svg.js":9,"./utils.js":11,"./viz/viz.js":25}],2:[function(require,module,exports){
 var hasOwn = Object.prototype.hasOwnProperty;
 var toStr = Object.prototype.toString;
 var undefined;
@@ -115,7 +89,7 @@ module.exports = function extend() {
 };
 
 
-},{}],3:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 
 
 var box = function() {
@@ -220,7 +194,7 @@ var box = function() {
 };
 
 module.exports = box;
-},{}],4:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 var utils = require('../utils.js');
 
 var graph = function() {
@@ -317,7 +291,7 @@ var graph = function() {
   };
  
  module.exports = graph;
-},{"../utils.js":11}],5:[function(require,module,exports){
+},{"../utils.js":10}],4:[function(require,module,exports){
 
 var layout = {};
 // add layouts
@@ -328,7 +302,7 @@ layout.outlier = require('./outlier.js');
 layout.box = require('./box.js');
 
 module.exports = layout;
-},{"./box.js":3,"./graph.js":4,"./outlier.js":6,"./pileup.js":7,"./pointSmooth.js":8}],6:[function(require,module,exports){
+},{"./box.js":2,"./graph.js":3,"./outlier.js":5,"./pileup.js":6,"./pointSmooth.js":7}],5:[function(require,module,exports){
 
 
 var outlier = function() {
@@ -415,7 +389,7 @@ var outlier = function() {
 
 module.exports = outlier;
 
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 
 
 var pileup = function() {
@@ -534,7 +508,7 @@ var pileup = function() {
 };
 
 module.exports = pileup;
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 
 
 var pointSmooth = function() {
@@ -666,14 +640,14 @@ function findPerpendicularDistance(p, p1,p2) {
 
     return result;
 }
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 
 var svg = {};
 // add shapes
 svg.variant = require('./variant.js');
 
 module.exports = svg;
-},{"./variant.js":10}],10:[function(require,module,exports){
+},{"./variant.js":9}],9:[function(require,module,exports){
 var variant = function() { 
     
     // Value transformers
@@ -748,7 +722,7 @@ var variant = function() {
 };
 
 module.exports = variant;
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 
 module.exports.format_unit_names = function(d) {
 	if ((d / 1000000) >= 1)
@@ -830,7 +804,33 @@ function iobio_rebind(target, source, method) {
     return value === source ? target : value;
   };
 }
-},{"./utils.js":11}],12:[function(require,module,exports){
+},{"./utils.js":10}],11:[function(require,module,exports){
+(function (global){
+/*  Chase Miller (2015-2016) */
+
+// Grab an existing iobio namespace object, or create a blank object
+// if it doesn't exist
+var iobio = global.iobio || {};
+global.iobio = iobio;
+
+// export if being used as a node module - needed for test framework
+if ( typeof module === 'object' ) { module.exports = iobio;}
+
+// Add visualizations
+iobio.viz = require('./viz/viz.js')
+
+// Add layouts
+iobio.viz.layout = require('./layout/layout.js')
+
+// Add shapes
+iobio.viz.svg = require('./svg/svg.js')
+
+// Add utils
+iobio.viz.utils = require('./utils.js')
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
+},{"./layout/layout.js":4,"./svg/svg.js":8,"./utils.js":10,"./viz/viz.js":25}],12:[function(require,module,exports){
 var alignment = function() {
 	// Import base chart
 	var base = require('./base.js')(),
@@ -1007,7 +1007,7 @@ var alignment = function() {
 
 // Export alignment
 module.exports = alignment;
-},{"../utils.js":11,"./base.js":15,"extend":2}],13:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":15,"extend":1}],13:[function(require,module,exports){
 var bar = function() {
 	// Import base chart
 	var base = require('./base.js')(),
@@ -1124,7 +1124,7 @@ var bar = function() {
 
 // Export alignment
 module.exports = bar;
-},{"../utils.js":11,"./base.js":15,"extend":2}],14:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":15,"extend":1}],14:[function(require,module,exports){
 var barViewer = function() {
 	// Import base chart
 	var bar = require('./bar.js'),
@@ -1254,7 +1254,7 @@ var barViewer = function() {
 
 // Export alignment
 module.exports = barViewer;
-},{"../utils.js":11,"./bar.js":13,"extend":2}],15:[function(require,module,exports){
+},{"../utils.js":10,"./bar.js":13,"extend":1}],15:[function(require,module,exports){
 var utils = require('../utils.js'),
 	extend = require('extend');
 
@@ -1366,6 +1366,10 @@ var base = function() {
 					return d[1];
 			})
 			: options.yMax;
+
+	    // This ensures number values for y when the data is an empty array
+	    yMin = yMin || 0;
+	    yMax = yMax || 0;
 
 		// Update y scale
 		y.domain( [yMin, yMax] )
@@ -1586,7 +1590,7 @@ var base = function() {
 
 module.exports = base;
 
-},{"../utils.js":11,"extend":2}],16:[function(require,module,exports){
+},{"../utils.js":10,"extend":1}],16:[function(require,module,exports){
 var box = function() {
 	// Import base chart
 	var base = require('./base.js')(),
@@ -1875,7 +1879,7 @@ var box = function() {
 
 // Export alignment
 module.exports = box;
-},{"../utils.js":11,"./base.js":15,"extend":2}],17:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":15,"extend":1}],17:[function(require,module,exports){
 var boxViewer = function() {
 	// Import base chart
 	var box = require('./box.js'),
@@ -1894,6 +1898,7 @@ var boxViewer = function() {
 
 	// Base Chart
 	var basebox = box();
+	var focalbox, globalbox;
 
 	function chart(selection, opts) {
 		// Merge defaults and options
@@ -1910,7 +1915,7 @@ var boxViewer = function() {
 				.attr('class', function(d,i) { return 'iobio-box-' + i + ' iobio-boxViewer' });
 
 		// Call big box chart
-		var focalbox = box()
+		focalbox = box()
 			.height( origHeight * sizeRatio )
 			.xValue( chart.xValue() )
 			.yValue( chart.yValue() )
@@ -1937,7 +1942,7 @@ var boxViewer = function() {
 		focalbox(focalSelection, options);
 
 		// Call little box chart
-		var globalbox = box()
+		globalbox = box()
 			.xValue( chart.xValue() )
 			.yValue( chart.yValue() )
 			.wValue( chart.wValue() )
@@ -2024,12 +2029,24 @@ var boxViewer = function() {
 		return chart;
 	}
 
+	chart.focalbox = function(_) {
+		if (!arguments.length) return focalbox;
+		focalbox = _;
+		return chart;
+	}
+
+	chart.globalbox = function(_) {
+		if (!arguments.length) return globalbox;
+		globalbox = _;
+		return chart;
+	}
+
 	return chart;
 }
 
 // Export alignment
 module.exports = boxViewer;
-},{"../utils.js":11,"./box.js":16,"extend":2}],18:[function(require,module,exports){
+},{"../utils.js":10,"./box.js":16,"extend":1}],18:[function(require,module,exports){
 //
 // consumes data in following format
 // var data = [ {name: 'somename',
@@ -2303,7 +2320,7 @@ var gene = function() {
 
 // Export alignment
 module.exports = gene;
-},{"../utils.js":11,"./base.js":15,"extend":2}],19:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":15,"extend":1}],19:[function(require,module,exports){
 var line = function(container) {
     // Import base chart
     var base = require('./base.js')(),
@@ -2394,7 +2411,7 @@ var line = function(container) {
 // Export circle
 module.exports = line;
 
-},{"../utils.js":11,"./base.js":15,"extend":2}],20:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":15,"extend":1}],20:[function(require,module,exports){
 var multiLine = function() {
 	// Import base chart
 	var lineBase = require('./line.js')(),
@@ -2690,7 +2707,7 @@ var multiLine = function() {
 
 // Export alignment
 module.exports = multiLine;
-},{"../utils.js":11,"./line.js":19,"extend":2}],21:[function(require,module,exports){
+},{"../utils.js":10,"./line.js":19,"extend":1}],21:[function(require,module,exports){
 var pie = function() {
 	// Import base chart
 	var base = require('./base.js')(),
@@ -2919,7 +2936,7 @@ var pie = function() {
 
 // Export alignment
 module.exports = pie;
-},{"../utils.js":11,"./base.js":15,"extend":2}],22:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":15,"extend":1}],22:[function(require,module,exports){
 /*
   pieChooser - a iobio viz component that is a pie chart with clickable slices.  All slices
                can be selected by clicking the 'All' circle in the middle of the pie chart.
@@ -3290,7 +3307,7 @@ var pieChooser = function() {
 
 // Export alignment
 module.exports = pieChooser;
-},{"../utils.js":11,"./base.js":15,"./pie.js":21,"extend":2}],23:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":15,"./pie.js":21,"extend":1}],23:[function(require,module,exports){
 var scatter = function() {
 	// Import base chart
 	var base = require('./base.js')(),
@@ -3451,7 +3468,7 @@ var scatter = function() {
 
 // Export alignment
 module.exports = scatter;
-},{"../utils.js":11,"./base.js":15,"extend":2}],24:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":15,"extend":1}],24:[function(require,module,exports){
 var scatterViewer = function() {
 	// Import base chart
 	var scatter = require('./scatter.js'),
@@ -3585,7 +3602,7 @@ var scatterViewer = function() {
 
 // Export alignment
 module.exports = scatterViewer;
-},{"../utils.js":11,"./scatter.js":23,"extend":2}],25:[function(require,module,exports){
+},{"../utils.js":10,"./scatter.js":23,"extend":1}],25:[function(require,module,exports){
 
 var viz = {};
 // add visualizations
@@ -3604,7 +3621,6 @@ viz.scatter = require('./scatter.js')
 viz.scatterViewer = require('./scatterViewer.js')
 
 module.exports = viz;
-},{"./alignment.js":12,"./bar.js":13,"./barViewer.js":14,"./base.js":15,"./box.js":16,"./boxViewer.js":17,"./gene.js":18,"./line.js":19,"./multiLine.js":20,"./pie.js":21,"./pieChooser.js":22,"./scatter.js":23,"./scatterViewer.js":24}]},{},[1])
-
+},{"./alignment.js":12,"./bar.js":13,"./barViewer.js":14,"./base.js":15,"./box.js":16,"./boxViewer.js":17,"./gene.js":18,"./line.js":19,"./multiLine.js":20,"./pie.js":21,"./pieChooser.js":22,"./scatter.js":23,"./scatterViewer.js":24}]},{},[11])
 
 //# sourceMappingURL=iobio.viz.js.map
