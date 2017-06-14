@@ -2986,7 +2986,7 @@ var pieChooser = function() {
 		   .radius(chart.radius())
 	       .innerRadius(chart.innerRadius())
 	       .padding(chart.padding())
-	       .transitionDuration(200)
+	       .transitionDuration(0)
 	       .color(chart.color())
 	       .text( function(d,i) {return ""});
 
@@ -3297,6 +3297,11 @@ var pieChooser = function() {
 
 	chart.clickAllSlices = function(data) {
 		chart._clickAllSlices(data);
+		var listener = eventMap["clickall"];
+      	if (listener) {
+      		var circle = chartContainer.select("circle#all-circle.selected");
+      		listener.call(chart, circle);
+      	}
 		return chart;
 	}
 
@@ -3622,5 +3627,6 @@ viz.scatterViewer = require('./scatterViewer.js')
 
 module.exports = viz;
 },{"./alignment.js":12,"./bar.js":13,"./barViewer.js":14,"./base.js":15,"./box.js":16,"./boxViewer.js":17,"./gene.js":18,"./line.js":19,"./multiLine.js":20,"./pie.js":21,"./pieChooser.js":22,"./scatter.js":23,"./scatterViewer.js":24}]},{},[11])
+
 
 //# sourceMappingURL=iobio.viz.js.map
