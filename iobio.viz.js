@@ -1,30 +1,4 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-(function (global){
-/*  Chase Miller (2015-2016) */
-
-// Grab an existing iobio namespace object, or create a blank object
-// if it doesn't exist
-var iobio = global.iobio || {};
-global.iobio = iobio;
-
-// export if being used as a node module - needed for test framework
-if ( typeof module === 'object' ) { module.exports = iobio;}
-
-// Add visualizations
-iobio.viz = require('./viz/viz.js')
-
-// Add layouts
-iobio.viz.layout = require('./layout/layout.js')
-
-// Add shapes
-iobio.viz.svg = require('./svg/svg.js')
-
-// Add utils
-iobio.viz.utils = require('./utils.js')
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-
-},{"./layout/layout.js":4,"./svg/svg.js":8,"./utils.js":10,"./viz/viz.js":20}],2:[function(require,module,exports){
 var hasOwn = Object.prototype.hasOwnProperty;
 var toStr = Object.prototype.toString;
 var undefined;
@@ -115,7 +89,7 @@ module.exports = function extend() {
 };
 
 
-},{}],3:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 var utils = require('../utils.js');
 
 var graph = function() {
@@ -212,7 +186,7 @@ var graph = function() {
   };
  
  module.exports = graph;
-},{"../utils.js":10}],4:[function(require,module,exports){
+},{"../utils.js":9}],3:[function(require,module,exports){
 
 var layout = {};
 // add layouts
@@ -222,7 +196,7 @@ layout.pointSmooth = require('./pointSmooth.js');
 layout.outlier = require('./outlier.js');
 
 module.exports = layout;
-},{"./graph.js":3,"./outlier.js":5,"./pileup.js":6,"./pointSmooth.js":7}],5:[function(require,module,exports){
+},{"./graph.js":2,"./outlier.js":4,"./pileup.js":5,"./pointSmooth.js":6}],4:[function(require,module,exports){
 
 
 var outlier = function() {
@@ -309,7 +283,7 @@ var outlier = function() {
 
 module.exports = outlier;
 
-},{}],6:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 
 
 var pileup = function() {
@@ -428,7 +402,7 @@ var pileup = function() {
 };
 
 module.exports = pileup;
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 
 
 var pointSmooth = function() {
@@ -560,14 +534,14 @@ function findPerpendicularDistance(p, p1,p2) {
 
     return result;
 }
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 
 var svg = {};
 // add shapes
 svg.variant = require('./variant.js');
 
 module.exports = svg;
-},{"./variant.js":9}],9:[function(require,module,exports){
+},{"./variant.js":8}],8:[function(require,module,exports){
 var variant = function() { 
     
     // Value transformers
@@ -642,7 +616,7 @@ var variant = function() {
 };
 
 module.exports = variant;
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 
 module.exports.format_unit_names = function(d) {
 	if ((d / 1000000) >= 1)
@@ -724,7 +698,33 @@ function iobio_rebind(target, source, method) {
     return value === source ? target : value;
   };
 }
-},{"./utils.js":10}],11:[function(require,module,exports){
+},{"./utils.js":9}],10:[function(require,module,exports){
+(function (global){
+/*  Chase Miller (2015-2016) */
+
+// Grab an existing iobio namespace object, or create a blank object
+// if it doesn't exist
+var iobio = global.iobio || {};
+global.iobio = iobio;
+
+// export if being used as a node module - needed for test framework
+if ( typeof module === 'object' ) { module.exports = iobio;}
+
+// Add visualizations
+iobio.viz = require('./viz/viz.js')
+
+// Add layouts
+iobio.viz.layout = require('./layout/layout.js')
+
+// Add shapes
+iobio.viz.svg = require('./svg/svg.js')
+
+// Add utils
+iobio.viz.utils = require('./utils.js')
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
+},{"./layout/layout.js":3,"./svg/svg.js":7,"./utils.js":9,"./viz/viz.js":20}],11:[function(require,module,exports){
 var alignment = function() {
 	// Import base chart
 	var base = require('./base.js')(),
@@ -901,7 +901,7 @@ var alignment = function() {
 
 // Export alignment
 module.exports = alignment;
-},{"../utils.js":10,"./base.js":14,"extend":2}],12:[function(require,module,exports){
+},{"../utils.js":9,"./base.js":14,"extend":1}],12:[function(require,module,exports){
 var bar = function() {
 	// Import base chart
 	var base = require('./base.js')(),
@@ -1008,7 +1008,7 @@ var bar = function() {
 
 // Export alignment
 module.exports = bar;
-},{"../utils.js":10,"./base.js":14,"extend":2}],13:[function(require,module,exports){
+},{"../utils.js":9,"./base.js":14,"extend":1}],13:[function(require,module,exports){
 var barViewer = function() {
 	// Import base chart
 	var bar = require('./bar.js'),
@@ -1138,7 +1138,7 @@ var barViewer = function() {
 
 // Export alignment
 module.exports = barViewer;
-},{"../utils.js":10,"./bar.js":12,"extend":2}],14:[function(require,module,exports){
+},{"../utils.js":9,"./bar.js":12,"extend":1}],14:[function(require,module,exports){
 var utils = require('../utils.js'),
 	extend = require('extend');
 
@@ -1449,7 +1449,7 @@ var base = function() {
 
 module.exports = base;
 
-},{"../utils.js":10,"extend":2}],15:[function(require,module,exports){
+},{"../utils.js":9,"extend":1}],15:[function(require,module,exports){
 //
 // consumes data in following format
 // var data = [ {name: 'somename',
@@ -1723,7 +1723,7 @@ var gene = function() {
 
 // Export alignment
 module.exports = gene;
-},{"../utils.js":10,"./base.js":14,"extend":2}],16:[function(require,module,exports){
+},{"../utils.js":9,"./base.js":14,"extend":1}],16:[function(require,module,exports){
 var line = function(container) {
     // Import base chart
     var base = require('./base.js')(),
@@ -1814,7 +1814,7 @@ var line = function(container) {
 // Export circle
 module.exports = line;
 
-},{"../utils.js":10,"./base.js":14,"extend":2}],17:[function(require,module,exports){
+},{"../utils.js":9,"./base.js":14,"extend":1}],17:[function(require,module,exports){
 var multiLine = function() {
 	// Import base chart
 	var lineBase = require('./line.js')(),
@@ -2082,7 +2082,7 @@ var multiLine = function() {
 
 // Export alignment
 module.exports = multiLine;
-},{"../utils.js":10,"./line.js":16,"extend":2}],18:[function(require,module,exports){
+},{"../utils.js":9,"./line.js":16,"extend":1}],18:[function(require,module,exports){
 var pie = function() {
 	// Import base chart
 	var base = require('./base.js')(),
@@ -2293,7 +2293,7 @@ var pie = function() {
 
 // Export alignment
 module.exports = pie;
-},{"../utils.js":10,"./base.js":14,"extend":2}],19:[function(require,module,exports){
+},{"../utils.js":9,"./base.js":14,"extend":1}],19:[function(require,module,exports){
 /*
   pieChooser - a iobio viz component that is a pie chart with clickable slices.  All slices
                can be selected by clicking the 'All' circle in the middle of the pie chart.
@@ -2343,7 +2343,7 @@ var pieChooser = function() {
 		   .radius(chart.radius())
 	       .innerRadius(chart.innerRadius())
 	       .padding(chart.padding())
-	       .transitionDuration(200)
+	       .transitionDuration(0)
 	       .color(chart.color())
 	       .text( function(d,i) {return ""});
 
@@ -2690,6 +2690,11 @@ var pieChooser = function() {
 
 	chart.clickAllSlices = function(data) {
 		chart._clickAllSlices(data);
+		var listener = eventMap["clickall"];
+      	if (listener) {
+      		var circle = chartContainer.select("circle#all-circle.selected");
+      		listener.call(chart, circle);
+      	}
 		return chart;
 	}
 
@@ -2700,7 +2705,7 @@ var pieChooser = function() {
 
 // Export alignment
 module.exports = pieChooser;
-},{"../utils.js":10,"./base.js":14,"./pie.js":18,"extend":2}],20:[function(require,module,exports){
+},{"../utils.js":9,"./base.js":14,"./pie.js":18,"extend":1}],20:[function(require,module,exports){
 
 var viz = {};
 // add visualizations
@@ -2715,7 +2720,7 @@ viz.gene = require('./gene.js')
 viz.multiLine = require('./multiLine.js')
 
 module.exports = viz;
-},{"./alignment.js":11,"./bar.js":12,"./barViewer.js":13,"./base.js":14,"./gene.js":15,"./line.js":16,"./multiLine.js":17,"./pie.js":18,"./pieChooser.js":19}]},{},[1])
+},{"./alignment.js":11,"./bar.js":12,"./barViewer.js":13,"./base.js":14,"./gene.js":15,"./line.js":16,"./multiLine.js":17,"./pie.js":18,"./pieChooser.js":19}]},{},[10])
 
 
 //# sourceMappingURL=iobio.viz.js.map
