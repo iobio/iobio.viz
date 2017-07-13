@@ -36,8 +36,8 @@ var pie = function() {
 
 		// Call base chart
 		base
-			.width(radius*2 + padding)
-			.height(radius*2 + padding)
+			// .width(radius*2 + padding)
+			// .height(radius*2 + padding)
 			.xAxis(null)
 			.yAxis(null);
 		base.call(this, selection, options);

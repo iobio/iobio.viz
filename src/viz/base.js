@@ -6,8 +6,8 @@ var base = function() {
 
 	// Dimensions
 	var margin = {top: 0, right: 0, bottom: 0, left:0},
-	    width = 800,
-	  	height = 500;
+	    width = '100%',
+	  	height = '100%';
 
 	// Scales
 	var x = d3.scale.linear().nice(),

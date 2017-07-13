@@ -9,6 +9,8 @@ var box = function() {
 		tooltip,
 		padding = 0.1,
 		outerPadding = 0,
+		showLabels = false,
+		labels = ['q3', 'median', 'q1', 'whisker', 'whisker'],
 		whiskersValue = function(d,i) { return d.whiskers; },
 		quartilesValue = function(d,i) { return d.quartiles; },
 		whiskerType = 'line',
@@ -46,7 +48,7 @@ var box = function() {
 			tt = d3.select('.iobio-tooltip'),
 			color = base.color(),
 			transitionDuration = base.transitionDuration(),
-			innerWidth = base.width() - base.margin().left - base.margin().right;
+			innerWidth = base.getBoundingClientRect().width - base.margin().left - base.margin().right;
 
 		// Alter scales to work for boxplots
 		x.rangeBands([0,innerWidth], padding, outerPadding).domain( selection.datum().map(function(d,i) { return i } ) );
@@ -124,6 +126,7 @@ var box = function() {
 				.attr("y1", y)
 				.attr("x2", boxWidth/2)
 				.attr("y2", y)
+
 		// exit
 		median.exit().remove();
 		// update
@@ -169,6 +172,26 @@ var box = function() {
 				.attr("x2", boxWidth )
 				.attr("y2", y);
 		}
+		// box plot labels
+		if (showLabels) {
+			var label = box.selectAll(".label").data(function(d) {
+				return quartilesValue(d).concat(whiskersValue(d));
+			});
+				label.enter().append("text")
+					.attr("class", "label")
+					.attr("x", boxWidth+2)
+					.attr("y", y)
+					.attr("alignment-baseline", "middle")
+					.text(function(d,i){
+						return labels[i]
+						// if(i==0) return "q3";
+						// else if(i==1) return "median";
+						// else if(i==2) return "q1";
+						// else return "whisker";
+					});
+		}
+
+
 		// tooltip
 	    utils.tooltipHelper(whisker, tt, function(d) { return d; });
 
@@ -189,6 +212,26 @@ var box = function() {
 	base.rebind(chart);
 
 	/* Chart Member Functions */
+
+	/*
+	 * Boolean for showing the labels
+	 * data format = true | false
+	 */
+	chart.showLabels = function(_) {
+		if (!arguments.length) return showLabels;
+		showLabels = _;
+		return chart;
+	};
+
+	/*
+	 * Array for defining the labels
+	 * data format = true | false
+	 */
+	chart.labels = function(_) {
+		if (!arguments.length) return labels;
+		labels = _;
+		return chart;
+	};
 
 	/*
 	 * Value accessor for whiskers
@@ -278,7 +321,7 @@ var box = function() {
    	 */
 	chart.rebind = function(object) {
 		base.rebind(object);
-		utils.rebind(object, this, 'rebind', 'whiskersValue', 'quartilesValue', 'outerPadding', 'padding', 'whiskerType', 'exitTransitionDuration', 'class');
+		utils.rebind(object, this, 'rebind', 'showLabels', 'labels', 'whiskersValue', 'quartilesValue', 'outerPadding', 'padding', 'whiskerType', 'preserveAspectRatio', 'exitTransitionDuration', 'class');
 	}
 
 	return chart;

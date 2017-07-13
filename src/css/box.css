@@ -1,2 +1,3 @@
 .iobio-box line.median  { stroke: #fff; stroke-width: 1.5px; }
 .iobio-box .center { stroke: rgb(120,120,120); stroke-dasharray: 3,3;}
+.iobio-box .label {fill: rgb(120,120,120); font-size: 12px; }
