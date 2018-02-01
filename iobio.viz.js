@@ -1427,7 +1427,9 @@ var base = function() {
    	 	gEnter.append("g").attr("class", "iobio-x iobio-axis").attr("transform", "translate(0," + y.range()[0] + ")");
    	 	gEnter.append("g").attr("class", "iobio-y iobio-axis");
    		gEnter.append("g").attr("class", "iobio-x iobio-brush");
-   		d3.select("body").append("div").attr("class", "iobio-tooltip").style("opacity", 0);
+      if (d3.select('.iobio-tooltip').empty()) {
+        d3.select("body").append("div").attr("class", "iobio-tooltip").style("opacity", 0);
+      }
 
 		// Update the x-axis.
 		if(xAxis)
