@@ -36,8 +36,8 @@ var pie = function() {
 
 		// Call base chart
 		base
-			.width(radius*2 + padding)
-			.height(radius*2 + padding)
+			// .width(radius*2 + padding)
+			// .height(radius*2 + padding)
 			.xAxis(null)
 			.yAxis(null);
 		base.call(this, selection, options);
@@ -84,21 +84,37 @@ var pie = function() {
 
 		pathEnter.append('text')
 			.attr("transform", function(d) {
-	          return "translate(" + arcLabelPosition(d, .55) + ")";
+	          return "translate(" + arcLabelPosition(d, .5) + ")";
 	        })
-			.text(nameValue)
+	        .attr('text-anchor', "middle")
+	        .attr('alignment-baseline', "middle")
 
        	// update
        	if (transitionDuration != undefined && transitionDuration >= 0) {
 	       	path.style('fill', color)
 	       		.select('path').transition()
 		         	.duration( transitionDuration )
-		         	.attrTween("d", arcTween);
+		         	.attrTween("d", arcTween)
+		         	.call(utils.endAll, function() {
+		         		var event = events.find(function(e) { return e.event=='end'; });
+		         		if(event) {event.listener.call(chart)}
+		         	});
 
 		    path.select('text').transition()
 		    	.duration(transitionDuration)
 		    	.attr("transform", function(d) {
-		          return "translate(" + arcLabelPosition(d, .55) + ")";
+		    	  var angle = arcLabelAngle(d, 0.55) * (180/Math.PI) - 180;
+		          return "translate(" + arcLabelPosition(d, .55) + ") rotate(" + angle + ")";
+		        }).text(function(d,i) {
+		        	if (!nameValue) return;
+		        	var h = ( chart.innerRadius() + chart.radius() ) * 0.55;
+					var oa = arc.startAngle.call(d)(d);
+					var ia = arc.endAngle.call(d)(d);
+		        	var a = (ia - oa);
+		        	var width = (Math.sin(a/2)*h) * 2;
+		        	var fontSize = parseInt(d3.select(this).style('font-size'));
+		        	if (fontSize <= width)
+		        		return nameValue(d,i);
 		        })
 		}
 
@@ -107,16 +123,27 @@ var pie = function() {
 		path.exit().remove();
 
 		// Add middle text
+		// g.selectAll('.iobio-center-text').data(selection.datum()).enter().append('text')
+		// 	.attr('x', -innerRadius)
+		// 	.attr('y', -13)
+		// 	.attr('width', innerRadius*2)
+		// 	.attr('height', '100%')
+		// 	.attr("class", "iobio-center-text")
+		// 	.text(function(d) {
+		// 		return text(d, total);
+		// 	})
+
+
 		g.selectAll('.iobio-center-text').data([0]).enter().append('foreignObject')
 			.attr('x', -innerRadius)
-			.attr('y', -13)
+			.attr('y', -innerRadius/2)
 			.attr('width', innerRadius*2)
+			.attr('height', innerRadius)
 			.attr("class", "iobio-center-text")
-			// .append("xhtml:div")
 
 
 		g.selectAll('.iobio-center-text').html( text(selection.datum(), total) );
-		// g.selectAll('.iobio-center-text').text( text(selection.datum(), total) );
+
 
 		// Add title on hover
 	    if (tooltip) {
@@ -146,11 +173,17 @@ var pie = function() {
 	  };
 	}
 
-	function arcLabelPosition(d, ratio) {
+	function arcLabelAngle(d, ratio) {
 		var r = ( chart.innerRadius() + chart.radius() ) * ratio;
 		var oa = arc.startAngle.call(d);
 		var ia = arc.endAngle.call(d);
 		a = ( oa(d) + ia(d) ) / 2 - (Math.PI/ 2);
+		return a;
+	}
+
+	function arcLabelPosition(d, ratio) {
+		var r = ( chart.innerRadius() + chart.radius() ) * ratio;
+		var a = arcLabelAngle(d, ratio);
 		return [ Math.cos(a) * r, Math.sin(a) * r ];
 	}
 

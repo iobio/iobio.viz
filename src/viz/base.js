@@ -6,8 +6,8 @@ var base = function() {
 
 	// Dimensions
 	var margin = {top: 0, right: 0, bottom: 0, left:0},
-	    width = 800,
-	  	height = 500;
+	    width = '100%',
+	  	height = '100%';
 
 	// Scales
 	var x = d3.scale.linear().nice(),
@@ -28,7 +28,8 @@ var base = function() {
 	var xValue = function(d) { return d[0]; },
    	 	yValue = function(d) { return d[1]; },
        	wValue = function(d) { return d[2] || 1 },
-       	id = function(d) { return null; };
+       	id = function(d) { return null; },
+       	keyValue;
 
     // Color
     var colorScale = d3.scale.category10(),
@@ -92,14 +93,33 @@ var base = function() {
 		x.domain([xMin, xMax]);
 		x.range([0, widthPx - margin.left - margin.right]);
 
-		var yMin = (options.yMin === undefined || options.yMin === null) ? d3.min(data, function(d) { return d[1]}) : options.yMin;
-		var yMax = (options.yMax === undefined || options.yMax === null) ? d3.max(data, function(d) { return d[1]}) : options.yMax;
+		var yMin = (options.yMin === undefined || options.yMin === null)
+			? d3.min(data, function(d) {
+				if (d[1] && d[1].constructor === Array)
+					return d3.min(d[1]);
+				else
+					return d[1];
+			})
+			: options.yMin;
+		var yMax = (options.yMax === undefined || options.yMax === null)
+			? d3.max(data, function(d) {
+				if (d[1] && d[1].constructor === Array)
+					return d3.max(d[1]);
+				else
+					return d[1];
+			})
+			: options.yMax;
+
+	    // This ensures number values for y when the data is an empty array
+	    yMin = yMin || 0;
+	    yMax = yMax || 0;
 
 		// Update y scale
 		y.domain( [yMin, yMax] )
    	 	 .range([innerHeight , 0]);
 
    	 	// Flesh out skeletal chart
+   	 	gEnter.append("g").attr("class", "iobio-glyphs");
    	 	gEnter.append("g").attr("class", "iobio-x iobio-axis").attr("transform", "translate(0," + y.range()[0] + ")");
    	 	gEnter.append("g").attr("class", "iobio-y iobio-axis");
    		gEnter.append("g").attr("class", "iobio-x iobio-brush");
@@ -222,6 +242,12 @@ var base = function() {
 		return chart;
 	};
 
+	chart.keyValue = function(_) {
+		if (!arguments.length) return keyValue;
+		keyValue = _;
+		return chart;
+	};
+
 	chart.id = function(_) {
 		if (!arguments.length) return id;
 		id = _;
@@ -299,7 +325,7 @@ var base = function() {
    	 */
 	chart.rebind = function(object) {
 		utils.rebind(object, this, 'rebind', 'margin', 'width', 'height', 'x', 'y', 'id',
-			'xValue', 'yValue', 'wValue', 'xAxis', 'yAxis', 'brush', 'onChart',
+			'xValue', 'yValue', 'wValue', 'keyValue', 'xAxis', 'yAxis', 'brush', 'onChart',
 			'tooltipChart', 'preserveAspectRatio', 'getBoundingClientRect', 'transitionDuration', 'color');
 	}
 

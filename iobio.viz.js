@@ -90,6 +90,111 @@ module.exports = function extend() {
 
 
 },{}],2:[function(require,module,exports){
+
+
+var box = function() {
+  // Defaults
+  var value = function(d) { return +d },
+      quartiles = function(d) { return [d3.quantile(d, .25),d3.quantile(d, .5),d3.quantile(d, .75)]; },
+      whiskers = function(d) { return [0, d.length - 1]; },
+      includeData = true,
+      includeOutliers = true,
+      modifiedBoxPlot = true;
+
+  function layout(data) {
+
+    // Sort data and Compute the numeric values for each data element.
+    data = data.sort(function(i,j) { return value(j) - value(i); })
+    var values = data.map(function(d, i) { return value.call(this,d,i) });
+
+    // Compute quartiles
+    var quartileData = quartiles.call(this,values),
+        q1 = quartileData[2],
+        q3 = quartileData[0],
+        iqr = (q3-q1) * 1.5;
+
+    // if modified box plot, then use iqr to determine outliers
+    if(modifiedBoxPlot) {
+        var outliers = [];
+        var filtered = [];
+        values.forEach(function(d) {
+            if ( d>=(q1-iqr) && d <=(q3+iqr) )
+                filtered.push(d);
+            else
+                outliers.push(d);
+        })
+        values = filtered;
+    }
+
+    // Compute whiskers. Must return exactly 2 elements, or null.
+    var whiskerIndices = whiskers && whiskers.call(this, values),
+        whiskerData = whiskerIndices && whiskerIndices.map(function(i) { return +values[i]; });
+
+    var boxData = {
+        'quartiles' : quartileData,
+        'whiskers' : whiskerData
+    };
+    if (includeOutliers) boxData.outliers = outliers || [];
+    if (includeData) boxData.data = data;
+
+    return boxData;
+  }
+
+  /*
+   * Specifies the value function, which returns a nonnegative numeric value
+   * for each datum. The default value function is `return d`. The value function
+   * is passed two arguments: the current datum and the current index.
+   */
+  layout.value = function(_) {
+    if (!arguments.length) return value;
+    value = _;
+    return layout;
+  };
+
+  /*
+   * Boolean for including the data in the final product or not
+   */
+  layout.includeData = function(_) {
+    if (!arguments.length) return includeData;
+    includeData = _;
+    return layout;
+  };
+
+  /*
+   * Boolean for including the outliers in the final product or not
+   */
+  layout.includeOutliers = function(_) {
+    if (!arguments.length) return includeOutliers;
+    includeOutliers = _;
+    return layout;
+  };
+
+  /*
+   * A modified box plot uses the interquartile range to determine the whisers.
+   * A standard box plot defines the whiskers by the max and min value.
+   * Default: true
+   */
+  layout.modifiedBoxPlot = function(_) {
+    if (!arguments.length) return modifiedBoxPlot;
+    modifiedBoxPlot = _;
+    return layout;
+  };
+
+  /*
+   * Specifies how the quartiles are calculated
+   *
+   */
+  layout.quartiles = function(_) {
+    if (!arguments.length) return quartiles;
+    quartiles = _;
+    return layout;
+  };
+
+  return layout;
+};
+
+module.exports = box;
+},{}],3:[function(require,module,exports){
 var utils = require('../utils.js');
 
 var graph = function() {
@@ -186,7 +291,7 @@ var graph = function() {
   };
  
  module.exports = graph;
-},{"../utils.js":9}],3:[function(require,module,exports){
+},{"../utils.js":10}],4:[function(require,module,exports){
 
 var layout = {};
 // add layouts
@@ -194,9 +299,10 @@ layout.pileup = require('./pileup.js');
 layout.graph = require('./graph.js');
 layout.pointSmooth = require('./pointSmooth.js');
 layout.outlier = require('./outlier.js');
+layout.box = require('./box.js');
 
 module.exports = layout;
-},{"./graph.js":2,"./outlier.js":4,"./pileup.js":5,"./pointSmooth.js":6}],4:[function(require,module,exports){
+},{"./box.js":2,"./graph.js":3,"./outlier.js":5,"./pileup.js":6,"./pointSmooth.js":7}],5:[function(require,module,exports){
 
 
 var outlier = function() {
@@ -283,7 +389,7 @@ var outlier = function() {
 
 module.exports = outlier;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 
 
 var pileup = function() {
@@ -402,7 +508,7 @@ var pileup = function() {
 };
 
 module.exports = pileup;
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 
 
 var pointSmooth = function() {
@@ -534,14 +640,14 @@ function findPerpendicularDistance(p, p1,p2) {
 
     return result;
 }
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 
 var svg = {};
 // add shapes
 svg.variant = require('./variant.js');
 
 module.exports = svg;
-},{"./variant.js":8}],8:[function(require,module,exports){
+},{"./variant.js":9}],9:[function(require,module,exports){
 var variant = function() { 
     
     // Value transformers
@@ -616,7 +722,7 @@ var variant = function() {
 };
 
 module.exports = variant;
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 
 module.exports.format_unit_names = function(d) {
 	if ((d / 1000000) >= 1)
@@ -647,8 +753,8 @@ module.exports.getUID = function(separator) {
     return (S4() + S4() + delim + S4() + delim + S4() + delim + S4() + delim + S4() + S4() + S4());
 }
 
-module.exports.value_accessor = function(value, d) {
-	return typeof value === 'function' ? value(d) : value;
+module.exports.value_accessor = function(value, d,i) {
+	return typeof value === 'function' ? value(d,i) : value;
 }
 
 module.exports.tooltipHelper = function(selection, tooltipElem, titleAccessor) {
@@ -676,10 +782,57 @@ module.exports.showTooltip = function(tooltipElem, titleAccessor, d) {
 		.style("top", (d3.event.clientY - elemHeight - 8) + "px");
 }
 
+module.exports.endAll = function (transition, callback) {
+    var n;
+
+    if (transition.empty()) {
+        callback();
+    }
+    else {
+        n = transition.size();
+        transition.each("end", function () {
+            n--;
+            if (n === 0) {
+                callback();
+            }
+        });
+    }
+}
+
+
+// Takes svg and looks for matching styles and explicity defines them
+// in a <styles> tag inside the svg elem.
+module.exports.addStylesToSvg = function(svg) {
+    var used = "";
+    var sheets = document.styleSheets;
+    for (var i = 0; i < sheets.length; i++) {
+      var rules = sheets[i].cssRules;
+      if(rules==null) continue;
+      for (var j = 0; j < rules.length; j++) {
+        var rule = rules[j];
+        if (typeof(rule.style) != "undefined") {
+          var elems = svg.querySelectorAll(rule.selectorText);
+          if (elems.length > 0) {
+            used += rule.selectorText + " { " + rule.style.cssText + " }\n";
+          }
+        }
+      }
+    }
+
+    var s = document.createElement('style');
+    s.setAttribute('type', 'text/css');
+    // s.innerHTML = "<![CDATA[\n" + used + "\n]]>";
+    s.innerHTML = used;
+
+    var defs = document.createElement('defs');
+    defs.appendChild(s);
+    svg.insertBefore(defs, svg.firstChild);
+}
+
 module.exports.hideTooltip = function(tooltipElem) {
 	tooltipElem.transition()
 			   .duration(500)
-			   .style("opacity", 0);	
+			   .style("opacity", 0);
 }
 
 // Copies a variable number of methods from source to target.
@@ -698,7 +851,7 @@ function iobio_rebind(target, source, method) {
     return value === source ? target : value;
   };
 }
-},{"./utils.js":9}],10:[function(require,module,exports){
+},{"./utils.js":10}],11:[function(require,module,exports){
 (function (global){
 /*  Chase Miller (2015-2016) */
 
@@ -724,7 +877,7 @@ iobio.viz.utils = require('./utils.js')
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./layout/layout.js":3,"./svg/svg.js":7,"./utils.js":9,"./viz/viz.js":20}],11:[function(require,module,exports){
+},{"./layout/layout.js":4,"./svg/svg.js":8,"./utils.js":10,"./viz/viz.js":26}],12:[function(require,module,exports){
 var alignment = function() {
 	// Import base chart
 	var base = require('./base.js')(),
@@ -901,7 +1054,7 @@ var alignment = function() {
 
 // Export alignment
 module.exports = alignment;
-},{"../utils.js":9,"./base.js":14,"extend":1}],12:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":15,"extend":1}],13:[function(require,module,exports){
 var bar = function() {
 	// Import base chart
 	var base = require('./base.js')(),
@@ -910,7 +1063,8 @@ var bar = function() {
 
 	// Defaults
 	var events = [],
-		tooltip;
+		tooltip,
+		keyValue;
 
 	// Default Options
 	var defaults = { yMin: 0 };
@@ -926,10 +1080,11 @@ var bar = function() {
 		// Grab base functions for easy access
 		var x = base.x(),
 			y = base.y(),
-			id = base.id();
+			id = base.id(),
 			xValue = base.xValue(),
 			yValue = base.yValue(),
 			wValue = base.wValue(),
+			keyValue = base.keyValue(),
 			color = base.color(),
 			transitionDuration = base.transitionDuration(),
 			innerHeight = base.height() - base.margin().top - base.margin().bottom;
@@ -944,7 +1099,7 @@ var bar = function() {
 		// enter
 		var g = selection.select('g.iobio-container').classed('iobio-bar', true);; // grab container to draw into (created by base chart)
 		var rect = g.selectAll('.rect')
-				.data(selection.datum(), function(d,i) { return xValue(d,i); })
+				.data(selection.datum(), keyValue )
 		// exit
 	    rect.exit().remove();
 
@@ -1003,12 +1158,20 @@ var bar = function() {
 			return chart;
 	}
 
+	/*
+   	 * Easy method to rebind bar chart functions to the argument chart
+   	 */
+	chart.rebind = function(object) {
+		base.rebind(object);
+		utils.rebind(object, this, 'rebind');
+	}
+
 	return chart;
 }
 
 // Export alignment
 module.exports = bar;
-},{"../utils.js":9,"./base.js":14,"extend":1}],13:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":15,"extend":1}],14:[function(require,module,exports){
 var barViewer = function() {
 	// Import base chart
 	var bar = require('./bar.js'),
@@ -1138,7 +1301,7 @@ var barViewer = function() {
 
 // Export alignment
 module.exports = barViewer;
-},{"../utils.js":9,"./bar.js":12,"extend":1}],14:[function(require,module,exports){
+},{"../utils.js":10,"./bar.js":13,"extend":1}],15:[function(require,module,exports){
 var utils = require('../utils.js'),
 	extend = require('extend');
 
@@ -1147,8 +1310,8 @@ var base = function() {
 
 	// Dimensions
 	var margin = {top: 0, right: 0, bottom: 0, left:0},
-	    width = 800,
-	  	height = 500;
+	    width = '100%',
+	  	height = '100%';
 
 	// Scales
 	var x = d3.scale.linear().nice(),
@@ -1169,7 +1332,8 @@ var base = function() {
 	var xValue = function(d) { return d[0]; },
    	 	yValue = function(d) { return d[1]; },
        	wValue = function(d) { return d[2] || 1 },
-       	id = function(d) { return null; };
+       	id = function(d) { return null; },
+       	keyValue;
 
     // Color
     var colorScale = d3.scale.category10(),
@@ -1233,14 +1397,33 @@ var base = function() {
 		x.domain([xMin, xMax]);
 		x.range([0, widthPx - margin.left - margin.right]);
 
-		var yMin = (options.yMin === undefined || options.yMin === null) ? d3.min(data, function(d) { return d[1]}) : options.yMin;
-		var yMax = (options.yMax === undefined || options.yMax === null) ? d3.max(data, function(d) { return d[1]}) : options.yMax;
+		var yMin = (options.yMin === undefined || options.yMin === null)
+			? d3.min(data, function(d) {
+				if (d[1] && d[1].constructor === Array)
+					return d3.min(d[1]);
+				else
+					return d[1];
+			})
+			: options.yMin;
+		var yMax = (options.yMax === undefined || options.yMax === null)
+			? d3.max(data, function(d) {
+				if (d[1] && d[1].constructor === Array)
+					return d3.max(d[1]);
+				else
+					return d[1];
+			})
+			: options.yMax;
+
+	    // This ensures number values for y when the data is an empty array
+	    yMin = yMin || 0;
+	    yMax = yMax || 0;
 
 		// Update y scale
 		y.domain( [yMin, yMax] )
    	 	 .range([innerHeight , 0]);
 
    	 	// Flesh out skeletal chart
+   	 	gEnter.append("g").attr("class", "iobio-glyphs");
    	 	gEnter.append("g").attr("class", "iobio-x iobio-axis").attr("transform", "translate(0," + y.range()[0] + ")");
    	 	gEnter.append("g").attr("class", "iobio-y iobio-axis");
    		gEnter.append("g").attr("class", "iobio-x iobio-brush");
@@ -1363,6 +1546,12 @@ var base = function() {
 		return chart;
 	};
 
+	chart.keyValue = function(_) {
+		if (!arguments.length) return keyValue;
+		keyValue = _;
+		return chart;
+	};
+
 	chart.id = function(_) {
 		if (!arguments.length) return id;
 		id = _;
@@ -1440,7 +1629,7 @@ var base = function() {
    	 */
 	chart.rebind = function(object) {
 		utils.rebind(object, this, 'rebind', 'margin', 'width', 'height', 'x', 'y', 'id',
-			'xValue', 'yValue', 'wValue', 'xAxis', 'yAxis', 'brush', 'onChart',
+			'xValue', 'yValue', 'wValue', 'keyValue', 'xAxis', 'yAxis', 'brush', 'onChart',
 			'tooltipChart', 'preserveAspectRatio', 'getBoundingClientRect', 'transitionDuration', 'color');
 	}
 
@@ -1449,7 +1638,928 @@ var base = function() {
 
 module.exports = base;
 
-},{"../utils.js":9,"extend":1}],15:[function(require,module,exports){
+},{"../utils.js":10,"extend":1}],16:[function(require,module,exports){
+var box = function() {
+	// Import base chart
+	var base = require('./base.js')(),
+		utils = require('../utils.js'),
+		extend = require('extend');
+
+	// Defaults
+	var events = [],
+		tooltip,
+		padding = 0.1,
+		outerPadding = 0,
+		showLabels = false,
+		labels = ['q3', 'median', 'q1', 'whisker', 'whisker'],
+		whiskersValue = function(d,i) { return d.whiskers; },
+		quartilesValue = function(d,i) { return d.quartiles; },
+		boxWidthRatio = function(d,i) { return 1; },
+		whiskerType = 'line',
+		exitTransitionDuration = 0,
+		klass = '',
+		compress = false,
+		compression = 0.20,
+		compressionNumberLabel = function(d,i,boxWidth) {
+			if (d.totalBoxes) {
+				var textWidth = boxWidth*boxWidthRatio(d,i);
+				var numDigits = d.totalBoxes.toString().length;
+				if ( textWidth/numDigits > 3) return d.totalBoxes;
+				else return null;
+			} else return null;
+		}
+		x = d3.scale.ordinal();
+
+	// Sort Default
+	var sort = function(data, compression) {
+		return data.sort(function(i,j) {
+			var diffM = (quartilesValue(i)[1]-quartilesValue(j)[1]) / ((quartilesValue(i)[1]+quartilesValue(j)[1])/2) ;
+			var diffQ1 =  (quartilesValue(i)[0]-quartilesValue(j)[0]) / ((quartilesValue(i)[0]+quartilesValue(j)[0])/2) ;
+			var diffQ3 =  (quartilesValue(i)[2]-quartilesValue(j)[2]) / ((quartilesValue(i)[2]+quartilesValue(j)[2])/2) ;
+
+			// return quartilesValue(i)[1]-quartilesValue(j)[1];
+			if ( Math.abs(diffM) > compression) { return diffM }
+			else {
+				return diffQ1 + diffQ3;
+			}
+		})
+	}
+
+	// Compress Function Default
+	var compressFunc = function(data, compression) {
+		var reducedData = [],currMedian,currQuartile1,currQuartile2,currBox;
+
+	    data.forEach(function(d) {
+			if (!currBox) {
+				currBox = {};
+				extend(true, currBox, d)
+				return;
+			}
+
+			var medianClose = Math.abs(1 - quartilesValue(currBox)[1]/   quartilesValue(d)[1]) < compression;
+			var quartile1Close = Math.abs(1 - quartilesValue(currBox)[0]/quartilesValue(d)[0]) < compression;
+			var quartile3Close = Math.abs(1 - quartilesValue(currBox)[2]/quartilesValue(d)[2]) < compression;
+
+			if (medianClose && quartile1Close && quartile3Close && !d.uncompressable) {
+				currBox.totalBoxes = currBox.totalBoxes || 1;
+				currBox.compressedBoxes = currBox.compressedBoxes || [];
+				quartilesValue(currBox)[1] = (quartilesValue(currBox)[1]*currBox.totalBoxes + quartilesValue(d)[1])/ (currBox.totalBoxes+1);
+				quartilesValue(currBox)[0] = (quartilesValue(currBox)[0]*currBox.totalBoxes + quartilesValue(d)[0])/ (currBox.totalBoxes+1);
+				quartilesValue(currBox)[2] = (quartilesValue(currBox)[2]*currBox.totalBoxes + quartilesValue(d)[2])/ (currBox.totalBoxes+1);
+				currBox.totalBoxes += 1;
+				currBox.compressedBoxes.push(d);
+			} else {
+				reducedData.push(currBox);
+				currBox = {};
+				extend(true, currBox, d);
+			}
+	    })
+	    return reducedData;
+	}
+
+	// Base chart changes
+	base.xValue(function(d,i){ return i; })
+
+	// Default Options
+	var defaults = {sort:true};
+
+	function chart(selection, opts) {
+		// Merge defaults and options
+		var options = {};
+		extend(options, defaults, opts);
+
+		// Sort Data
+		var data = (sort && options.sort) ? sort(selection.datum(), compression) : selection.datum();
+
+		// Compress Data
+		data = compress ? compressFunc(data, compression) : data;
+
+		options.yMin = options.yMin==undefined ? d3.min(data, function(d) { return +whiskersValue(d)[1]; }) : options.yMin;
+		options.yMax = options.yMax==undefined ? d3.max(data, function(d) { return +whiskersValue(d)[0]; }) : options.yMax;
+
+		// Call base chart
+		base.wValue(function() { return 1; })
+			.call(this, selection, options);
+
+		// Grab base functions for easy access
+		var y = base.y(),
+			id = base.id(),
+			xValue = base.xValue(),
+			yValue = base.yValue(),
+			wValue = base.wValue(),
+			keyValue = base.keyValue(),
+			tt = d3.select('.iobio-tooltip'),
+			color = base.color(),
+			transitionDuration = base.transitionDuration(),
+			innerWidth = base.getBoundingClientRect().width - base.margin().left - base.margin().right;
+
+		// Alter scales to work for boxplots
+
+		// Setup X scale
+		x.domain( data.map(function(d,i) { return i } ) );
+
+		var totalElemUnits = 0;
+		data.forEach(function(d,i) { totalElemUnits += boxWidthRatio(d,i)})
+		var totalElems = data.length;
+		var step = innerWidth / (outerPadding*2 + padding*(totalElems-1) + (1 - padding)*totalElemUnits);
+		var boxWidth = step - step*padding;
+
+		var currX = 0;
+		var range = [];
+		data.forEach(function(d,i){
+			range.push(currX)
+			currX += boxWidth*boxWidthRatio(d,i) + step*padding;
+		})
+		x.range(range);
+
+		// Draw
+		var g = selection.select('g.iobio-container').classed('iobio-box', true).select('g.iobio-glyphs').classed('iobio-box', true) // grab container to draw into (created by base chart)
+
+		// g box container
+		var box = g.selectAll('.box')
+			.data(data, keyValue)
+
+		// enter
+		box.enter().append('g')
+			.attr('id', id )
+			.style('fill', color )
+			.attr('transform', function(d,i){
+				return "translate(" + x(xValue(d,i)) + ", 0)";
+			});
+		// exit
+	    box.exit().transition().duration(exitTransitionDuration).remove();
+		// update
+		box.attr('class', function(d,i) { return 'box ' + utils.value_accessor(klass,d,i) })
+		box.transition()
+			.duration(transitionDuration)
+			.attr('transform', function(d,i){return "translate(" + x(xValue(d,i)) + ", 0)";})
+			.attr('data-median', function(d) {
+				return quartilesValue(d)[1]
+			});
+
+		// center line
+		var center = box.selectAll('.center').data(function(d,i) { return [d] })
+		// enter
+		center.enter().insert("line", "rect")
+				.attr("class", "center")
+				.attr("x1", function(d,i,j) {return (boxWidth*boxWidthRatio(d,j))/2})
+				.attr("y1", function(d) { return y(whiskersValue(d)[0]); })
+				.attr("x2", function(d,i,j) {return (boxWidth*boxWidthRatio(d,j))/2})
+				.attr("y2", function(d) { return y(whiskersValue(d)[1]); })
+				.style('opacity', 0);
+		//exit
+		center.exit().remove();
+		// update
+		center.transition()
+			.duration(transitionDuration)
+			.attr("y1", function(d) { return y(whiskersValue(d)[0]); })
+			.attr("y2", function(d) { return y(whiskersValue(d)[1]); })
+			.style('opacity', 1);
+
+		// compression Number
+		// var fd = data.filter(function(d,i) {
+  //  			returncompressionNumberLabel(d,i,boxWidth) !== null
+  //  		})
+		var compressionNumber = box.selectAll('.compressionNumber')
+								   .data( function(d) { return [d]; });
+
+		// enter
+		compressionNumber.enter().append('text')
+				.attr("class", "compressionNumber")
+				.attr("x", function(d,i,j) {
+					return (boxWidth*boxWidthRatio(d,j))/2
+				})
+				.attr("y", function(d) { return y(whiskersValue(d)[0]) - 10; })
+				.text(function(d,i,j) { return compressionNumberLabel(d,j,boxWidth) })
+				.style('text-anchor', 'middle')
+				.style('opacity', 0)
+				.style('fill', 'rgb(200,200,200')
+				.on('click', function(d) {
+					d.compressedBoxes.forEach(function(box) { box.uncompressable = true; });
+					chart(selection, {sort:false});
+				})
+		//exit
+		compressionNumber.filter(function(d,i,j){ return (compressionNumberLabel(d,i,boxWidth) == null) }).remove();
+		// update
+		compressionNumber.transition()
+			.duration(transitionDuration)
+			.attr("x", function(d,i,j) {return (boxWidth*boxWidthRatio(d,j))/2})
+			.attr("y", function(d) { return y(whiskersValue(d)[0]) - 7; })
+			.style('opacity', 1)
+			.text(function(d,i,j) { return compressionNumberLabel(d,j,boxWidth) });
+
+		// rect
+		var rect = box.selectAll('.rect').data(function(d) {return [d];});
+		// enter
+		rect.enter().append('rect')
+				.attr('class', 'rect')
+				.attr('y', function(d) { return y(quartilesValue(d)[0]) })
+				.attr('x', function(d,i,j) { return (boxWidth*boxWidthRatio(d,j))/2 })
+				.attr('width', function(d,i) { return 0 })
+				.attr('height', function(d) { return y(quartilesValue(d)[2]) - y(quartilesValue(d)[0]) });
+		// exit
+		rect.exit().remove()
+		// update - use selection.selectAll instead of rect b\c rect doesn't supply the i elem for some reason
+		rect.transition()
+			.duration(transitionDuration)
+			.attr('y', function(d,i) {return y(quartilesValue(d)[0])})
+			.attr('x', function(d,i) { return 0 })
+			.attr('width', function(d,i,j) { return boxWidth*boxWidthRatio(d,j)})
+			.attr('height', function(d) { return y(quartilesValue(d)[2]) - y(quartilesValue(d)[0]) });
+
+		// tooltip
+		utils.tooltipHelper(box, tt, tooltip);
+
+		// median line
+        // var median = box.selectAll('.median').data(function(d) {return [quartilesValue(d)[1]];});
+        var median = box.selectAll('.median').data(function(d) {return [d];});
+        // enter
+      	median.enter().append("line")
+				.attr("class", "median")
+				.attr("x1", function(d,i,j) {return (boxWidth * boxWidthRatio(d,j))/2 })
+				.attr("y1", function(d) { return y(quartilesValue(d)[1]) })
+				.attr("x2", function(d,i,j) {return (boxWidth * boxWidthRatio(d,j))/2 })
+				.attr("y2", function(d) { return y(quartilesValue(d)[1]) })
+
+		// exit
+		median.exit().remove();
+		// update
+		median.transition()
+			.duration(transitionDuration)
+			.attr("x1", 0)
+			.attr("y1", function(d) { return y(quartilesValue(d)[1]) })
+			.attr("x2", function(d,i,j) {return boxWidth * boxWidthRatio(d,j)})
+			.attr("y2", function(d) { return y(quartilesValue(d)[1]) })
+
+		// whiskers
+		var whisker = box.selectAll(".whisker").data(function(d,i) {
+			var w = whiskersValue(d);
+			var width = boxWidthRatio(d,i)*boxWidth;
+			return [[w[0],width], [w[1], width]];
+		});
+		if(utils.value_accessor(whiskerType, boxWidth) == 'circle') {
+			// enter
+	  		whisker.enter().append("circle")
+					.attr("class", "whisker")
+					.attr("cx", function(d,i) {return d[1]/2})
+					.attr("cy", function(d,i) {return y(d[0]) })
+					.attr("r", 0 );
+			// exit
+			whisker.exit().remove();
+			// update
+			selection.selectAll('.whisker').transition()
+				.duration(transitionDuration)
+				.attr("cx", function(d,i) {return d[1]/2})
+				.attr("cy", function(d,i) {return y(d[0]) })
+				.attr("r", function(d,i) {return d[1]/2});
+		} else {
+			// enter
+	  		whisker.enter().append("line")
+					.attr("class", "whisker")
+					.attr("x1", function(d,i) { return d[1]/2})
+					.attr("y1", function(d,i) {return y(d[0]) })
+					.attr("x2", function(d,i) {return d[1]/2})
+					.attr("y2", function(d,i) {return y(d[0]) });
+			// exit
+			whisker.exit().remove();
+			// update
+			selection.selectAll('.whisker').transition()
+				.duration(transitionDuration)
+				.attr("x1", 0)
+				.attr("y1", function(d,i) {return y(d[0]) })
+				.attr("x2", function(d,i) {return d[1] })
+				.attr("y2", function(d,i) {return y(d[0]) })
+		}
+		// box plot labels
+		if (showLabels) {
+			var label = box.selectAll(".label").data(function(d) {
+				return quartilesValue(d).concat(whiskersValue(d));
+			});
+			// enter
+			label.enter().append("text")
+				.attr("class", "label")
+				.attr("x", function(d,i) {return boxWidth + 2 })
+				.attr("y", y)
+				.attr("alignment-baseline", "middle")
+				.text(function(d,i){ return labels[i] });
+			// exit
+			label.exit().remove()
+			// enter
+			label.transition()
+				.duration(transitionDuration)
+				.attr("x", function(d,i) {return boxWidth + 2 })
+				.attr("y", y)
+				.text(function(d,i){ return labels[i] });
+
+
+		}
+
+
+		// tooltip
+	    utils.tooltipHelper(whisker, tt, function(d) { return d; });
+
+
+		// Add title on hover
+	 //    if (tooltip) {
+	 //    	var tt = d3.select('.iobio-tooltip')
+	 //    	utils.tooltipHelper(g.selectAll('.rect'), tt, tooltip);
+	 //    }
+
+	 //    // Attach events
+		// events.forEach(function(ev) {
+		// 	rect.on(ev.event, ev.listener);
+		// })
+
+	}
+	// Rebind methods in base.js to this chart
+	base.rebind(chart);
+
+	/* Chart Member Functions */
+
+	/*
+	 * Boolean for showing the labels
+	 * data format = true | false
+	 */
+	chart.showLabels = function(_) {
+		if (!arguments.length) return showLabels;
+		showLabels = _;
+		return chart;
+	};
+
+	/*
+	 * Array for defining the labels
+	 * data format = true | false
+	 */
+	chart.labels = function(_) {
+		if (!arguments.length) return labels;
+		labels = _;
+		return chart;
+	};
+
+	/*
+	 * Value accessor for whiskers
+	 * data format = [max, min]
+	 */
+	chart.whiskersValue = function(_) {
+		if (!arguments.length) return whiskersValue;
+		whiskersValue = _;
+		return chart;
+	};
+
+	/*
+	 * Value accessor for quartiles
+	 * data format = [q3, median, q1]
+	 */
+	chart.quartilesValue = function(_) {
+		if (!arguments.length) return quartilesValue;
+		quartilesValue = _;
+		return chart;
+	};
+
+	/*
+	 * Sets the boxWidthRatio, which allows boxes to be of different widths
+	 * e.g. function(d,i) { if (i==2) return 3; else return 1; }) would make
+	 * the 3rd box 3 times as wide as all the other boxes
+	 * default is 1
+	 */
+	chart.boxWidthRatio = function(_) {
+		if (!arguments.length) return boxWidthRatio;
+		boxWidthRatio = _;
+		return chart;
+	};
+
+	/*
+	 * Set the sort function that determines the order of the box plots
+	 * Same as JS sort function
+	 * if set to null, then no sorting will occur
+	 */
+	chart.sort = function(_) {
+		if (!arguments.length) return sort;
+		sort = _;
+		return chart;
+	};
+
+	/*
+	 * Boolean to either compress the box plots or not
+	 * If true multiple similar boxPlots will try to be compressed into
+	 * a single box plot using the compressFunc
+	 */
+	chart.compress = function(_) {
+		if (!arguments.length) return compress;
+		compress = _;
+		return chart;
+	};
+
+	/*
+	 * The function that compress the box plot data
+	 * This should return an array of data
+	 */
+	chart.compressFunc = function(_) {
+		if (!arguments.length) return compressFunc;
+		compressFunc = _;
+		return chart;
+	};
+
+	/*
+	 * Takes value between '0' and '1'
+	 * Determines how aggressively to compress the box plot data
+	 */
+	chart.compression = function(_) {
+		if (!arguments.length) return compression;
+		compression = _;
+		return chart;
+	};
+
+	/*
+	 * Function for the text to be written on compressed boxes
+	 */
+	chart.compressionNumberLabel = function(_) {
+		if (!arguments.length) return compressionNumberLabel;
+		compressionNumberLabel = _;
+		return chart;
+	};
+
+	/*
+   	 * Set outer padding according to https://github.com/d3/d3-3.x-api-reference/blob/master/Ordinal-Scales.md#ordinal_rangeBands
+   	 */
+	chart.outerPadding = function(_) {
+		if (!arguments.length) return outerPadding;
+			outerPadding = _;
+		return chart;
+	}
+
+	/*
+   	 * Set step padding according to https://github.com/d3/d3-3.x-api-reference/blob/master/Ordinal-Scales.md#ordinal_rangeBands
+   	 */
+	chart.padding = function(_) {
+		if (!arguments.length) return padding;
+			padding = _;
+		return chart;
+	}
+
+	/*
+   	 * Either a 'line' or a 'circle'
+   	 */
+	chart.whiskerType = function(_) {
+		if (!arguments.length) return whiskerType;
+			whiskerType = _;
+		return chart;
+	}
+
+	/*
+   	 * Set duration of exitTransition
+   	 */
+	chart.exitTransitionDuration = function(_) {
+		if (!arguments.length) return exitTransitionDuration;
+			exitTransitionDuration = _;
+		return chart;
+	}
+
+	/*
+   	 * Set class on the g element of each box plot
+   	 */
+	chart.class = function(_) {
+		if (!arguments.length) return klass;
+			klass= _;
+		return chart;
+	}
+
+	/*
+   	 * Set events on rects
+   	 */
+	chart.on = function(event, listener) {
+		if (!arguments.length) return events;
+		events.push( {'event':event, 'listener':listener})
+		return chart;
+	}
+
+	/*
+   	 * Set tooltip that appears when mouseover rects
+   	 */
+	chart.tooltip = function(_) {
+		if (!arguments.length) return tooltip;
+			tooltip = _;
+		return chart;
+	}
+
+	/*
+   	 * Easy method to rebind box chart functions to the argument chart
+   	 */
+	chart.rebind = function(object) {
+		base.rebind(object);
+		utils.rebind(object, this, 'rebind', 'showLabels', 'labels', 'whiskersValue', 'quartilesValue', 'boxWidthRatio', 'sort', 'compress', 'compressFunc', 'compression', 'compressionNumberLabel', 'outerPadding', 'padding', 'whiskerType', 'preserveAspectRatio', 'exitTransitionDuration', 'class');
+	}
+
+	return chart;
+}
+
+// Export alignment
+module.exports = box;
+},{"../utils.js":10,"./base.js":15,"extend":1}],17:[function(require,module,exports){
+var boxViewer = function() {
+	// Import base chart
+	var box = require('./box.js'),
+		utils = require('../utils.js'),
+		extend = require('extend');
+
+	// Defaults
+	var events = [],
+		tooltip,
+		sizeRatio = 0.8,
+		origHeight,
+		exitDuration = 0;
+
+	// Default Options
+	var defaults = { };
+
+	// Base Chart
+	var basebox = box();
+	var focalbox, globalbox;
+
+	function chart(selection, opts) {
+		// Merge defaults and options
+		var options = {};
+		extend(options, defaults, opts);
+
+		// Set Height
+		origHeight = chart.height();
+
+		// Setup both chart divs
+		selection.selectAll('div')
+				.data([0,0])
+			.enter().append('div')
+				.attr('class', function(d,i) { return 'iobio-box-' + i + ' iobio-boxViewer' });
+
+		// Call big box chart
+		focalbox = box()
+			.height( origHeight * sizeRatio )
+			.xValue( chart.xValue() )
+			.yValue( chart.yValue() )
+			.wValue( chart.wValue() )
+			.xAxis( chart.xAxis() )
+			.yAxis( chart.yAxis() )
+			.whiskersValue( chart.whiskersValue() )
+			.quartilesValue( chart.quartilesValue() )
+			.boxWidthRatio( chart.boxWidthRatio() )
+			.sort( chart.sort() )
+			.compress( chart.compress() )
+			.compressFunc( chart.compressFunc() )
+			.compression( chart.compression() )
+			.compressionNumberLabel( chart.compressionNumberLabel() )
+			.outerPadding( chart.outerPadding() )
+			.padding( chart.padding() )
+			.whiskerType( chart.whiskerType() )
+			.class( chart.class() )
+			.margin( chart.margin() )
+			.width( chart.width() )
+			.preserveAspectRatio( chart.preserveAspectRatio() )
+			.y( chart.y() )
+			.x( chart.x() )
+			.id( chart.id() )
+			.keyValue( chart.keyValue() )
+			.color( chart.color() )
+			.tooltip( chart.tooltip() )
+			.transitionDuration( chart.transitionDuration() )
+
+		var focalSelection = selection.select('.iobio-box-0').datum( selection.datum() )
+		focalbox(focalSelection, options);
+
+		// Call little box chart
+		globalbox = box()
+			.xValue( chart.xValue() )
+			.yValue( chart.yValue() )
+			.wValue( chart.wValue() )
+			.xAxis( chart.xAxis() )
+			.yAxis( null )
+			.whiskersValue( chart.whiskersValue() )
+			.quartilesValue( chart.quartilesValue() )
+			.boxWidthRatio( chart.boxWidthRatio() )
+			.sort( chart.sort() )
+			.compress( chart.compress() )
+			.compressFunc( chart.compressFunc() )
+			.compression( chart.compression() )
+			.compressionNumberLabel( chart.compressionNumberLabel() )
+			.outerPadding( chart.outerPadding() )
+			.padding( chart.padding() )
+			.whiskerType( chart.whiskerType() )
+			.class( chart.class() )
+			.margin( chart.margin() )
+			.width( chart.width() )
+			.preserveAspectRatio( chart.preserveAspectRatio() )
+			.transitionDuration( chart.transitionDuration() )
+			.id( chart.id() )
+			.keyValue( chart.keyValue() )
+			.color( chart.color() )
+			.tooltip( chart.tooltip() )
+			.height( origHeight * (1-sizeRatio) )
+			.brush('brush', function() {
+				var x2 = globalbox.x(), brush = globalbox.brush();
+	        	var x = brush.empty() ? x2.domain() : brush.extent();
+	        	var datum = globalSelection.datum().filter(function(d,i) {
+	        		return (globalbox.xValue()(d,i) >= x[0] && globalbox.xValue()(d,i) <= x[1])
+	        	});
+
+	        	//  Delay exit when sliding brush window
+	        	// if (brush.empty())
+	        	// 	focalbox.exitTransitionDuration(0)
+	        	// else
+	        	// 	focalbox.exitTransitionDuration( focalbox.transitionDuration() )
+
+	        	// Draw
+	        	options.xMin = x[0];
+	        	options.xMax = x[1];
+	        	options.globalbox = globalbox;
+	        	options.sort = false;
+	           	focalbox( focalSelection.datum(datum), options );
+			});
+
+		var globalSelection = selection.select('.iobio-box-1').datum( selection.datum() )
+		globalbox(globalSelection, options);
+
+		// // Add title on hover
+	 //    if (tooltip) {
+	 //    	var tt = d3.select('.iobio-tooltip')
+	 //    	utils.tooltipHelper(g.selectAll('.rect'), tt, tooltip);
+	 //    }
+
+	 //    // Attach events
+		// events.forEach(function(ev) {
+		// 	var cb = ev.listener ? function() {ev.listener.call(chart, svg)} : null;
+		// 	g.selectAll('.rect').on(ev.event, cb);
+		// })
+		// focalbox.rebind(this);
+	}
+
+	// Rebind methods in box chart to this chart
+	basebox.rebind(chart);
+
+	/*
+   	 * Set events on rects
+   	 */
+	chart.sizeRatio = function(_) {
+		if (!arguments.length) return sizeRatio;
+		sizeRatio = _;
+		return chart;
+	};
+
+	/*
+   	 * Set events on rects
+   	 */
+	chart.on = function(event, listener) {
+		if (!arguments.length) return events;
+		events.push( {'event':event, 'listener':listener})
+		return chart;
+	}
+
+	/*
+   	 * Set tooltip that appears when mouseover rects
+   	 */
+	chart.tooltip = function(_) {
+		if (!arguments.length) return tooltip;
+		tooltip = _;
+		return chart;
+	}
+
+	chart.focalbox = function(_) {
+		if (!arguments.length) return focalbox;
+		focalbox = _;
+		return chart;
+	}
+
+	chart.globalbox = function(_) {
+		if (!arguments.length) return globalbox;
+		globalbox = _;
+		return chart;
+	}
+
+	return chart;
+}
+
+// Export alignment
+module.exports = boxViewer;
+},{"../utils.js":10,"./box.js":16,"extend":1}],18:[function(require,module,exports){
+var boxViewer2 = function() {
+	// Import base chart
+	var box = require('./box.js'),
+		base = require('./base.js')()
+		utils = require('../utils.js'),
+		extend = require('extend');
+
+	// Defaults
+	var events = [],
+		tooltip,
+		sizeRatio = 0.8,
+		origHeight,
+		exitDuration = 0;
+
+	// Default Options
+	var defaults = { };
+
+	// Base Chart
+	var basebox = box();
+	var focalbox, globalbox;
+
+	function chart(selection, opts) {
+		// Merge defaults and options
+		var options = {};
+		extend(options, defaults, opts);
+
+		// Set Height
+		origHeight = chart.height();
+
+		// Setup both chart divs
+		selection.selectAll('div')
+				.data([0,0])
+			.enter().append('div')
+				.attr('class', function(d,i) { return 'iobio-box-' + i + ' iobio-boxViewer' });
+
+		// Call big box chart
+		focalbox = box()
+			.height( origHeight * sizeRatio )
+			.xValue( chart.xValue() )
+			.yValue( chart.yValue() )
+			.wValue( chart.wValue() )
+			.xAxis( chart.xAxis() )
+			.yAxis( chart.yAxis() )
+			.whiskersValue( chart.whiskersValue() )
+			.quartilesValue( chart.quartilesValue() )
+			.boxWidthRatio( chart.boxWidthRatio() )
+			.sort( chart.sort() )
+			.compress( chart.compress() )
+			.compressFunc( chart.compressFunc() )
+			.compression( chart.compression() )
+			.compressionNumberLabel( chart.compressionNumberLabel() )
+			.outerPadding( chart.outerPadding() )
+			.padding( chart.padding() )
+			.whiskerType( chart.whiskerType() )
+			.class( chart.class() )
+			.margin( chart.margin() )
+			.width( chart.width() )
+			.preserveAspectRatio( chart.preserveAspectRatio() )
+			.y( chart.y() )
+			.x( chart.x() )
+			.id( chart.id() )
+			.keyValue( chart.keyValue() )
+			.color( chart.color() )
+			.tooltip( chart.tooltip() )
+			.transitionDuration( chart.transitionDuration() )
+
+		var focalSelection = selection.select('.iobio-box-0').datum( selection.datum() )
+		focalbox(focalSelection, options);
+
+		// var doctype = '<?xml version="1.0" standalone="no"?>'
+  // + '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">';
+
+  // 		var source = (new XMLSerializer()).serializeToString(d3.select('.iobio-box-0 svg').node());
+  // 		var blob = new Blob([ doctype + source], { type: 'image/svg+xml;charset=utf-8' });
+  // 		var url = window.URL.createObjectURL(blob);
+  // 		var img = d3.select('body').append('img')
+  // 			.style('border', '1px solid red')
+  // 			.attr('id', 'chase')
+		// 	.attr('width', 800)
+		// 	.attr('height', 400)
+		// 	.node();
+		// img.src = url;
+
+		// Call little box chart
+		globalbox = base
+			.xValue( chart.xValue() )
+			.yValue( chart.yValue() )
+			.wValue( chart.wValue() )
+			.xAxis( chart.xAxis() )
+			.yAxis( null )
+			.margin( chart.margin() )
+			.width( chart.width() )
+			.preserveAspectRatio( chart.preserveAspectRatio() )
+			.transitionDuration( chart.transitionDuration() )
+			.id( chart.id() )
+			.keyValue( chart.keyValue() )
+			.height( origHeight * (1-sizeRatio) )
+			.brush('brush', function() {
+				var x2 = globalbox.x(), brush = globalbox.brush();
+	        	var x = brush.empty() ? x2.domain() : brush.extent();
+	        	var datum = globalSelection.datum().filter(function(d,i) {
+	        		return (globalbox.xValue()(d,i) >= x[0] && globalbox.xValue()(d,i) <= x[1])
+	        	});
+
+	        	//  Delay exit when sliding brush window
+	        	// if (brush.empty())
+	        	// 	focalbox.exitTransitionDuration(0)
+	        	// else
+	        	// 	focalbox.exitTransitionDuration( focalbox.transitionDuration() )
+
+	        	// Draw
+	        	options.xMin = x[0];
+	        	options.xMax = x[1];
+	        	options.globalbox = globalbox;
+	        	options.sort = false;
+	           	focalbox( focalSelection.datum(datum), options );
+			});
+
+		var globalSelection = selection.select('.iobio-box-1').datum( selection.datum() )
+		globalbox(globalSelection, options);
+
+		setTimeout(function() {
+			var doctype = '<?xml version="1.0" standalone="no"?>'
+			  + '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">';
+			// serialize our SVG XML to a string.
+			// styles(document.getElementById('testSvg'));
+			var svgNode = d3.select('.iobio-box-0 svg g.iobio-glyphs').node()
+			utils.addStylesToSvg(svgNode)
+			var source1 = (new XMLSerializer()).serializeToString(svgNode);
+			// var source = '<svg xmlns="http://www.w3.org/2000/svg" width="960" height="400" viewBox="0 0 960 400">' + source1 + '</svg>';
+			var source = '<svg xmlns="http://www.w3.org/2000/svg" width="960" height="400">' + source1 + '</svg>';
+			// var source = (new XMLSerializer()).serializeToString(svgNode);
+			// create a file blob of our SVG.
+			var blob = new Blob([ doctype + source], { type: 'image/svg+xml;charset=utf-8' });
+			var url = window.URL.createObjectURL(blob);
+			// Put the svg into an image tag so that the Canvas element can read it in.
+
+			var gHeight = globalbox.height() - globalbox.margin().top - globalbox.margin().bottom;
+			var gWidth = globalbox.width();
+			var img = d3.select('.iobio-box-1 .iobio-glyphs').append('foreignObject')
+			 .attr('width', gWidth)
+			 .attr('height', gHeight)
+			 .append('xhtml:img')
+			 	.attr('width', gWidth)
+			 	.attr('height', gHeight)
+			 	.node();
+
+			img.src = url;
+
+			// var img = d3.select('.iobio-box-1 .iobio-glyphs').append('foreignObject')
+			//  .attr('width', 960)
+			//  .attr('height', 100)
+			//  .append('xhtml:div')
+			// 	 .attr('width', 960)
+			// 	 .attr('height', 100)
+			// 	 .style('border', '1px solid red')
+			// 	 .node();
+
+		},chart.transitionDuration());
+
+		// // Add title on hover
+	 //    if (tooltip) {
+	 //    	var tt = d3.select('.iobio-tooltip')
+	 //    	utils.tooltipHelper(g.selectAll('.rect'), tt, tooltip);
+	 //    }
+
+	 //    // Attach events
+		// events.forEach(function(ev) {
+		// 	var cb = ev.listener ? function() {ev.listener.call(chart, svg)} : null;
+		// 	g.selectAll('.rect').on(ev.event, cb);
+		// })
+		// focalbox.rebind(this);
+	}
+
+	// Rebind methods in box chart to this chart
+	basebox.rebind(chart);
+
+	/*
+   	 * Set events on rects
+   	 */
+	chart.sizeRatio = function(_) {
+		if (!arguments.length) return sizeRatio;
+		sizeRatio = _;
+		return chart;
+	};
+
+	/*
+   	 * Set events on rects
+   	 */
+	chart.on = function(event, listener) {
+		if (!arguments.length) return events;
+		events.push( {'event':event, 'listener':listener})
+		return chart;
+	}
+
+	/*
+   	 * Set tooltip that appears when mouseover rects
+   	 */
+	chart.tooltip = function(_) {
+		if (!arguments.length) return tooltip;
+		tooltip = _;
+		return chart;
+	}
+
+	chart.focalbox = function(_) {
+		if (!arguments.length) return focalbox;
+		focalbox = _;
+		return chart;
+	}
+
+	chart.globalbox = function(_) {
+		if (!arguments.length) return globalbox;
+		globalbox = _;
+		return chart;
+	}
+
+	return chart;
+}
+
+// Export alignment
+module.exports = boxViewer2;
+},{"../utils.js":10,"./base.js":15,"./box.js":16,"extend":1}],19:[function(require,module,exports){
 //
 // consumes data in following format
 // var data = [ {name: 'somename',
@@ -1505,7 +2615,7 @@ var gene = function() {
         // Grab base functions for easy access
         var x = base.x(),
             y = base.y(),
-            id = base.id();
+            id = base.id(),
             xValue = base.xValue(),
             yValue = base.yValue(),
             wValue = base.wValue(),
@@ -1723,7 +2833,7 @@ var gene = function() {
 
 // Export alignment
 module.exports = gene;
-},{"../utils.js":9,"./base.js":14,"extend":1}],16:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":15,"extend":1}],20:[function(require,module,exports){
 var line = function(container) {
     // Import base chart
     var base = require('./base.js')(),
@@ -1758,7 +2868,7 @@ var line = function(container) {
             // Grab base functions for easy access
             var x = base.x(),
                 y = base.y(),
-                id = base.id();
+                id = base.id(),
                 xValue = base.xValue(),
                 yValue = base.yValue(),
                 wValue = base.wValue(),
@@ -1814,7 +2924,7 @@ var line = function(container) {
 // Export circle
 module.exports = line;
 
-},{"../utils.js":9,"./base.js":14,"extend":1}],17:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":15,"extend":1}],21:[function(require,module,exports){
 var multiLine = function() {
 	// Import base chart
 	var lineBase = require('./line.js')(),
@@ -1835,7 +2945,8 @@ var multiLine = function() {
 	// Defaults
 	var events = [],
 		selected = 'all',
-		color = d3.scale.category20();
+		color = d3.scale.category20(),
+		epsilonRate = 0.1;
 
 	// Default Options
 	var defaults = { };
@@ -1863,7 +2974,7 @@ var multiLine = function() {
 		var smooth = iobio.viz.layout.pointSmooth()
 	    	.size(w)
 	    	.pos(function(d,i) { return (d.globalPos || 0) + xValue(d,i)})
-	    	.epsilonRate(0.1);
+	    	.epsilonRate(epsilonRate);
 
 	    // Add global positions to data
 	    var curr = 0,
@@ -1945,8 +3056,10 @@ var multiLine = function() {
 		    		var xpos = x( last ) - x(parseInt(d.globalPos));
 		    		return  xpos + 'px'
 		    })
+		    .attr('height', '20px')
 		    .style('fill', color )
-		    .style('height', '20px');
+		    .append('title')
+		    	.text(nameValue);
 
 	    buttonEnter.append('text')
 	    	.attr('y', 10)
@@ -1957,8 +3070,7 @@ var multiLine = function() {
 	    		return  xpos + 'px'
 	    	})
 	    	.attr('alignment-baseline', 'middle')
-	    	.attr('text-anchor', 'middle')
-	    	.text(function(d,i) { return nameValue(d,i); });
+	    	.attr('text-anchor', 'middle');
 
 	    // Update
 	    button.transition()
@@ -1988,7 +3100,21 @@ var multiLine = function() {
 	    		var last = parseInt(xValue(data[data.length-1],i))+parseInt(d.globalPos)
 	    		var xpos = (x( last ) - x(parseInt(d.globalPos)))/2;
 	    		return  xpos + 'px'
-	    	});
+	    	})
+	    	.text(function(d,i) {
+	    		// get rect width
+	    		var data = dataValue(d,i);
+	    		var last = parseInt(xValue(data[data.length-1],i))+parseInt(d.globalPos)
+	    		var rectWidth = x( last ) - x(parseInt(d.globalPos));
+
+	    		// get text width
+	    		var name = nameValue(d,i)
+	    		this.textContent = name;
+	    		var textWidth = this.getComputedTextLength();
+
+	    		if ( textWidth <= rectWidth)
+	    			return name;
+	    	});;
 
 
 	    // Attach events
@@ -2043,6 +3169,12 @@ var multiLine = function() {
 		return chart;
 	};
 
+	chart.epsilonRate = function(_) {
+		if (!arguments.length) return epsilonRate;
+		epsilonRate = _;
+		return chart;
+	};
+
 	chart.nameValue = function(_) {
 		if (!arguments.length) return nameValue;
 		nameValue = _;
@@ -2057,6 +3189,12 @@ var multiLine = function() {
 		chart(this.selection, {'selected' : _});
 		return chart;
 	};
+
+	chart.lineChart = function(_) {
+		if (!arguments.length) return lineBase;
+		lineBase = _;
+		return chart;
+	}
 
 	chart.trigger = function(event, buttonName) {
 		this.selection.select('#iobio-button-' + buttonName).each(function(d, i) {
@@ -2082,7 +3220,7 @@ var multiLine = function() {
 
 // Export alignment
 module.exports = multiLine;
-},{"../utils.js":9,"./line.js":16,"extend":1}],18:[function(require,module,exports){
+},{"../utils.js":10,"./line.js":20,"extend":1}],22:[function(require,module,exports){
 var pie = function() {
 	// Import base chart
 	var base = require('./base.js')(),
@@ -2121,8 +3259,8 @@ var pie = function() {
 
 		// Call base chart
 		base
-			.width(radius*2 + padding)
-			.height(radius*2 + padding)
+			// .width(radius*2 + padding)
+			// .height(radius*2 + padding)
 			.xAxis(null)
 			.yAxis(null);
 		base.call(this, selection, options);
@@ -2169,21 +3307,37 @@ var pie = function() {
 
 		pathEnter.append('text')
 			.attr("transform", function(d) {
-	          return "translate(" + arcLabelPosition(d, .55) + ")";
+	          return "translate(" + arcLabelPosition(d, .5) + ")";
 	        })
-			.text(nameValue)
+	        .attr('text-anchor', "middle")
+	        .attr('alignment-baseline', "middle")
 
        	// update
        	if (transitionDuration != undefined && transitionDuration >= 0) {
 	       	path.style('fill', color)
 	       		.select('path').transition()
 		         	.duration( transitionDuration )
-		         	.attrTween("d", arcTween);
+		         	.attrTween("d", arcTween)
+		         	.call(utils.endAll, function() {
+		         		var event = events.find(function(e) { return e.event=='end'; });
+		         		if(event) {event.listener.call(chart)}
+		         	});
 
 		    path.select('text').transition()
 		    	.duration(transitionDuration)
 		    	.attr("transform", function(d) {
-		          return "translate(" + arcLabelPosition(d, .55) + ")";
+		    	  var angle = arcLabelAngle(d, 0.55) * (180/Math.PI) - 180;
+		          return "translate(" + arcLabelPosition(d, .55) + ") rotate(" + angle + ")";
+		        }).text(function(d,i) {
+		        	if (!nameValue) return;
+		        	var h = ( chart.innerRadius() + chart.radius() ) * 0.55;
+					var oa = arc.startAngle.call(d)(d);
+					var ia = arc.endAngle.call(d)(d);
+		        	var a = (ia - oa);
+		        	var width = (Math.sin(a/2)*h) * 2;
+		        	var fontSize = parseInt(d3.select(this).style('font-size'));
+		        	if (fontSize <= width)
+		        		return nameValue(d,i);
 		        })
 		}
 
@@ -2192,16 +3346,27 @@ var pie = function() {
 		path.exit().remove();
 
 		// Add middle text
+		// g.selectAll('.iobio-center-text').data(selection.datum()).enter().append('text')
+		// 	.attr('x', -innerRadius)
+		// 	.attr('y', -13)
+		// 	.attr('width', innerRadius*2)
+		// 	.attr('height', '100%')
+		// 	.attr("class", "iobio-center-text")
+		// 	.text(function(d) {
+		// 		return text(d, total);
+		// 	})
+
+
 		g.selectAll('.iobio-center-text').data([0]).enter().append('foreignObject')
 			.attr('x', -innerRadius)
-			.attr('y', -13)
+			.attr('y', -innerRadius/2)
 			.attr('width', innerRadius*2)
+			.attr('height', innerRadius)
 			.attr("class", "iobio-center-text")
-			// .append("xhtml:div")
 
 
 		g.selectAll('.iobio-center-text').html( text(selection.datum(), total) );
-		// g.selectAll('.iobio-center-text').text( text(selection.datum(), total) );
+
 
 		// Add title on hover
 	    if (tooltip) {
@@ -2231,11 +3396,17 @@ var pie = function() {
 	  };
 	}
 
-	function arcLabelPosition(d, ratio) {
+	function arcLabelAngle(d, ratio) {
 		var r = ( chart.innerRadius() + chart.radius() ) * ratio;
 		var oa = arc.startAngle.call(d);
 		var ia = arc.endAngle.call(d);
 		a = ( oa(d) + ia(d) ) / 2 - (Math.PI/ 2);
+		return a;
+	}
+
+	function arcLabelPosition(d, ratio) {
+		var r = ( chart.innerRadius() + chart.radius() ) * ratio;
+		var a = arcLabelAngle(d, ratio);
 		return [ Math.cos(a) * r, Math.sin(a) * r ];
 	}
 
@@ -2293,7 +3464,7 @@ var pie = function() {
 
 // Export alignment
 module.exports = pie;
-},{"../utils.js":9,"./base.js":14,"extend":1}],19:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":15,"extend":1}],23:[function(require,module,exports){
 /*
   pieChooser - a iobio viz component that is a pie chart with clickable slices.  All slices
                can be selected by clicking the 'All' circle in the middle of the pie chart.
@@ -2338,6 +3509,11 @@ var pieChooser = function() {
 				    .innerRadius(chart.innerRadius())
 				    .outerRadius(chart.radius());
 
+		// Stick events in map for easy lookup
+		events.forEach(function(ev) {
+			eventMap[ev.event] = ev.listener;
+		})
+
 		// Create a pie chart
 		pie.nameValue(name)
 		   .radius(chart.radius())
@@ -2345,36 +3521,19 @@ var pieChooser = function() {
 	       .padding(chart.padding())
 	       .transitionDuration(0)
 	       .color(chart.color())
-	       .text( function(d,i) {return ""});
+	       .text( function(d,i) {return ""})
+
+
+	    var listener = eventMap["end"];
+		if (listener) {
+			pie.on('end', function() { listener.call(chart); })
+		}
+
+
 
 		pie(selection, options);
 
 		arcs = selection.selectAll('.arc')
-
-		// var label = selection.selectAll('.arc').selectAll('.chartlabel').data(selection.datum());
-
-		// // Add labels to the arcs
-		// label.enter().append("text")
-	 //        .attr("class", "chartlabel")
-	 //        .attr("dy", ".35em")
-	 //        .attr("text-anchor", "middle")
-	 //        .style("pointer-events", "none")
-
-	 //    label.transition()
-	 //    	.duration( chart.transitionDuration() )
-	 //    	.attr("transform", function(d) {
-	 //          return "translate(" + chart._arcLabelPosition(d, .55) + ")";
-	 //        })
-		//     .text(function(d,i) {
-	 //          return name(d);
-	 //        });
-
-	 //    label.exit().remove();
-
-		// Stick events in map for easy lookup
-		events.forEach(function(ev) {
-			eventMap[ev.event] = ev.listener;
-		})
 
 		// Handle movements of arcs during mouseover and click
  		arcs.on("mouseover", function(d, i) {
@@ -2456,23 +3615,8 @@ var pieChooser = function() {
 	        .style("text-anchor", "middle")
 	        .style("pointer-events", "none")
 	        .attr("class", "inside")
-	        .text(function(d) { return 'All'; });
-
-
-
-	    // if ( options.selected != undefined ) {
-	    // 	var selectedName = options.selected;
-	    // 	var a = arcs;
-	    // 	arcs.each(function(d,i) {
-	    // 		if ( name(d) ==  selectedName) {
-	    // 			chart._selectSlice(d, i, a[0][i], true);
-	    // 		}
-
-
-	    // 	})
-
-	    // }
-
+	        .text(function(d) { return 'All'; })
+	        // .each('end', function() { console.log('ennennendndndndnd')});
 
 	}
 	// Rebind methods in pie.js to this chart
@@ -2705,7 +3849,302 @@ var pieChooser = function() {
 
 // Export alignment
 module.exports = pieChooser;
-},{"../utils.js":9,"./base.js":14,"./pie.js":18,"extend":1}],20:[function(require,module,exports){
+},{"../utils.js":10,"./base.js":15,"./pie.js":22,"extend":1}],24:[function(require,module,exports){
+var scatter = function() {
+	// Import base chart
+	var base = require('./base.js')(),
+		utils = require('../utils.js'),
+		extend = require('extend');
+
+	// Defaults
+	var events = [],
+		tooltip,
+		keyValue,
+		klass = '',
+		symbol = 'x';
+
+	// Default Options
+	var defaults = { yMin: 0 };
+
+	function chart(selection, opts) {
+		// Merge defaults and options
+		var options = {};
+		extend(options, defaults, opts);
+
+		// Call base chart
+		base.call(this, selection, options);
+
+		// Grab base functions for easy access
+		var y = base.y(),
+			x = base.x(),
+			id = base.id(),
+			xValue = base.xValue(),
+			yValue = base.yValue(),
+			wValue = base.wValue(),
+			keyValue = base.keyValue(),
+			color = base.color(),
+			transitionDuration = base.transitionDuration(),
+			innerHeight = base.height() - base.margin().top - base.margin().bottom;
+
+		if (innerHeight < 0) {
+			console.log("Negative inner height " + innerHeight + " calculated for scatter chart. Change height or margins.");
+			console.trace();
+			return;
+		}
+
+		// Draw
+		// enter
+		var g = selection.select('g.iobio-container').classed('iobio-scatter', true);; // grab container to draw into (created by base chart)
+		var dot = g.selectAll('.dot')
+				.data(selection.datum(), keyValue )
+		// exit
+	    dot.exit().remove();
+
+	    if (symbol == 'circle') {
+			// enter
+			dot.enter().append('g')
+				.attr('id', id )
+				.style('fill', color )
+				.append('circle')
+					.attr('cy', function(d,i) { return y(yValue(d,i)) })
+					.attr('cx', function(d,i) { return x(xValue(d,i)) })
+					.attr('r', function(d,i) { return 0 });
+
+			// update
+			dot
+				.attr('class', function(d,i) { return 'dot ' + utils.value_accessor(klass,d,i) })
+				.style('fill', color )
+				.select('circle').transition()
+					.duration( transitionDuration )
+					.attr('cx', function(d,i) { return x(xValue(d,i)) })
+					.attr('cy', function(d,i) { return y(yValue(d,i)) })
+					.attr('r', function(d,i) { return (x(xValue(d,i)+wValue(d,i)) - x(xValue(d,i)))/2; });
+		} else if (symbol == "x") {
+			// enter
+			dot.enter().append('g')
+				.attr('id', id )
+				.attr('class', 'dot')
+				.style('fill', color )
+				.style('font-size', '0.1')
+					.append('text')
+					.attr('x', function(d,i) { return x(xValue(d,i)) })
+					.attr('y', function(d,i) { return y(yValue(d,i)) })
+					.attr('text-anchor', 'middle')
+					.attr('alignment-baseline', 'middle')
+					.text('x');
+
+			// update
+			dot.attr('class', function(d,i) { return 'dot ' + utils.value_accessor(klass,d,i) })
+				.transition()
+				.duration( transitionDuration )
+				.style('fill', color )
+				.style('font-size', function(d,i) { return x(xValue(d,i)+wValue(d,i)) - x(xValue(d,i)); })
+					.select('text')
+						.attr('x', function(d,i) { return x(xValue(d,i)) })
+						.attr('y', function(d,i) { return y(yValue(d,i)) })
+						.text('x');
+		}
+
+
+		// Add title on hover
+	    if (tooltip) {
+	    	var tt = d3.select('.iobio-tooltip')
+	    	utils.tooltipHelper(g.selectAll('.dot'), tt, tooltip);
+	    }
+
+	    // Attach events
+		events.forEach(function(ev) {
+			dot.on(ev.event, ev.listener);
+		})
+
+	}
+	// Rebind methods in base.js to this chart
+	base.rebind(chart);
+
+	/*
+   	 * Set events on dots
+   	 */
+	chart.on = function(event, listener) {
+		if (!arguments.length) return events;
+		events.push( {'event':event, 'listener':listener})
+		return chart;
+	}
+
+	/*
+   	 * Set tooltip that appears when mouseover dots
+   	 */
+	chart.tooltip = function(_) {
+		if (!arguments.length) return tooltip;
+			tooltip = _;
+			return chart;
+	}
+
+	/*
+   	 * Set class on the g element of each symbol
+   	 */
+	chart.class = function(_) {
+		if (!arguments.length) return klass;
+			klass= _;
+		return chart;
+	}
+
+	/*
+   	 * Set type of symbol to draw
+   	 */
+	chart.symbol = function(_) {
+		if (!arguments.length) return symbol;
+			symbol = _;
+			return chart;
+	}
+
+	/*
+   	 * Easy method to rebind scatter chart functions to the argument chart
+   	 */
+	chart.rebind = function(object) {
+		base.rebind(object);
+		utils.rebind(object, this, 'rebind', 'class', 'symbol');
+	}
+
+	return chart;
+}
+
+// Export alignment
+module.exports = scatter;
+},{"../utils.js":10,"./base.js":15,"extend":1}],25:[function(require,module,exports){
+var scatterViewer = function() {
+	// Import base chart
+	var scatter = require('./scatter.js'),
+		utils = require('../utils.js'),
+		extend = require('extend');
+
+	// Defaults
+	var events = [],
+		tooltip,
+		sizeRatio = 0.8,
+		origHeight;
+
+	// Default Options
+	var defaults = { };
+
+	// Base Chart
+	var basescatter = scatter();
+
+	function chart(selection, opts) {
+		// Merge defaults and options
+		var options = {};
+		extend(options, defaults, opts);
+
+		origHeight = chart.height();
+
+		// Setup both chart divs
+		selection.selectAll('div')
+				.data([0,0])
+			.enter().append('div')
+				.attr('class', function(d,i) { return 'iobio-scatter-' + i + ' iobio-scatterViewer' });
+
+		// Call big scatter chart
+		var focalscatter = scatter()
+			.height( origHeight * sizeRatio )
+			.xValue( chart.xValue() )
+			.yValue( chart.yValue() )
+			.wValue( chart.wValue() )
+			.xAxis( chart.xAxis() )
+			.yAxis( chart.yAxis() )
+			.symbol( chart.symbol() )
+			.class( chart.class() )
+			.margin( chart.margin() )
+			.width( chart.width() )
+			.y( chart.y() )
+			.x( chart.x() )
+			.id( chart.id() )
+			.color( chart.color() )
+			.tooltip( chart.tooltip() )
+			.transitionDuration( chart.transitionDuration() )
+
+		var focalSelection = selection.select('.iobio-scatter-0').datum( selection.datum() )
+		focalscatter(focalSelection, options);
+
+		// Call little scatter chart
+		var globalscatter = scatter()
+			.xValue( chart.xValue() )
+			.yValue( chart.yValue() )
+			.wValue( chart.wValue() )
+			.xAxis( chart.xAxis() )
+			.yAxis( null )
+			.symbol( chart.symbol() )
+			.class( chart.class() )
+			.margin( chart.margin() )
+			.width( chart.width() )
+			.transitionDuration( chart.transitionDuration() )
+			.id( chart.id() )
+			.color( chart.color() )
+			.tooltip( chart.tooltip() )
+			.height( origHeight * (1-sizeRatio) )
+			.brush('brush', function() {
+				var x2 = globalscatter.x(), brush = globalscatter.brush();
+	        	var x = brush.empty() ? x2.domain() : brush.extent();
+	        	var datum = globalSelection.datum().filter(function(d,i) {
+	        		return (globalscatter.xValue()(d,i) >= x[0] && globalscatter.xValue()(d,i) <= x[1])
+	        	});
+	        	options.xMin = x[0];
+	        	options.xMax = x[1];
+	        	options.globalscatter = globalscatter;
+	           	focalscatter( focalSelection.datum(datum), options );
+			});
+
+		var globalSelection = selection.select('.iobio-scatter-1').datum( selection.datum() )
+		globalscatter(globalSelection, options);
+
+		// // Add title on hover
+	 //    if (tooltip) {
+	 //    	var tt = d3.select('.iobio-tooltip')
+	 //    	utils.tooltipHelper(g.selectAll('.rect'), tt, tooltip);
+	 //    }
+
+	 //    // Attach events
+		// events.forEach(function(ev) {
+		// 	var cb = ev.listener ? function() {ev.listener.call(chart, svg)} : null;
+		// 	g.selectAll('.rect').on(ev.event, cb);
+		// })
+		// focalscatter.rebind(this);
+	}
+
+	// Rebind methods in scatter chart to this chart
+	basescatter.rebind(chart);
+
+	/*
+   	 * Set events on rects
+   	 */
+	chart.sizeRatio = function(_) {
+		if (!arguments.length) return sizeRatio;
+		sizeRatio = _;
+		return chart;
+	};
+
+	/*
+   	 * Set events on rects
+   	 */
+	chart.on = function(event, listener) {
+		if (!arguments.length) return events;
+		events.push( {'event':event, 'listener':listener})
+		return chart;
+	}
+
+	/*
+   	 * Set tooltip that appears when mouseover rects
+   	 */
+	chart.tooltip = function(_) {
+		if (!arguments.length) return tooltip;
+		tooltip = _;
+		return chart;
+	}
+
+	return chart;
+}
+
+// Export alignment
+module.exports = scatterViewer;
+},{"../utils.js":10,"./scatter.js":24,"extend":1}],26:[function(require,module,exports){
 
 var viz = {};
 // add visualizations
@@ -2718,9 +4157,13 @@ viz.bar = require('./bar.js')
 viz.barViewer = require('./barViewer.js')
 viz.gene = require('./gene.js')
 viz.multiLine = require('./multiLine.js')
+viz.box = require('./box.js')
+viz.boxViewer = require('./boxViewer.js')
+viz.boxViewer2 = require('./boxViewer2.js')
+viz.scatter = require('./scatter.js')
+viz.scatterViewer = require('./scatterViewer.js')
 
 module.exports = viz;
-},{"./alignment.js":11,"./bar.js":12,"./barViewer.js":13,"./base.js":14,"./gene.js":15,"./line.js":16,"./multiLine.js":17,"./pie.js":18,"./pieChooser.js":19}]},{},[10])
-
+},{"./alignment.js":12,"./bar.js":13,"./barViewer.js":14,"./base.js":15,"./box.js":16,"./boxViewer.js":17,"./boxViewer2.js":18,"./gene.js":19,"./line.js":20,"./multiLine.js":21,"./pie.js":22,"./pieChooser.js":23,"./scatter.js":24,"./scatterViewer.js":25}]},{},[11])
 
 //# sourceMappingURL=iobio.viz.js.map
