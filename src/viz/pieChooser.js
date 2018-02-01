@@ -42,6 +42,11 @@ var pieChooser = function() {
 				    .innerRadius(chart.innerRadius())
 				    .outerRadius(chart.radius());
 
+		// Stick events in map for easy lookup
+		events.forEach(function(ev) {
+			eventMap[ev.event] = ev.listener;
+		})
+
 		// Create a pie chart
 		pie.nameValue(name)
 		   .radius(chart.radius())
@@ -49,16 +54,19 @@ var pieChooser = function() {
 	       .padding(chart.padding())
 	       .transitionDuration(200)
 	       .color(chart.color())
-	       .text( function(d,i) {return ""});
+	       .text( function(d,i) {return ""})
+
+
+	    var listener = eventMap["end"];
+		if (listener) {
+			pie.on('end', function() { listener.call(chart); })
+		}
+
+
 
 		pie(selection, options);
 
 		arcs = selection.selectAll('.arc')
-
-		// Stick events in map for easy lookup
-		events.forEach(function(ev) {
-			eventMap[ev.event] = ev.listener;
-		})
 
 		// Handle movements of arcs during mouseover and click
  		arcs.on("mouseover", function(d, i) {
@@ -140,7 +148,8 @@ var pieChooser = function() {
 	        .style("text-anchor", "middle")
 	        .style("pointer-events", "none")
 	        .attr("class", "inside")
-	        .text(function(d) { return 'All'; });
+	        .text(function(d) { return 'All'; })
+	        // .each('end', function() { console.log('ennennendndndndnd')});
 
 	}
 	// Rebind methods in pie.js to this chart

@@ -119,6 +119,7 @@ var base = function() {
    	 	 .range([innerHeight , 0]);
 
    	 	// Flesh out skeletal chart
+   	 	gEnter.append("g").attr("class", "iobio-glyphs");
    	 	gEnter.append("g").attr("class", "iobio-x iobio-axis").attr("transform", "translate(0," + y.range()[0] + ")");
    	 	gEnter.append("g").attr("class", "iobio-y iobio-axis");
    		gEnter.append("g").attr("class", "iobio-x iobio-brush");

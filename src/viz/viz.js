@@ -12,6 +12,7 @@ viz.gene = require('./gene.js')
 viz.multiLine = require('./multiLine.js')
 viz.box = require('./box.js')
 viz.boxViewer = require('./boxViewer.js')
+viz.boxViewer2 = require('./boxViewer2.js')
 viz.scatter = require('./scatter.js')
 viz.scatterViewer = require('./scatterViewer.js')
 

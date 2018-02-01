@@ -42,6 +42,12 @@ var boxViewer = function() {
 			.yAxis( chart.yAxis() )
 			.whiskersValue( chart.whiskersValue() )
 			.quartilesValue( chart.quartilesValue() )
+			.boxWidthRatio( chart.boxWidthRatio() )
+			.sort( chart.sort() )
+			.compress( chart.compress() )
+			.compressFunc( chart.compressFunc() )
+			.compression( chart.compression() )
+			.compressionNumberLabel( chart.compressionNumberLabel() )
 			.outerPadding( chart.outerPadding() )
 			.padding( chart.padding() )
 			.whiskerType( chart.whiskerType() )
@@ -69,6 +75,12 @@ var boxViewer = function() {
 			.yAxis( null )
 			.whiskersValue( chart.whiskersValue() )
 			.quartilesValue( chart.quartilesValue() )
+			.boxWidthRatio( chart.boxWidthRatio() )
+			.sort( chart.sort() )
+			.compress( chart.compress() )
+			.compressFunc( chart.compressFunc() )
+			.compression( chart.compression() )
+			.compressionNumberLabel( chart.compressionNumberLabel() )
 			.outerPadding( chart.outerPadding() )
 			.padding( chart.padding() )
 			.whiskerType( chart.whiskerType() )
@@ -99,6 +111,7 @@ var boxViewer = function() {
 	        	options.xMin = x[0];
 	        	options.xMax = x[1];
 	        	options.globalbox = globalbox;
+	        	options.sort = false;
 	           	focalbox( focalSelection.datum(datum), options );
 			});
 

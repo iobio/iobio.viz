@@ -57,6 +57,53 @@ module.exports.showTooltip = function(tooltipElem, titleAccessor, d) {
 		.style("top", (d3.event.clientY - elemHeight - 8) + "px");
 }
 
+module.exports.endAll = function (transition, callback) {
+    var n;
+
+    if (transition.empty()) {
+        callback();
+    }
+    else {
+        n = transition.size();
+        transition.each("end", function () {
+            n--;
+            if (n === 0) {
+                callback();
+            }
+        });
+    }
+}
+
+
+// Takes svg and looks for matching styles and explicity defines them
+// in a <styles> tag inside the svg elem.
+module.exports.addStylesToSvg = function(svg) {
+    var used = "";
+    var sheets = document.styleSheets;
+    for (var i = 0; i < sheets.length; i++) {
+      var rules = sheets[i].cssRules;
+      if(rules==null) continue;
+      for (var j = 0; j < rules.length; j++) {
+        var rule = rules[j];
+        if (typeof(rule.style) != "undefined") {
+          var elems = svg.querySelectorAll(rule.selectorText);
+          if (elems.length > 0) {
+            used += rule.selectorText + " { " + rule.style.cssText + " }\n";
+          }
+        }
+      }
+    }
+
+    var s = document.createElement('style');
+    s.setAttribute('type', 'text/css');
+    // s.innerHTML = "<![CDATA[\n" + used + "\n]]>";
+    s.innerHTML = used;
+
+    var defs = document.createElement('defs');
+    defs.appendChild(s);
+    svg.insertBefore(defs, svg.firstChild);
+}
+
 module.exports.hideTooltip = function(tooltipElem) {
 	tooltipElem.transition()
 			   .duration(500)

@@ -129,8 +129,8 @@ var multiLine = function() {
 		    		var xpos = x( last ) - x(parseInt(d.globalPos));
 		    		return  xpos + 'px'
 		    })
+		    .attr('height', '20px')
 		    .style('fill', color )
-		    .style('height', '20px')
 		    .append('title')
 		    	.text(nameValue);
 

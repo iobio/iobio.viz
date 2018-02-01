@@ -94,7 +94,11 @@ var pie = function() {
 	       	path.style('fill', color)
 	       		.select('path').transition()
 		         	.duration( transitionDuration )
-		         	.attrTween("d", arcTween);
+		         	.attrTween("d", arcTween)
+		         	.call(utils.endAll, function() {
+		         		var event = events.find(function(e) { return e.event=='end'; });
+		         		if(event) {event.listener.call(chart)}
+		         	});
 
 		    path.select('text').transition()
 		    	.duration(transitionDuration)
@@ -119,16 +123,27 @@ var pie = function() {
 		path.exit().remove();
 
 		// Add middle text
+		// g.selectAll('.iobio-center-text').data(selection.datum()).enter().append('text')
+		// 	.attr('x', -innerRadius)
+		// 	.attr('y', -13)
+		// 	.attr('width', innerRadius*2)
+		// 	.attr('height', '100%')
+		// 	.attr("class", "iobio-center-text")
+		// 	.text(function(d) {
+		// 		return text(d, total);
+		// 	})
+
+
 		g.selectAll('.iobio-center-text').data([0]).enter().append('foreignObject')
 			.attr('x', -innerRadius)
-			.attr('y', -13)
+			.attr('y', -innerRadius/2)
 			.attr('width', innerRadius*2)
+			.attr('height', innerRadius)
 			.attr("class", "iobio-center-text")
-			// .append("xhtml:div")
 
 
 		g.selectAll('.iobio-center-text').html( text(selection.datum(), total) );
-		// g.selectAll('.iobio-center-text').text( text(selection.datum(), total) );
+
 
 		// Add title on hover
 	    if (tooltip) {
