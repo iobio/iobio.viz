@@ -9,4 +9,5 @@ await esbuild.build({
     global: 'window',
   },
   format: 'esm',
+  sourcemap: true,
 })
