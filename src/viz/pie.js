@@ -177,7 +177,7 @@ var pie = function() {
 		var r = ( chart.innerRadius() + chart.radius() ) * ratio;
 		var oa = arc.startAngle.call(d);
 		var ia = arc.endAngle.call(d);
-		a = ( oa(d) + ia(d) ) / 2 - (Math.PI/ 2);
+		var a = ( oa(d) + ia(d) ) / 2 - (Math.PI/ 2);
 		return a;
 	}
 
