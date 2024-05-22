@@ -1,3 +1,6 @@
+//import * as d3 from '../../lib/d3.v7.js';
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+
 var utils = require('../utils.js'),
 	extend = require('extend');
 
@@ -10,18 +13,14 @@ var base = function() {
 	  	height = '100%';
 
 	// Scales
-	var x = d3.scale.linear().nice(),
-	    y = d3.scale.linear().nice();
+	var x = d3.scaleLinear().nice(),
+	    y = d3.scaleLinear().nice();
 
 	// Axes
-	var xAxis = d3.svg.axis()
-			.scale(x)
-			.orient("bottom")
+	var xAxis = d3.axisBottom(x)
 			.tickFormat(utils.format_unit_names)
 			.ticks(5),
-		yAxis = d3.svg.axis()
-			.scale(y)
-			.orient("left")
+		yAxis = d3.axisLeft(y)
 			.ticks(5);
 
 	// Value transformers
@@ -32,13 +31,13 @@ var base = function() {
        	keyValue;
 
     // Color
-    var colorScale = d3.scale.category10(),
+    var colorScale = d3.scaleOrdinal(d3.schemeCategory10),
     	color = function(d,i) { return colorScale(i); };
 
 	// Defaults
 	var events = [],
 		tooltip,
-		brush = d3.svg.brush(),
+		brush = d3.brush(),
 		preserveAspectRatio,
 		transitionDuration = 400;
 
@@ -69,6 +68,8 @@ var base = function() {
 		g.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 		// Get width, height in pixels (necessary to allow percentages to work)
+    console.log(svg);
+    console.log(svg.node());
 		var bcr = svg.node().getBoundingClientRect();
 		var widthPx = bcr.width != 0 ? bcr.width : width; // in case boundingClient doesn't work just use width
 		var heightPx = bcr.height != 0 ? bcr.height : height;

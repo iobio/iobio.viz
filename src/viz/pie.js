@@ -1,3 +1,5 @@
+import * as d3 from '../../lib/d3.v7.js';
+
 var pie = function() {
 	// Import base chart
 	var base = require('./base.js')(),
@@ -30,7 +32,7 @@ var pie = function() {
 		extend(options, defaults, opts);
 
 		// Update arc
-		arc = d3.svg.arc()
+		arc = d3.arc()
       		.outerRadius(radius)
       		.innerRadius(innerRadius);
 
