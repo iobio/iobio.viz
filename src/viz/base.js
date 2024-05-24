@@ -1,5 +1,4 @@
-//import * as d3 from '../../lib/d3.v7.js';
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import * as d3 from 'd3';
 
 var utils = require('../utils.js'),
 	extend = require('extend');
@@ -53,11 +52,20 @@ var base = function() {
       	var data = selection.datum();
 
       	// Select the svg element, if it exists.
-		var svg = container.selectAll("svg").data([0]);
-		chart.svg = svg;
+		var svgUpdate = container.selectAll("svg").data([0]);
 
    		// Otherwise, create svg.
-		var gEnter = svg.enter().append("svg").append('g').attr('class', 'iobio-container');
+    var svgEnter = svgUpdate.enter()
+      .append("svg");
+
+    var svg = svgEnter
+      .merge(svgUpdate);
+		chart.svg = svg;
+
+		var gEnter = svgEnter
+      .append('g')
+        .attr('class', 'iobio-container');
+
 		var g = svg.select('g');
 
 		// Update the outer dimensions.
@@ -68,8 +76,6 @@ var base = function() {
 		g.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 		// Get width, height in pixels (necessary to allow percentages to work)
-    console.log(svg);
-    console.log(svg.node());
 		var bcr = svg.node().getBoundingClientRect();
 		var widthPx = bcr.width != 0 ? bcr.width : width; // in case boundingClient doesn't work just use width
 		var heightPx = bcr.height != 0 ? bcr.height : height;
@@ -178,7 +184,7 @@ var base = function() {
 	    }
 
 	    // Add brush
-	    if( brush.on("brushend") || brush.on("brushstart") || brush.on("brush") ) {
+	    if( brush.on("end") || brush.on("start") || brush.on("brush") ) {
 	    	brush.x(x);
       		svg.select(".iobio-brush")
 					.call(brush)

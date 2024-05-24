@@ -13,6 +13,7 @@
     "chart"
   ],
   "dependencies": {
+    "d3": "^7.9.0",
     "extend": "^2.0.1",
     "selectize": "git+https://github.com/selectize/selectize.js.git"
   },
@@ -21,7 +22,6 @@
     "browserify": "^10.2.0",
     "browserify-istanbul": "^0.2.1",
     "coveralls": "^2.11.2",
-    "d3": "^7.9.0",
     "esbuild": "^0.21.3",
     "gulp": "^3.8.11",
     "gulp-concat": "^2.5.2",

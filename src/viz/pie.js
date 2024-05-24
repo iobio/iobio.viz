@@ -1,4 +1,4 @@
-import * as d3 from '../../lib/d3.v7.js';
+import * as d3 from 'd3';
 
 var pie = function() {
 	// Import base chart
@@ -62,14 +62,16 @@ var pie = function() {
 		var g = selection.select('g.iobio-container')
 			.classed('iobio-pie', true)
 			.attr('transform', 'translate(' +boundingCR.width/2+','+boundingCR.height/2+')'); // grab container to draw into (created by base chart)
-		var path = g.selectAll('.arc')
+		var pathUpdate = g.selectAll('.arc')
 				.data(selection.datum())
 
 		// enter
-		var pathEnter = path.enter().append("g")
+		var pathEnter = pathUpdate.enter().append("g")
 			.attr('id', id)
 			.attr('class', 'arc')
 			.style('fill', color)
+
+    var path = pathEnter.merge(pathUpdate);
 
 		pathEnter.append('path')
 			.attr("d", function(d,i) {

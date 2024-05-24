@@ -65,7 +65,7 @@ module.exports.endAll = function (transition, callback) {
     }
     else {
         n = transition.size();
-        transition.each("end", function () {
+        transition.on("end", function () {
             n--;
             if (n === 0) {
                 callback();
