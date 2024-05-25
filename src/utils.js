@@ -35,15 +35,15 @@ module.exports.value_accessor = function(value, d,i) {
 module.exports.tooltipHelper = function(selection, tooltipElem, titleAccessor) {
 	var utils = require('./utils.js')
 	selection
-		.on("mouseover", function(d,i) {
-			utils.showTooltip(tooltipElem, titleAccessor, d);
+		.on("mouseover", function(evt, d,i) {
+			utils.showTooltip(tooltipElem, titleAccessor, evt, d);
 		})
 		.on("mouseout", function(d) {
 			utils.hideTooltip(tooltipElem);
 		})
 }
 
-module.exports.showTooltip = function(tooltipElem, titleAccessor, d) {
+module.exports.showTooltip = function(tooltipElem, titleAccessor, evt, d) {
 	var utils = require('./utils.js')
 	var tooltipStr = utils.value_accessor(titleAccessor, d); // handle both function and constant string
 	var opacity = tooltipStr ? .9 : 0; // don't show if tooltipStr is null
@@ -52,9 +52,9 @@ module.exports.showTooltip = function(tooltipElem, titleAccessor, d) {
 		.duration(200)
 		.style("opacity", opacity);
 	tooltipElem.html(tooltipStr)
-		.style("left", (d3.event.clientX + 8) + "px")
+		.style("left", (evt.clientX + 8) + "px")
 		.style("text-align", 'left')
-		.style("top", (d3.event.clientY - elemHeight - 8) + "px");
+		.style("top", (evt.clientY - elemHeight - 8) + "px");
 }
 
 module.exports.endAll = function (transition, callback) {

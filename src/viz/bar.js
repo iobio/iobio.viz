@@ -1,3 +1,5 @@
+import * as d3 from 'd3';
+
 var bar = function() {
 	// Import base chart
 	var base = require('./base.js')(),
