@@ -63,17 +63,21 @@ var barViewer = function() {
 			.color( chart.color() )
 			.tooltip( chart.tooltip() )
 			.height( origHeight * (1-sizeRatio) )
-			.brush('brush', function() {
-				var x2 = globalBar.x(), brush = globalBar.brush();
-	        	var x = brush.empty() ? x2.domain() : brush.extent();
-	        	var datum = globalSelection.datum().filter(function(d,i) {
-	        		return (globalBar.xValue()(d,i) >= x[0] && globalBar.xValue()(d,i) <= x[1])
-	        	});
-	        	options.xMin = x[0];
-	        	options.xMax = x[1];
-	        	options.globalBar = globalBar;
-	           	focalBar( focalSelection.datum(datum), options );
-			});
+			.brush('brush', doBrush)
+			.brush('end', doBrush);
+
+    function doBrush(_brush, evt) {
+      var x2 = globalBar.x(), brush = globalBar.brush();
+      var brushEmpty = evt.selection === null;
+      var x = brushEmpty ? x2.domain() : [ x2.invert(evt.selection[0]), x2.invert(evt.selection[1]) ];
+      var datum = globalSelection.datum().filter(function(d,i) {
+        return (globalBar.xValue()(d,i) >= x[0] && globalBar.xValue()(d,i) <= x[1])
+      });
+      options.xMin = x[0];
+      options.xMax = x[1];
+      options.globalBar = globalBar;
+        focalBar( focalSelection.datum(datum), options );
+    }
 
 		var globalSelection = selection.select('.iobio-bar-1').datum( selection.datum() )
 		globalBar(globalSelection, options);

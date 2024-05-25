@@ -36,7 +36,7 @@ var base = function() {
 	// Defaults
 	var events = [],
 		tooltip,
-		brush = d3.brush(),
+		brush = d3.brushX(),
 		preserveAspectRatio,
 		transitionDuration = 400;
 
@@ -185,8 +185,10 @@ var base = function() {
 
 	    // Add brush
 	    if( brush.on("end") || brush.on("start") || brush.on("brush") ) {
-	    	brush.x(x);
-      		svg.select(".iobio-brush")
+
+        brush.extent([[x.range()[0], 0], [x.range()[1], innerHeight]]);
+
+        svg.select(".iobio-brush")
 					.call(brush)
 				.selectAll("rect")
 					.attr("y", -6)
@@ -302,8 +304,8 @@ var base = function() {
    	 */
 	chart.brush = function(event, listener) {
 		if (!arguments.length) return brush;
-		brush.on(event, function() {
-			listener.call(this, brush);
+		brush.on(event, function(evt) {
+			listener.call(this, brush, evt);
 		} );
 		return chart;
 	}

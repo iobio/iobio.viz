@@ -41,17 +41,20 @@ var bar = function() {
 		// Draw
 		// enter
 		var g = selection.select('g.iobio-container').classed('iobio-bar', true);; // grab container to draw into (created by base chart)
-		var rect = g.selectAll('.rect')
+		var rectUpdate = g.selectAll('.rect')
 				.data(selection.datum(), keyValue )
 		// exit
-	    rect.exit().remove();
+	    rectUpdate.exit().remove();
 
-		// enter
-		rect.enter().append('g')
+    var rectEnter = rectUpdate.enter().append('g')
 			.attr('id', id )
 			.attr('class', 'rect')
-			.style('fill', color )
-			.append('rect')
+			.style('fill', color );
+
+    var rect = rectEnter.merge(rectUpdate);
+
+		// enter
+    rectEnter.append('rect')
 				.attr('y', function(d) { return innerHeight })
 				.attr('x', function(d,i) { return x(xValue(d,i)) })
 				.attr('width', function(d,i) { return x(xValue(d,i)+wValue(d,i)) - x(xValue(d,i));})
@@ -62,7 +65,10 @@ var bar = function() {
 			.style('fill', color )
 			.select('rect').transition()
 				.duration( transitionDuration )
-				.attr('x', function(d,i) { return x(xValue(d,i)) })
+				.attr('x', function(d,i) {
+          const val = x(xValue(d,i));
+          return val;
+        })
 				.attr('y', function(d,i) { return y(yValue(d,i)) })
 				.attr('width', function(d,i) { return x(xValue(d,i)+wValue(d,i)) - x(xValue(d,i));})
 				.attr('height', function(d,i) { return innerHeight - y(yValue(d,i)); });
