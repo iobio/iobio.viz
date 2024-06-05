@@ -1,5 +1,6 @@
+const utils = {};
 
-module.exports.format_unit_names = function(d) {
+utils.format_unit_names = function(d) {
 	if ((d / 1000000) >= 1)
 		d = d / 1000000 + "M";
 	else if ((d / 1000) >= 1)
@@ -7,7 +8,7 @@ module.exports.format_unit_names = function(d) {
 	return d;
 }
 
-module.exports.format_percent = function(d, precision_places) {
+utils.format_percent = function(d, precision_places) {
 	var precision_places = precision_places || 1;
 
 	var corrector = 1;
@@ -18,7 +19,7 @@ module.exports.format_percent = function(d, precision_places) {
 	return percent;
 }
 
-module.exports.getUID = function(separator) {
+utils.getUID = function(separator) {
     var delim = separator || "-";
 
     function S4() {
@@ -28,12 +29,11 @@ module.exports.getUID = function(separator) {
     return (S4() + S4() + delim + S4() + delim + S4() + delim + S4() + delim + S4() + S4() + S4());
 }
 
-module.exports.value_accessor = function(value, d,i) {
+utils.value_accessor = function(value, d,i) {
 	return typeof value === 'function' ? value(d,i) : value;
 }
 
-module.exports.tooltipHelper = function(selection, tooltipElem, titleAccessor) {
-	var utils = require('./utils.js')
+utils.tooltipHelper = function(selection, tooltipElem, titleAccessor) {
 	selection
 		.on("mouseover", function(evt, d,i) {
 			utils.showTooltip(tooltipElem, titleAccessor, evt, d);
@@ -43,8 +43,7 @@ module.exports.tooltipHelper = function(selection, tooltipElem, titleAccessor) {
 		})
 }
 
-module.exports.showTooltip = function(tooltipElem, titleAccessor, evt, d) {
-	var utils = require('./utils.js')
+utils.showTooltip = function(tooltipElem, titleAccessor, evt, d) {
 	var tooltipStr = utils.value_accessor(titleAccessor, d); // handle both function and constant string
 	var opacity = tooltipStr ? .9 : 0; // don't show if tooltipStr is null
 	var elemHeight = tooltipElem.node().getBoundingClientRect().height
@@ -57,7 +56,7 @@ module.exports.showTooltip = function(tooltipElem, titleAccessor, evt, d) {
 		.style("top", (evt.clientY - elemHeight - 8) + "px");
 }
 
-module.exports.endAll = function (transition, callback) {
+utils.endAll = function (transition, callback) {
     var n;
 
     if (transition.empty()) {
@@ -77,7 +76,7 @@ module.exports.endAll = function (transition, callback) {
 
 // Takes svg and looks for matching styles and explicity defines them
 // in a <styles> tag inside the svg elem.
-module.exports.addStylesToSvg = function(svg) {
+utils.addStylesToSvg = function(svg) {
     var used = "";
     var sheets = document.styleSheets;
     for (var i = 0; i < sheets.length; i++) {
@@ -104,14 +103,14 @@ module.exports.addStylesToSvg = function(svg) {
     svg.insertBefore(defs, svg.firstChild);
 }
 
-module.exports.hideTooltip = function(tooltipElem) {
+utils.hideTooltip = function(tooltipElem) {
 	tooltipElem.transition()
 			   .duration(500)
 			   .style("opacity", 0);
 }
 
 // Copies a variable number of methods from source to target.
-module.exports.rebind = function(target, source) {
+utils.rebind = function(target, source) {
   var i = 1, n = arguments.length, method;
   while (++i < n) target[method = arguments[i]] = iobio_rebind(target, source, source[method]);
   return target;
@@ -126,3 +125,5 @@ function iobio_rebind(target, source, method) {
     return value === source ? target : value;
   };
 }
+
+export default utils;

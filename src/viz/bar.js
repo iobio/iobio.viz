@@ -1,10 +1,10 @@
-import * as d3 from 'd3';
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import baseModule from './base.js';
+import utils from '../utils.js';
 
 var bar = function() {
 	// Import base chart
-	var base = require('./base.js')(),
-		utils = require('../utils.js'),
-		extend = require('extend');
+  const base = baseModule();
 
 	// Defaults
 	var events = [],
@@ -17,7 +17,7 @@ var bar = function() {
 	function chart(selection, opts) {
 		// Merge defaults and options
 		var options = {};
-		extend(options, defaults, opts);
+		Object.assign(options, defaults, opts);
 
 		// Call base chart
 		base.call(this, selection, options);
@@ -120,5 +120,4 @@ var bar = function() {
 	return chart;
 }
 
-// Export alignment
-module.exports = bar;
+export default bar;

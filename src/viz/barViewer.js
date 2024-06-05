@@ -1,8 +1,7 @@
+import utils from '../utils.js';
+import bar from './bar.js';
+
 var barViewer = function() {
-	// Import base chart
-	var bar = require('./bar.js'),
-		utils = require('../utils.js'),
-		extend = require('extend');
 
 	// Defaults
 	var events = [],
@@ -19,7 +18,7 @@ var barViewer = function() {
 	function chart(selection, opts) {
 		// Merge defaults and options
 		var options = {};
-		extend(options, defaults, opts);
+		Object.assign(options, defaults, opts);
 
 		origHeight = chart.height();
 
@@ -129,5 +128,4 @@ var barViewer = function() {
 	return chart;
 }
 
-// Export alignment
-module.exports = barViewer;
+export default barViewer;

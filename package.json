@@ -2,7 +2,7 @@
   "name": "iobio.viz",
   "version": "0.1.0",
   "description": "Streaming Visualization Library",
-  "main": "src/viz.js",
+  "main": "index.js",
   "scripts": {
     "test": "gulp testTravis"
   },

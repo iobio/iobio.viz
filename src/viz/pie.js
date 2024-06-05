@@ -1,10 +1,27 @@
-import * as d3 from 'd3';
+//import * as d3 from 'd3';
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import baseModule from './base.js';
+import utils from '../utils.js';
+
+const styles = `
+  .iobio-pie .iobio-center-text {text-align: center;}
+  .iobio-pie .iobio-center-text .iobio-percent {
+      fill : rgb(100,100,100);
+      color: rgb(100,100,100);    
+      font-size: 23px;
+  }
+  
+  .iobio-pie .iobio-center-text .iobio-count {
+      font-size: 14px;
+      letter-spacing: 3px;
+      font-weight: 400;    
+      color: rgb(150,150,150);
+  }
+`;
 
 var pie = function() {
 	// Import base chart
-	var base = require('./base.js')(),
-		utils = require('../utils.js'),
-		extend = require('extend');
+  const base = baseModule();
 
 	// Initialize
 	var total = 0;
@@ -29,7 +46,7 @@ var pie = function() {
 	function chart(selection, opts) {
 		// Merge defaults and options
 		var options = {};
-		extend(options, defaults, opts);
+		Object.assign(options, defaults, opts);
 
 		// Update arc
 		arc = d3.arc()
@@ -240,8 +257,11 @@ var pie = function() {
 			return chart;
 	}
 
+  chart.getStyles = function() {
+    return base.getStyles() + styles;
+  }
+
 	return chart;
 }
 
-// Export alignment
-module.exports = pie;
+export default pie;

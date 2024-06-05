@@ -1,9 +1,40 @@
-import * as d3 from 'd3';
+//import * as d3 from 'd3';
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import utils from '../utils.js';
 
-var utils = require('../utils.js'),
-	extend = require('extend');
+const styles = `
+  /* Axes */
+  .iobio-axis path, .iobio-axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+
+  /* Tooltip */
+  .iobio-tooltip {   
+    position: fixed; 
+    top:0px;            
+    text-align: center;           
+    z-index:20;
+    color:white;
+    padding: 4px 6px 4px 6px;             
+    font: 11px arial;        
+    background: rgb(80,80,80);   
+    border: 0px;      
+    border-radius: 4px;           
+    pointer-events: none;         
+  }
+
+  /* Brush */
+  .iobio-brush .extent {
+    stroke: #000;
+    fill-opacity: .125;
+    shape-rendering: crispEdges;
+  }
+`;
 
 var base = function() {
+
     // Initialize
 
 	// Dimensions
@@ -45,7 +76,7 @@ var base = function() {
 
 	function chart(selection, opts) {
 		var options = {};
-		extend(options, defaults, opts);
+		Object.assign(options, defaults, opts);
 
       	// Get container
       	var container = d3.select( selection.node() );
@@ -340,7 +371,12 @@ var base = function() {
 			'tooltipChart', 'preserveAspectRatio', 'getBoundingClientRect', 'transitionDuration', 'color');
 	}
 
+
+  chart.getStyles = function() {
+    return styles;
+  }
+
 	return chart
 }
 
-module.exports = base;
+export default base;
