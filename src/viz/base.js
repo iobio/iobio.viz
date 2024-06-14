@@ -178,39 +178,40 @@ var base = function() {
 
 		// Add title on hover
 	    if (tooltip) {
-	    	var tt = d3.select('.iobio-tooltip')
+        console.error("Tooltip functionality currently disabled in iobio-charts");
+	    	//var tt = d3.select('.iobio-tooltip')
 
-	    	svg
-				.on("mouseover", function(d,i) {
-					var pos = {
-			    		x: parseInt(x.invert(d3.event.pageX - svg.node().getBoundingClientRect().left - margin.left )),
-			    		y: parseInt(y.invert(d3.event.pageY - svg.node().getBoundingClientRect().top - margin.top ))
-			    	}
-					var opacity = tooltip.call(chart, svg, pos) ? .9 : 0; // don't show if tooltipStr is null
-					tt.transition()
-						.duration(transitionDuration)
-						.style("opacity", opacity);
-					tt.html(tooltip.call(chart, svg, pos))
-						.style("left", (d3.event.pageX) + "px")
-						.style("text-align", 'left')
-						.style("top", (d3.event.pageY - 24) + "px");
-				})
-				.on("mouseout", function(d) {
-					tt.transition()
-						.duration(500)
-						.style("opacity", 0);
-				})
-		    	.on("mousemove", function() {
-		    		var pos = {
-			    		x: parseInt(x.invert(d3.event.pageX - svg.node().getBoundingClientRect().left - margin.left )),
-			    		y: parseInt(y.invert(d3.event.pageY - svg.node().getBoundingClientRect().top - margin.top ))
-			    	}
-		    		var opacity = tooltip.call(chart, svg, pos) ? .9 : 0; // don't show if tooltip is null
-		    		tt.style('opacity', opacity)
-		            tt.html( tooltip.call(chart, svg, pos) )
-		               .style("left", (d3.event.pageX) + "px")
-		               .style("top", (d3.event.pageY - 24) + "px");
-	          })
+	    	//svg
+				//.on("mouseover", function(d,i) {
+				//	var pos = {
+			  //  		x: parseInt(x.invert(d3.event.pageX - svg.node().getBoundingClientRect().left - margin.left )),
+			  //  		y: parseInt(y.invert(d3.event.pageY - svg.node().getBoundingClientRect().top - margin.top ))
+			  //  	}
+				//	var opacity = tooltip.call(chart, svg, pos) ? .9 : 0; // don't show if tooltipStr is null
+				//	tt.transition()
+				//		.duration(transitionDuration)
+				//		.style("opacity", opacity);
+				//	tt.html(tooltip.call(chart, svg, pos))
+				//		.style("left", (d3.event.pageX) + "px")
+				//		.style("text-align", 'left')
+				//		.style("top", (d3.event.pageY - 24) + "px");
+				//})
+				//.on("mouseout", function(d) {
+				//	tt.transition()
+				//		.duration(500)
+				//		.style("opacity", 0);
+				//})
+		    //	.on("mousemove", function() {
+		    //		var pos = {
+			  //  		x: parseInt(x.invert(d3.event.pageX - svg.node().getBoundingClientRect().left - margin.left )),
+			  //  		y: parseInt(y.invert(d3.event.pageY - svg.node().getBoundingClientRect().top - margin.top ))
+			  //  	}
+		    //		var opacity = tooltip.call(chart, svg, pos) ? .9 : 0; // don't show if tooltip is null
+		    //		tt.style('opacity', opacity)
+		    //        tt.html( tooltip.call(chart, svg, pos) )
+		    //           .style("left", (d3.event.pageX) + "px")
+		    //           .style("top", (d3.event.pageY - 24) + "px");
+	      //    })
 	    }
 
 	    // Add brush
