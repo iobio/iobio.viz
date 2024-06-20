@@ -3,18 +3,28 @@ import baseModule from './base.js';
 import utils from '../utils.js';
 
 const styles = `
-  .iobio-pie .iobio-center-text {text-align: center;}
+  .iobio-center-text-container {
+    container-type: size;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .iobio-pie .iobio-center-text {
+    text-align: center;
+  }
   .iobio-pie .iobio-center-text .iobio-percent {
       fill : rgb(100,100,100);
       color: rgb(100,100,100);    
-      font-size: 23px;
+      font-size: 38cqh;
   }
   
   .iobio-pie .iobio-center-text .iobio-count {
-      font-size: 14px;
       letter-spacing: 3px;
       font-weight: 400;    
       color: rgb(150,150,150);
+      font-size: 20cqh;
   }
 `;
 
@@ -36,7 +46,7 @@ var pie = function() {
 		text = function(data, total) {
 			var count = data[0].data;
 			var percent = utils.format_percent(count/total);
-			return "<div class='iobio-percent'>" + percent + "%</div><div class='iobio-count'>" + count + "</div>";
+			return "<div class='iobio-center-text-container'><div class='iobio-percent'>" + percent + "%</div><div id='testid' class='iobio-count'>" + count + "</div></div>";
 		};
 
 	// Default Options
@@ -154,8 +164,11 @@ var pie = function() {
 		// 	})
 
 
-		g.selectAll('.iobio-center-text').data([0]).enter().append('foreignObject')
-			.attr('x', -innerRadius)
+    const textUpdate = g.selectAll('.iobio-center-text').data([0]);
+		const textEnter = textUpdate.enter().append('foreignObject');
+    const textSel = textEnter.merge(textUpdate);
+
+    textSel.attr('x', -innerRadius)
 			.attr('y', -innerRadius/2)
 			.attr('width', innerRadius*2)
 			.attr('height', innerRadius)
