@@ -30,7 +30,6 @@ var bar = function() {
 			yValue = base.yValue(),
 			wValue = base.wValue(),
 			keyValue = base.keyValue(),
-			color = base.color(),
 			transitionDuration = base.transitionDuration(),
 			innerHeight = base.height() - base.margin().top - base.margin().bottom;
 
@@ -50,13 +49,13 @@ var bar = function() {
 
     var rectEnter = rectUpdate.enter().append('g')
 			.attr('id', id )
-			.attr('class', 'rect')
-			.style('fill', color );
+			.attr('class', 'rect');
 
     var rect = rectEnter.merge(rectUpdate);
 
 		// enter
     rectEnter.append('rect')
+        .attr('class', 'iobio-data')
 				.attr('y', function(d) { return innerHeight })
 				.attr('x', function(d,i) { return x(xValue(d,i)) })
 				.attr('width', function(d,i) { return x(xValue(d,i)+wValue(d,i)) - x(xValue(d,i));})
@@ -64,7 +63,6 @@ var bar = function() {
 
 		// update
 		rect
-			.style('fill', color )
 			.select('rect').transition()
 				.duration( transitionDuration )
 				.attr('x', function(d,i) {
