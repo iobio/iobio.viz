@@ -1,4 +1,4 @@
-
+import * as d3 from 'd3';
 
 var outlier = function() {
   // Defaults
@@ -14,7 +14,7 @@ var outlier = function() {
     });
     var max = Math.abs(realMin) + Math.abs(realMax);
 
-    var scale  = d3.scale.linear().domain([realMin,realMax]).range([0,max]);
+    var scale  = d3.scaleLinear().domain([realMin,realMax]).range([0,max]);
 
     data = data.sort(function(aItem,bItem) {
       var a = value(aItem);
@@ -82,4 +82,6 @@ var outlier = function() {
   return layout;
 };
 
-module.exports = outlier;
+export {
+  outlier,
+};
