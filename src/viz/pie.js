@@ -94,8 +94,7 @@ var pie = function() {
 		// enter
 		var pathEnter = pathUpdate.enter().append("g")
 			.attr('id', id)
-			.attr('class', 'arc')
-			.style('fill', color)
+			.attr('class', (d,i) => i === 0 ? 'arc iobio-data' : 'arc iobio-data-secondary');
 
     var path = pathEnter.merge(pathUpdate);
 
@@ -121,8 +120,7 @@ var pie = function() {
 
        	// update
        	if (transitionDuration != undefined && transitionDuration >= 0) {
-	       	path.style('fill', color)
-	       		.select('path').transition()
+	       	path.select('path').transition()
 		         	.duration( transitionDuration )
 		         	.attrTween("d", arcTween)
 		         	.call(utils.endAll, function() {
