@@ -76,7 +76,7 @@ var bar = function() {
 
 		// Add title on hover
 	    if (tooltip) {
-	    	var tt = d3.select('.iobio-tooltip')
+	    	var tt = selection.select('.iobio-tooltip')
 	    	utils.tooltipHelper(g.selectAll('.rect'), tt, tooltip);
 	    }
 
