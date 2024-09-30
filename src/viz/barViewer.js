@@ -60,7 +60,7 @@ var barViewer = function() {
 			.transitionDuration( chart.transitionDuration() )
 			.id( chart.id() )
 			.color( chart.color() )
-			.tooltip( chart.tooltip() )
+			// .tooltip( chart.tooltip() )
 			.height( origHeight * (1-sizeRatio) )
 			.brush('brush', doBrush)
 			.brush('end', doBrush);
@@ -80,6 +80,10 @@ var barViewer = function() {
 
 		var globalSelection = selection.select('.iobio-bar-1').datum( selection.datum() )
 		globalBar(globalSelection, options);
+
+		// Ensure bars don't interfere with brush interaction
+		selection.select('.iobio-bar-1').selectAll('.rect rect')
+			.style('pointer-events', 'none');
 
 		// // Add title on hover
 	 //    if (tooltip) {
