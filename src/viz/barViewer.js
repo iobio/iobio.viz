@@ -60,7 +60,7 @@ var barViewer = function() {
 			.transitionDuration( chart.transitionDuration() )
 			.id( chart.id() )
 			.color( chart.color() )
-			.tooltip( chart.tooltip() )
+			// .tooltip( chart.tooltip() )
 			.height( origHeight * (1-sizeRatio) )
 			.brush('brush', doBrush)
 			.brush('end', doBrush);
