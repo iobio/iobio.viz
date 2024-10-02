@@ -81,10 +81,6 @@ var barViewer = function() {
 		var globalSelection = selection.select('.iobio-bar-1').datum( selection.datum() )
 		globalBar(globalSelection, options);
 
-		// Ensure bars don't interfere with brush interaction
-		selection.select('.iobio-bar-1').selectAll('.rect rect')
-			.style('pointer-events', 'none');
-
 		// // Add title on hover
 	 //    if (tooltip) {
 	 //    	var tt = d3.select('.iobio-tooltip')

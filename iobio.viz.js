@@ -1488,6 +1488,9 @@ var base = function() {
 				.selectAll("rect")
 					.attr("y", -6)
 					.attr("height", innerHeight + 6);
+
+			// Bring the brush to front
+			svg.select(".iobio-brush").raise();
 	    }
 
 		// Attach events
