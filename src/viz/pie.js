@@ -4,7 +4,6 @@ import utils from '../utils.js';
 
 const styles = `
   .iobio-center-text-container {
-    container-type: size;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -14,17 +13,18 @@ const styles = `
   .iobio-pie .iobio-center-text {
     text-align: center;
   }
+	
   .iobio-pie .iobio-center-text .iobio-percent {
       fill : rgb(100,100,100);
       color: rgb(100,100,100);    
-      font-size: 38cqh;
+      font-size: 16cqh;
   }
   
   .iobio-pie .iobio-center-text .iobio-count {
       letter-spacing: 3px;
       font-weight: 400;    
       color: rgb(150,150,150);
-      font-size: 20cqh;
+      font-size: 8cqh;
   }
 `;
 
