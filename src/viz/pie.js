@@ -52,6 +52,10 @@ var pie = function() {
 	// Default Options
 	var defaults = { };
 
+	// Custom colors
+	var customColor = null;
+	var customColorSecondary = null;
+
 	function chart(selection, opts) {
 		// Merge defaults and options
 		var options = {};
@@ -110,6 +114,12 @@ var pie = function() {
 			.each(function(d) {
 				this._current = {"data":d.data,"value":0,"startAngle":0,"endAngle":0, "padAngle":0};  // store the initial angles
 			});
+
+			// Apply custom colors
+			g.selectAll('.arc.iobio-data path')
+				.attr('fill', customColor || null);
+			g.selectAll('.arc.iobio-data-secondary path')
+				.attr('fill', customColorSecondary || null);
 
 		pathEnter.append('text')
 			.attr("transform", function(d) {
@@ -267,9 +277,15 @@ var pie = function() {
 			return chart;
 	}
 
-  chart.getStyles = function() {
-    return base.getStyles() + styles;
-  }
+	chart.getStyles = function() {
+		return base.getStyles() + styles;
+	}
+
+	chart.setColors = function(color, colorSecondary) {
+		customColor = color;
+		customColorSecondary = colorSecondary;
+		return chart;
+	}
 
 	return chart;
 }
